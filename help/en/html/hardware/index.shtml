@@ -153,6 +153,15 @@
           </dd>
 
           <dt class="im"><a href=
+          "https://www.ldt-infocenter.com/dokuwiki/doku.php?id=en:hsi-88">
+          <dt><a href="hsi88/index.shtml">Hsi88</a></dt>
+
+          <dd>
+            <p class="dl">Configure connection to <a href=
+            "https://www.ldt-infocenter.com/dokuwiki/doku.php?id=en:hsi-88">Hsi88 Interface</a>.</p>
+          </dd>
+
+          <dt class="im"><a href=
           "http://www.digi.com/xbee"><img src=
           "http://www.digi.com/images/news/digi_2c_sm.gif" width=
           "50" height="50" alt="Digi XBee"></a></dt>

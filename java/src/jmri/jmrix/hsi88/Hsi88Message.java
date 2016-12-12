@@ -1,5 +1,5 @@
 // SprogMessage.java
-package jmri.jmrix.sprog;
+package jmri.jmrix.hsi88;
 
 import jmri.ProgrammingMode;
 import jmri.jmrix.sprog.SprogConstants.SprogState;
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author	Bob Jacobsen Copyright (C) 2001
   */
-public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
+public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
 
     // Special characters (NOTE: microchip bootloader does not use standard ASCII)
     public static final int STX = 15;
@@ -33,7 +33,7 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
     public static final int MAXSIZE = 515;
 
     // create a new one
-    public SprogMessage(int i) {
+    public Hsi88Message(int i) {
         if (i < 1) {
             log.error("invalid length in call to ctor");
         }
@@ -47,7 +47,7 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
      *
      * @param packet The contents of the packet
      */
-    public SprogMessage(byte[] packet) {
+    public Hsi88Message(byte[] packet) {
         this(1 + (packet.length * 3));
         int i = 0; // counter of byte in output message
         int j = 0; // counter of byte in input packet
@@ -70,7 +70,7 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
     }
 
     // from String
-    public SprogMessage(String s) {
+    public Hsi88Message(String s) {
         _nDataChars = s.length();
         _dataChars = new int[_nDataChars];
         for (int i = 0; i < _nDataChars; i++) {
@@ -80,7 +80,7 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
 
     // copy one
     @SuppressWarnings("null")
-    public SprogMessage(SprogMessage m) {
+    public Hsi88Message(Hsi88Message m) {
         if (m == null) {
             log.error("copy ctor of null message");
             return;
@@ -170,10 +170,10 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         }
     }
 
-    private SprogMessage frame() {
+    private Hsi88Message frame() {
         int j = 2;
         // Create new message to hold the framed one
-        SprogMessage f = new SprogMessage(MAXSIZE);
+        Hsi88Message f = new Hsi88Message(MAXSIZE);
         f.setElement(0, STX);
         f.setElement(1, STX);
         // copy existing message adding DLE
@@ -191,10 +191,10 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         return f;
     }
 
-    private SprogMessage v4frame() {
+    private Hsi88Message v4frame() {
         int i = 0;
         // Create new message to hold the framed one
-        SprogMessage f = new SprogMessage(MAXSIZE);
+        Hsi88Message f = new Hsi88Message(MAXSIZE);
         f.setElement(0, ':');
         // copy existing message adding CRLF
         for (i = 1; i <= _nDataChars; i++) {
@@ -270,34 +270,34 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
     }
 
     // static methods to return a formatted message
-    static public SprogMessage getEnableMain() {
-        SprogMessage m = new SprogMessage(1);
+    static public Hsi88Message getEnableMain() {
+        Hsi88Message m = new Hsi88Message(1);
         m.setOpCode('+');
         return m;
     }
 
-    static public SprogMessage getKillMain() {
-        SprogMessage m = new SprogMessage(1);
+    static public Hsi88Message getKillMain() {
+        Hsi88Message m = new Hsi88Message(1);
         m.setOpCode('-');
         return m;
     }
 
-    static public SprogMessage getProgMode() {
-        SprogMessage m = new SprogMessage(1);
+    static public Hsi88Message getProgMode() {
+        Hsi88Message m = new Hsi88Message(1);
         m.setOpCode('P');
         return m;
     }
 
     // [AC] 11/09/2002 Leave SPROG in programmer mode. Don't want to go
     // to booster mode as this would power up the track.
-    static public SprogMessage getExitProgMode() {
-        SprogMessage m = new SprogMessage(1);
+    static public Hsi88Message getExitProgMode() {
+        Hsi88Message m = new Hsi88Message(1);
         m.setOpCode(' ');
         return m;
     }
 
-    static public SprogMessage getStatus() {
-        SprogMessage m = new SprogMessage(1);
+    static public Hsi88Message getStatus() {
+        Hsi88Message m = new Hsi88Message(1);
         m.setOpCode('S');
         return m;
     }
@@ -308,8 +308,8 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
      * bit direct modes. A single parameter is taken as the CV address to read.
      * Two parametes are taken as the CV address and data to be written.
      */
-    static public SprogMessage getReadCV(int cv, ProgrammingMode mode) {
-        SprogMessage m = new SprogMessage(6);
+    static public Hsi88Message getReadCV(int cv, ProgrammingMode mode) {
+        Hsi88Message m = new Hsi88Message(6);
         if (mode == DefaultProgrammerManager.PAGEMODE) {
             m.setOpCode('V');
         } else { // Bit direct mode
@@ -320,8 +320,8 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         return m;
     }
 
-    static public SprogMessage getWriteCV(int cv, int val, ProgrammingMode mode) {
-        SprogMessage m = new SprogMessage(10);
+    static public Hsi88Message getWriteCV(int cv, int val, ProgrammingMode mode) {
+        Hsi88Message m = new Hsi88Message(10);
         if (mode == DefaultProgrammerManager.PAGEMODE) {
             m.setOpCode('V');
         } else { // Bit direct mode
@@ -335,19 +335,19 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
     }
 
     // [AC] 11/09/2002 SPROG doesn't currently support registered mode
-    static public SprogMessage getReadRegister(int reg) { //Vx
+    static public Hsi88Message getReadRegister(int reg) { //Vx
 //        if (reg>8) log.error("register number too large: "+reg);
 //        SprogMessage m = new SprogMessage(2);
 //        m.setOpCode('V');
 //        String s = ""+reg;
 //        m.setElement(1, s.charAt(s.length()-1));
 //        return m;
-        SprogMessage m = new SprogMessage(1);
+        Hsi88Message m = new Hsi88Message(1);
         m.setOpCode(' ');
         return m;
     }
 
-    static public SprogMessage getWriteRegister(int reg, int val) { //Sx xx
+    static public Hsi88Message getWriteRegister(int reg, int val) { //Sx xx
 //        if (reg>8) log.error("register number too large: "+reg);
 //        SprogMessage m = new SprogMessage(4);
 //        m.setOpCode('S');
@@ -355,7 +355,7 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
 //        m.setElement(1, s.charAt(s.length()-1));
 //        addIntAsTwoHex(val, m, 2);
 //        return m;
-        SprogMessage m = new SprogMessage(1);
+        Hsi88Message m = new Hsi88Message(1);
         m.setOpCode(' ');
         return m;
     }
@@ -366,8 +366,8 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
      * @param bytes byte[]
      * @return SprogMessage
      */
-    static public SprogMessage getPacketMessage(byte[] bytes) {
-        SprogMessage m = new SprogMessage(1 + 3 * bytes.length);
+    static public Hsi88Message getPacketMessage(byte[] bytes) {
+        Hsi88Message m = new Hsi88Message(1 + 3 * bytes.length);
         int i = 0; // counter to make it easier to format the message
 
         m.setElement(i++, 'O');  // "O" Output DCC packet command
@@ -382,15 +382,15 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
     // Bootloader messages are initially created long enough for
     // the message and checksum. The message is then framed with control
     // characters before being returned
-    static public SprogMessage getReadBootVersion() {
-        SprogMessage m = new SprogMessage(3);
+    static public Hsi88Message getReadBootVersion() {
+        Hsi88Message m = new Hsi88Message(3);
         m.setOpCode(RD_VER);
         m.setLength(2);
         m.setChecksum();
         return m.frame();
     }
 
-    static public SprogMessage getWriteFlash(int addr, int[] data, int blockLen) {
+    static public Hsi88Message getWriteFlash(int addr, int[] data, int blockLen) {
         int l = data.length;
         int offset;
         // Writes are rounded up to multiples of blockLen
@@ -414,7 +414,7 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         for (int i = 0; i < data.length; i++) {
             padded[i + offset] = data[i];
         }
-        SprogMessage m = new SprogMessage(6 + l);
+        Hsi88Message m = new Hsi88Message(6 + l);
         m.setOpCode(WT_FLASH);
         // length is number of blockLen blocks
         m.setLength(l / blockLen);
@@ -424,11 +424,11 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         return m.frame();
     }
 
-    static public SprogMessage getV4WriteFlash(int addr, int[] data, int type) {
+    static public Hsi88Message getV4WriteFlash(int addr, int[] data, int type) {
         // Create a v4 bootloader message which is same format as a record
         // in the hex file
         int l = (data.length + 5) * 2;
-        SprogMessage m = new SprogMessage(l);
+        Hsi88Message m = new Hsi88Message(l);
         m.setV4Length(data.length);
         m.setV4Address(addr);
         m.setV4RecType(type);
@@ -437,10 +437,10 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         return m.v4frame();
     }
 
-    static public SprogMessage getV4EndOfFile() {
+    static public Hsi88Message getV4EndOfFile() {
         // Create a v4 bootloader end of file message
         int l = 10;
-        SprogMessage m = new SprogMessage(l);
+        Hsi88Message m = new Hsi88Message(l);
         m.setV4Length(0);
         m.setV4Address(0);
         m.setV4RecType(1);
@@ -448,11 +448,11 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         return m.v4frame();
     }
 
-    static public SprogMessage getv4ExtAddr() {
+    static public Hsi88Message getv4ExtAddr() {
         // Create a v4 bootloader extended address message
         int l = 14;
         int[] data = {0, 0};
-        SprogMessage m = new SprogMessage(l);
+        Hsi88Message m = new Hsi88Message(l);
         m.setV4Length(2);
         m.setV4Address(0);
         m.setV4RecType(4);
@@ -461,8 +461,8 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         return m.v4frame();
     }
 
-    static public SprogMessage getEraseFlash(int addr, int rows) {
-        SprogMessage m = new SprogMessage(6);
+    static public Hsi88Message getEraseFlash(int addr, int rows) {
+        Hsi88Message m = new Hsi88Message(6);
         m.setOpCode(ER_FLASH);
         // Erase a number of 64 byte rows
         m.setLength(rows);
@@ -471,8 +471,8 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         return m.frame();
     }
 
-    static public SprogMessage getWriteEE(int addr, int[] data) {
-        SprogMessage m = new SprogMessage(6 + data.length);
+    static public Hsi88Message getWriteEE(int addr, int[] data) {
+        Hsi88Message m = new Hsi88Message(6 + data.length);
         m.setOpCode(WT_EEDATA);
         m.setLength(data.length);
         m.setAddress(addr & 0xff);
@@ -481,8 +481,8 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         return m.frame();
     }
 
-    static public SprogMessage getReset() {
-        SprogMessage m = new SprogMessage(3);
+    static public Hsi88Message getReset() {
+        Hsi88Message m = new Hsi88Message(3);
         m.setOpCode(0);
         m.setLength(0);
         m.setChecksum();
@@ -490,7 +490,7 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
     }
 
     // [AC] 11/09/2002
-    private static String addSpace(SprogMessage m, int offset) {
+    private static String addSpace(Hsi88Message m, int offset) {
         String s = " ";
         m.setElement(offset, ' ');
         return s;
@@ -498,7 +498,7 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
 
     // [AC] 11/09/2002
     @SuppressWarnings("unused")
-    private static String addIntAsTwo(int val, SprogMessage m, int offset) {
+    private static String addIntAsTwo(int val, Hsi88Message m, int offset) {
         String s = "" + val;
         if (s.length() != 2) {
             s = "0" + s;  // handle <10
@@ -508,7 +508,7 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         return s;
     }
 
-    private static String addIntAsThree(int val, SprogMessage m, int offset) {
+    private static String addIntAsThree(int val, Hsi88Message m, int offset) {
         String s = "" + val;
         if (s.length() != 3) {
             s = "0" + s;  // handle <10
@@ -522,7 +522,7 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         return s;
     }
 
-    private static String addIntAsFour(int val, SprogMessage m, int offset) {
+    private static String addIntAsFour(int val, Hsi88Message m, int offset) {
         String s = "" + val;
         if (s.length() != 4) {
             s = "0" + s;  // handle <10
@@ -540,7 +540,7 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         return s;
     }
 
-    private final static Logger log = LoggerFactory.getLogger(SprogMessage.class.getName());
+    private final static Logger log = LoggerFactory.getLogger(Hsi88Message.class.getName());
 
 }
 

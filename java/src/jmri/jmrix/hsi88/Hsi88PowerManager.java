@@ -1,5 +1,5 @@
 // SprogPowerManager.java
-package jmri.jmrix.sprog;
+package jmri.jmrix.hsi88;
 
 import jmri.JmriException;
 import jmri.PowerManager;
@@ -10,16 +10,16 @@ import jmri.jmrix.AbstractMessage;
  *
  * @author	Bob Jacobsen Copyright (C) 2001
   */
-public class SprogPowerManager extends jmri.managers.AbstractPowerManager
+public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
         implements PowerManager, SprogListener {
 
-    SprogTrafficController trafficController = null;
+    Hsi88TrafficController trafficController = null;
 
-    public SprogPowerManager(SprogSystemConnectionMemo memo) {
+    public Hsi88PowerManager(Hsi88SystemConnectionMemo memo) {
         super(memo);
         // connect to the TrafficManager
-        trafficController = memo.getSprogTrafficController();
-        trafficController.addSprogListener(this);
+        trafficController = memo.getHsi88TrafficController();
+        trafficController.addHsi88Listener(this);
     }
 
     int power = UNKNOWN;
@@ -35,17 +35,17 @@ public class SprogPowerManager extends jmri.managers.AbstractPowerManager
             waiting = true;
             onReply = PowerManager.ON;
             // send "Enable main track"
-            SprogMessage l = SprogMessage.getEnableMain();
-            trafficController.sendSprogMessage(l, this);
+            Hsi88Message l = Hsi88Message.getEnableMain();
+            trafficController.sendHsi88Message(l, this);
         } else if (v == OFF) {
             // configure to wait for reply
             waiting = true;
             onReply = PowerManager.OFF;
             firePropertyChange("Power", null, null);
             // send "Kill main track"
-            SprogMessage l = SprogMessage.getKillMain();
+            Hsi88Message l = Hsi88Message.getKillMain();
             for (int i = 0; i < 3; i++) {
-                trafficController.sendSprogMessage(l, this);
+                trafficController.sendHsi88Message(l, this);
             }
         }
         firePropertyChange("Power", null, null);
@@ -66,7 +66,7 @@ public class SprogPowerManager extends jmri.managers.AbstractPowerManager
 
     // to free resources when no longer used
     public void dispose() throws JmriException {
-        trafficController.removeSprogListener(this);
+        trafficController.removeHsi88Listener(this);
         trafficController = null;
     }
 

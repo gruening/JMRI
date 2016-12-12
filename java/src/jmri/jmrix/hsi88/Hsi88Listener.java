@@ -1,5 +1,5 @@
 // SprogListener.java
-package jmri.jmrix.sprog;
+package jmri.jmrix.hsi88;
 
 /**
  * Defines the interface for listening to traffic on the NCE communications
@@ -7,11 +7,11 @@ package jmri.jmrix.sprog;
  *
  * @author	Bob Jacobsen Copyright (C) 2001
   */
-public interface SprogListener extends java.util.EventListener {
+public interface Hsi88Listener extends java.util.EventListener {
 
-    public void notifyMessage(SprogMessage m);
+    public void notifyMessage(Hsi88Message m);
 
-    public void notifyReply(SprogReply m);
+    public void notifyReply(Hsi88Reply m);
 }
 
 /* @(#)SprogListener.java */

@@ -1,4 +1,4 @@
-package jmri.jmrix.sprog;
+package jmri.jmrix.hsi88;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -15,18 +15,18 @@ import org.slf4j.LoggerFactory;
  *
  * @author	Paul Bender Copyright (C) 2014
  */
-public class SprogCSStreamPortController extends AbstractStreamPortController implements SprogInterface {
+public class Hsi88StreamPortController extends AbstractStreamPortController implements SprogInterface {
 
     private Thread rcvNotice = null;
 
-    public SprogCSStreamPortController(DataInputStream in, DataOutputStream out, String pname) {
-        super(new SprogSystemConnectionMemo(SprogConstants.SprogMode.OPS), in, out, pname);
+    public Hsi88StreamPortController(DataInputStream in, DataOutputStream out, String pname) {
+        super(new Hsi88SystemConnectionMemo(Hsi88Constants.Hsi88Mode.OPS), in, out, pname);
     }
 
     @Override
     public void configure() {
         log.debug("configure() called.");
-        SprogTrafficController control = new SprogTrafficController(this.getSystemConnectionMemo());
+        Hsi88TrafficController control = new Hsi88TrafficController(this.getSystemConnectionMemo());
 
         // connect to the traffic controller
         this.getSystemConnectionMemo().setSprogTrafficController(control);
@@ -106,6 +106,6 @@ public class SprogCSStreamPortController extends AbstractStreamPortController im
         }
     }
 
-    private final static Logger log = LoggerFactory.getLogger(SprogCSStreamPortController.class.getName());
+    private final static Logger log = LoggerFactory.getLogger(Hsi88StreamPortController.class.getName());
 
 }

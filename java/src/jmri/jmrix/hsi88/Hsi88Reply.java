@@ -1,5 +1,5 @@
 // SprogReply.java
-package jmri.jmrix.sprog;
+package jmri.jmrix.hsi88;
 
 import jmri.jmrix.AbstractMRReply;
 import jmri.jmrix.sprog.SprogConstants.SprogState;
@@ -14,14 +14,14 @@ import org.slf4j.LoggerFactory;
  * @author	Bob Jacobsen Copyright (C) 2001
  * @author	Andrew Berridge - refactored, cleaned up, Feb 2010
   */
-public class SprogReply extends AbstractMRReply {
+public class Hsi88Reply extends AbstractMRReply {
 
     // Longest boot reply is 256bytes each preceded by DLE + 2xSTX + ETX
     static public final int maxSize = 515;
     private boolean _isBoot = false;
 
     // create a new one
-    public SprogReply() {
+    public Hsi88Reply() {
         super();
     }
 
@@ -36,7 +36,7 @@ public class SprogReply extends AbstractMRReply {
      * @param m the SprogReply to copy
      */
     @SuppressWarnings("null")
-    public SprogReply(SprogReply m) {
+    public Hsi88Reply(Hsi88Reply m) {
         this();
         if (m == null) {
             log.error("copy ctor of null message");
@@ -58,12 +58,12 @@ public class SprogReply extends AbstractMRReply {
      * @param replyString a String containing the contents of the reply
      * @param isBoot a boolean indicating if this is a boot reply
      */
-    public SprogReply(String replyString, boolean isBoot) {
+    public Hsi88Reply(String replyString, boolean isBoot) {
         this(replyString);
         _isBoot = isBoot;
     }
 
-    public SprogReply(String replyString) {
+    public Hsi88Reply(String replyString) {
         super(replyString);
     }
 
@@ -272,7 +272,7 @@ public class SprogReply extends AbstractMRReply {
         }
     }
 
-    private final static Logger log = LoggerFactory.getLogger(SprogReply.class.getName());
+    private final static Logger log = LoggerFactory.getLogger(Hsi88Reply.class.getName());
 
 }
 

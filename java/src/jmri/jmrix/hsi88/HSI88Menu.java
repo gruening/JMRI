@@ -1,4 +1,4 @@
-package jmri.jmrix.sprog;
+package jmri.jmrix.hsi88;
 
 import java.util.ResourceBundle;
 import javax.swing.JMenu;
@@ -8,11 +8,11 @@ import javax.swing.JMenu;
  *
  * @author	Bob Jacobsen Copyright 2003
  */
-public class SPROGMenu extends JMenu {
+public class HSI88Menu extends JMenu {
 
-    SprogSystemConnectionMemo _memo = null;
+    Hsi88SystemConnectionMemo _memo = null;
 
-    public SPROGMenu(SprogSystemConnectionMemo memo) {
+    public HSI88Menu(Hsi88SystemConnectionMemo memo) {
 
         super();
         _memo = memo;
@@ -21,12 +21,12 @@ public class SPROGMenu extends JMenu {
 
         setText(memo.getUserName());
 
-        add(new jmri.jmrix.sprog.sprogmon.SprogMonAction(rb.getString("MenuItemCommandMonitor"),_memo));
-        add(new jmri.jmrix.sprog.packetgen.SprogPacketGenAction(rb.getString("MenuItemSendCommand"),_memo));
-        add(new jmri.jmrix.sprog.console.SprogConsoleAction(rb.getString("MenuItemConsole"),_memo));
-        add(new jmri.jmrix.sprog.update.SprogVersionAction("Get SPROG Firmware Version",memo));
-        add(new jmri.jmrix.sprog.update.Sprogv4UpdateAction("SPROG v3/v4 Firmware Update",memo));
-        add(new jmri.jmrix.sprog.update.SprogIIUpdateAction("SPROG II/SPROG 3 Firmware Update",memo));
+        add(new jmri.jmrix.hsi88.sprogmon.SprogMonAction(rb.getString("MenuItemCommandMonitor"),_memo));
+        add(new jmri.jmrix.hsi88.packetgen.SprogPacketGenAction(rb.getString("MenuItemSendCommand"),_memo));
+        add(new jmri.jmrix.hsi88.console.SprogConsoleAction(rb.getString("MenuItemConsole"),_memo));
+        // add(new jmri.jmrix.sprog.update.SprogVersionAction("Get SPROG Firmware Version",memo));
+        // add(new jmri.jmrix.sprog.update.Sprogv4UpdateAction("SPROG v3/v4 Firmware Update",memo));
+        // add(new jmri.jmrix.sprog.update.SprogIIUpdateAction("SPROG II/SPROG 3 Firmware Update",memo));
 
     }
 

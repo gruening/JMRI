@@ -1,4 +1,4 @@
-package jmri.jmrix.sprog;
+package jmri.jmrix.hsi88;
 
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;

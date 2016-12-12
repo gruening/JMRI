@@ -1,0 +1,12 @@
+This is the README file for the jmrix.hsi88.serialdriver package.
+
+The jmrix Java package defines implementations for the JMRI interfaces. 
+jmrix.hsi88.serialdriver defines classes for interfacing to an HSI88
+command station via a serial line. 
+
+
+
+
+
+	
+	

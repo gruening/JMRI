@@ -1,0 +1,5 @@
+This is the README file for the jmrix.hsi88.hsi88 package.
+The jmrix Java package defines implementations for the JMRI interfaces. 
+jmrix.sprog.sprog defines classes for interfacing to a HSI88 interface
+via an RS232 serial line, or a virtual COM port. 
+	

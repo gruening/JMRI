@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
  * <P>
  * The {@link Hsi88Reply} class handles the response from the command station.
  *
- * @author	Bob Jacobsen Copyright (C) 2001
-  */
+ * @author Bob Jacobsen Copyright (C) 2001
+ */
 public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
 
     // Special characters (NOTE: microchip bootloader does not use standard ASCII)
@@ -51,7 +51,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
         int i = 0; // counter of byte in output message
         int j = 0; // counter of byte in input packet
 
-        this.setElement(i++, 'O');  // "O " starts output packet
+        this.setElement(i++, 'O'); // "O " starts output packet
 
         // add each byte of the input message
         for (j = 0; j < packet.length; j++) {
@@ -177,9 +177,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
         f.setElement(1, STX);
         // copy existing message adding DLE
         for (int i = 0; i < _nDataChars; i++) {
-            if (_dataChars[i] == STX
-                    || _dataChars[i] == ETX
-                    || _dataChars[i] == DLE) {
+            if (_dataChars[i] == STX || _dataChars[i] == ETX || _dataChars[i] == DLE) {
                 f.setElement(j++, DLE);
             }
             f.setElement(j++, _dataChars[i]);
@@ -207,9 +205,9 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
     }
 
     // display format
-    public String ToString(){
-       // default to not SIIBootMode being false.
-       return this.toString(false);
+    public String ToString() {
+        // default to not SIIBootMode being false.
+        return this.toString(false);
     }
 
     public String toString(boolean isSIIBootMode) {
@@ -234,7 +232,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
      * format of the message as a byte array
      *
      * @param sprogState a SprogState variable representing the current state of
-     *                   the Sprog
+     *            the Sprog
      * @return the formatted message as a byte array
      */
     public byte[] getFormattedMessage(Hsi88State hsi88State) {
@@ -250,7 +248,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
 
         for (int i = 0; i < len; i++) {
             if (hsi88State != Hsi88State.SIIBOOTMODE) {
-               msg[i] = (byte) ( this.getElement(i) & 0x7f);
+                msg[i] = (byte) (this.getElement(i) & 0x7f);
             }
         }
         if (hsi88State != Hsi88State.SIIBOOTMODE) {
@@ -303,9 +301,9 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
 
     /*
      * SPROG uses same commands for reading and writing, with the number of
-     * parameters determining the action. Currently supports page mode and
-     * bit direct modes. A single parameter is taken as the CV address to read.
-     * Two parametes are taken as the CV address and data to be written.
+     * parameters determining the action. Currently supports page mode and bit
+     * direct modes. A single parameter is taken as the CV address to read. Two
+     * parametes are taken as the CV address and data to be written.
      */
     static public Hsi88Message getReadCV(int cv, ProgrammingMode mode) {
         Hsi88Message m = new Hsi88Message(6);
@@ -335,25 +333,25 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
 
     // [AC] 11/09/2002 SPROG doesn't currently support registered mode
     static public Hsi88Message getReadRegister(int reg) { //Vx
-//        if (reg>8) log.error("register number too large: "+reg);
-//        SprogMessage m = new SprogMessage(2);
-//        m.setOpCode('V');
-//        String s = ""+reg;
-//        m.setElement(1, s.charAt(s.length()-1));
-//        return m;
+        //        if (reg>8) log.error("register number too large: "+reg);
+        //        SprogMessage m = new SprogMessage(2);
+        //        m.setOpCode('V');
+        //        String s = ""+reg;
+        //        m.setElement(1, s.charAt(s.length()-1));
+        //        return m;
         Hsi88Message m = new Hsi88Message(1);
         m.setOpCode(' ');
         return m;
     }
 
     static public Hsi88Message getWriteRegister(int reg, int val) { //Sx xx
-//        if (reg>8) log.error("register number too large: "+reg);
-//        SprogMessage m = new SprogMessage(4);
-//        m.setOpCode('S');
-//        String s = ""+reg;
-//        m.setElement(1, s.charAt(s.length()-1));
-//        addIntAsTwoHex(val, m, 2);
-//        return m;
+        //        if (reg>8) log.error("register number too large: "+reg);
+        //        SprogMessage m = new SprogMessage(4);
+        //        m.setOpCode('S');
+        //        String s = ""+reg;
+        //        m.setElement(1, s.charAt(s.length()-1));
+        //        addIntAsTwoHex(val, m, 2);
+        //        return m;
         Hsi88Message m = new Hsi88Message(1);
         m.setOpCode(' ');
         return m;
@@ -369,7 +367,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
         Hsi88Message m = new Hsi88Message(1 + 3 * bytes.length);
         int i = 0; // counter to make it easier to format the message
 
-        m.setElement(i++, 'O');  // "O" Output DCC packet command
+        m.setElement(i++, 'O'); // "O" Output DCC packet command
         for (int j = 0; j < bytes.length; j++) {
             m.setElement(i++, ' ');
             m.addIntAsTwoHex(bytes[j] & 0xFF, i);
@@ -500,7 +498,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
     private static String addIntAsTwo(int val, Hsi88Message m, int offset) {
         String s = "" + val;
         if (s.length() != 2) {
-            s = "0" + s;  // handle <10
+            s = "0" + s; // handle <10
         }
         m.setElement(offset, s.charAt(0));
         m.setElement(offset + 1, s.charAt(1));
@@ -510,10 +508,10 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
     private static String addIntAsThree(int val, Hsi88Message m, int offset) {
         String s = "" + val;
         if (s.length() != 3) {
-            s = "0" + s;  // handle <10
+            s = "0" + s; // handle <10
         }
         if (s.length() != 3) {
-            s = "0" + s;  // handle <100
+            s = "0" + s; // handle <100
         }
         m.setElement(offset, s.charAt(0));
         m.setElement(offset + 1, s.charAt(1));
@@ -524,13 +522,13 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
     private static String addIntAsFour(int val, Hsi88Message m, int offset) {
         String s = "" + val;
         if (s.length() != 4) {
-            s = "0" + s;  // handle <10
+            s = "0" + s; // handle <10
         }
         if (s.length() != 4) {
-            s = "0" + s;  // handle <100
+            s = "0" + s; // handle <100
         }
         if (s.length() != 4) {
-            s = "0" + s;  // handle <1000
+            s = "0" + s; // handle <1000
         }
         m.setElement(offset, s.charAt(0));
         m.setElement(offset + 1, s.charAt(1));

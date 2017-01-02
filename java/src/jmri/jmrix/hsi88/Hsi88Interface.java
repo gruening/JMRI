@@ -2,7 +2,7 @@
 package jmri.jmrix.hsi88;
 
 /**
- * Define interface for sending and receiving messages to the SPROG command
+ * Define interface for sending and receiving messages to the HSI88 command
  * station.
  *
  * @author Bob Jacobsen Copyright (C) 2001
@@ -10,9 +10,9 @@ package jmri.jmrix.hsi88;
  */
 public interface Hsi88Interface {
 
-	public void addHsi88Listener(SprogListener l);
+    public void addHsi88Listener(Hsi88Listener l);
 
-	public void removeHsi88Listener(SprogListener l);
+    public void removeHsi88Listener(Hsi88Listener l);
 
 	/**
 	 * Test operational status of interface.
@@ -21,15 +21,12 @@ public interface Hsi88Interface {
 	 */
 	boolean status();
 
-	/**
-	 * Send a message through the interface.
-	 *
-	 * @param m
-	 *            Message to be sent.
-	 * @param l
-	 *            Listener to be notified of reply.
-	 */
-	void sendHsi88Message(Hsi88Message m, SprogListener l);
+    /**
+     * Send a message through the interface.
+     *
+     * @param m Message to be sent.
+     * @param l Listener to be notified of reply.
+     */
+    void sendHsi88Message(Hsi88Message m, Hsi88Listener l);
 }
 
-/* @(#)SprogInterface.java */

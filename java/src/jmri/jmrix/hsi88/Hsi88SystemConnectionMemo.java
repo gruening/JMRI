@@ -1,15 +1,17 @@
 package jmri.jmrix.hsi88;
 
-import java.util.ResourceBundle; 
-import jmri.InstanceManager; 
-import jmri.ProgrammerManager; // to go
-import jmri.ThrottleManager; // to go
-import jmri.TurnoutManager; // to go
+import java.util.ResourceBundle;
+import jmri.InstanceManager;
+import jmri.ProgrammerManager;
+// import jmri.ProgrammerManager; // to go
+// import jmri.ThrottleManager; // to go
+// import jmri.TurnoutManager; // to go
 import jmri.SensorManager;
+import jmri.TurnoutManager;
 import jmri.jmrix.hsi88.Hsi88Constants.Hsi88Mode; // to be modified
-import jmri.jmrix.hsi88.update.Hsi88Type; // to be modified
-import jmri.jmrix.hsi88.update.Hsi88Version; // to go
-import jmri.jmrix.hsi88.update.Hsi88VersionQuery; // to go
+// import jmri.jmrix.hsi88.update.Hsi88Type; // to be modified
+// import jmri.jmrix.hsi88.update.Hsi88Version; // to go
+// import jmri.jmrix.hsi88.update.Hsi88VersionQuery; // to go
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,39 +22,39 @@ import org.slf4j.LoggerFactory;
  * Objects of specific subtypes are registered in the instance manager to
  * activate their particular system.
  *
- * @author	Bob Jacobsen Copyright (C) 2010
+ * @author Bob Jacobsen Copyright (C) 2010
  */
 public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
 
     public Hsi88SystemConnectionMemo(Hsi88TrafficController st, Hsi88Mode sm) {
         super("H", "Hsi88");
         this.st = st;
-        hsi88Mode = sm;  // static
+        hsi88Mode = sm; // static
         hsi88Version = new Hsi88Version(new Hsi88Type(Hsi88Type.UNKNOWN));
         register();
         InstanceManager.store(this, Hsi88SystemConnectionMemo.class); // also register as specific type
-        InstanceManager.store(cf = new jmri.jmrix.hsi88.swing.Hsi88ComponentFactory(this), 
-         jmri.jmrix.swing.ComponentFactory.class);
+        InstanceManager.store(cf = new jmri.jmrix.hsi88.swing.Hsi88ComponentFactory(this),
+                jmri.jmrix.swing.ComponentFactory.class);
     }
 
     public Hsi88SystemConnectionMemo(Hsi88Mode sm) {
         super("H", "Hsi88");
-        hsi88Mode = sm;  // static
+        hsi88Mode = sm; // static
         hsi88Version = new Hsi88Version(new Hsi88Type(Hsi88Type.UNKNOWN));
         register();
         InstanceManager.store(this, Hsi88SystemConnectionMemo.class); // also register as specific type
-        InstanceManager.store(cf = new jmri.jmrix.hsi88.swing.Hsi88ComponentFactory(this), 
-         jmri.jmrix.swing.ComponentFactory.class);
+        InstanceManager.store(cf = new jmri.jmrix.hsi88.swing.Hsi88ComponentFactory(this),
+                jmri.jmrix.swing.ComponentFactory.class);
     }
 
     public Hsi88SystemConnectionMemo(Hsi88Mode sm, Hsi88Type type) {
         super("H", "Hsi88");
-        hsi88Mode = sm;  // static
+        hsi88Mode = sm; // static
         hsi88Version = new Hsi88Version(type);
         register();
         InstanceManager.store(this, Hsi88SystemConnectionMemo.class); // also register as specific type
-        InstanceManager.store(cf = new jmri.jmrix.hsi88.swing.Hsi88ComponentFactory(this), 
-         jmri.jmrix.swing.ComponentFactory.class);
+        InstanceManager.store(cf = new jmri.jmrix.hsi88.swing.Hsi88ComponentFactory(this),
+                jmri.jmrix.swing.ComponentFactory.class);
     }
 
     public Hsi88SystemConnectionMemo() {
@@ -60,8 +62,8 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         register(); // registers general type
         hsi88Version = new Hsi88Version(new Hsi88Type(Hsi88Type.UNKNOWN));
         InstanceManager.store(this, Hsi88SystemConnectionMemo.class); // also register as specific type
-        InstanceManager.store(cf = new jmri.jmrix.hsi88.swing.Hsi88ComponentFactory(this), 
-         jmri.jmrix.swing.ComponentFactory.class);
+        InstanceManager.store(cf = new jmri.jmrix.hsi88.swing.Hsi88ComponentFactory(this),
+                jmri.jmrix.swing.ComponentFactory.class);
     }
 
     /**
@@ -75,11 +77,12 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
     /**
      * Return the HSI88 mode for this connection
      * 
-     * @return Hsi88Mode 
+     * @return Hsi88Mode
      */
     public Hsi88Mode getHsi88Mode() {
         return hsi88Mode;
     }
+
     private Hsi88Mode hsi88Mode;// = Hsi88Mode.SERVICE;
 
     /**
@@ -121,6 +124,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
     public void setHsi88TrafficController(Hsi88TrafficController st) {
         this.st = st;
     }
+
     private Hsi88TrafficController st;
     private Hsi88CommandStation commandStation;
 
@@ -139,7 +143,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
                 slotThread = new Thread(commandStation);
                 slotThread.start();
                 break;
-	    case SERVICE: // to go
+            case SERVICE: // to go
                 break;
         }
     }
@@ -147,8 +151,8 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
     /*
      * Get the command station object associated with this connection
      */
-    public Hsi88CommandStation getCommandStation(){
-         return commandStation;
+    public Hsi88CommandStation getCommandStation() {
+        return commandStation;
     }
 
     @Override
@@ -174,7 +178,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         if (type.equals(jmri.TurnoutManager.class)) {
             return true;
         }
-	if (type.equals(jmri.SensorManage.class)) {
+        if (type.equals(jmri.SensorManage.class)) {
             return true;
         }
         if ((type.equals(jmri.CommandStation.class))) {
@@ -216,7 +220,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         if (T.equals(jmri.TurnoutManager.class)) {
             return (T) getTurnoutManager();
         }
-	if (T.equals(jmri.SensorManager.class)) {
+        if (T.equals(jmri.SensorManager.class)) {
             return (T) getSensorManager();
         }
 
@@ -240,24 +244,22 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         powerManager = new jmri.jmrix.hsi88.Hsi88PowerManager(this);
         jmri.InstanceManager.store(powerManager, jmri.PowerManager.class);
 
-        hsi88TurnoutManager = new jmri.jmrix.hsi88.Hsi88TurnoutManager(this);
-        jmri.InstanceManager.setTurnoutManager(hsi88TurnoutManager);
+        // hsi88TurnoutManager = new jmri.jmrix.hsi88.Hsi88TurnoutManager(this);
+        // jmri.InstanceManager.setTurnoutManager(hsi88TurnoutManager);
 
-	hsi88SensorManager = new jmri.jmrix.hsi88.Hsi88SensorManager(this);
+        hsi88SensorManager = new jmri.jmrix.hsi88.Hsi88SensorManager(this);
         jmri.InstanceManager.setSensorManager(hsi88SensorManager);
 
-        switch (hsi88Mode) {
-            case OPS:
-                hsi88CSThrottleManager = new jmri.jmrix.hsi88.Hsi88CSThrottleManager(this);
-                jmri.InstanceManager.setThrottleManager(hsi88CSThrottleManager);
-                break;
-            case SERVICE:
-                hsi88ThrottleManager = new jmri.jmrix.hsi88.Hsi88ThrottleManager(this);
-                jmri.InstanceManager.setThrottleManager(hsi88ThrottleManager);
-                break;
-
-        }
-
+        /*
+         * switch (hsi88Mode) { case OPS: hsi88CSThrottleManager = new
+         * jmri.jmrix.hsi88.Hsi88CSThrottleManager(this);
+         * jmri.InstanceManager.setThrottleManager(hsi88CSThrottleManager);
+         * break; case SERVICE: hsi88ThrottleManager = new
+         * jmri.jmrix.hsi88.Hsi88ThrottleManager(this);
+         * jmri.InstanceManager.setThrottleManager(hsi88ThrottleManager); break;
+         * 
+         * }
+         */
     }
 
     private ProgrammerManager programmerManager;
@@ -300,12 +302,10 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         return hsi88TurnoutManager;
     }
 
-
     public SensorManager getSensorManager() {
         return hsi88SensorManager;
     }
 
-    
     protected ResourceBundle getActionModelResourceBundle() {
         //No actions that can be loaded at startup
         return null;
@@ -321,15 +321,15 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
     }
 
     private Hsi88VersionQuery svq = null;
-   
+
     /*
      * return an Hsi88VersionQuery object for this connection.
      */
-    public Hsi88VersionQuery getHsi88VersionQuery(){
-       if(svq == null ) {
-          svq = new Hsi88VersionQuery(this);
-       }
-       return svq;
+    public Hsi88VersionQuery getHsi88VersionQuery() {
+        if (svq == null) {
+            svq = new Hsi88VersionQuery(this);
+        }
+        return svq;
     }
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88SystemConnectionMemo.class.getName());

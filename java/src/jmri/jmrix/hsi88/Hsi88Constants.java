@@ -1,25 +1,25 @@
-package jmri.jmrix.sprog;
+package jmri.jmrix.hsi88;
 
 /**
- * SprogConstants.java
+ * hsi88Constants.java
  *
- * Description:	Constants to represent values seen in SPROG traffic
+ * Description:	Constants to represent values seen in hsi88 traffic
  *
  * @author	Andrew Crosland Copyright (C) 2006 from LnConstants.java
  */
-public final class SprogConstants {
+public final class Hsi88Constants {
 
-    /* SPROG mode */
-    public final static int SPROG = 0;
-    public final static int SPROG_CS = 1;
+    /* hsi88 mode */
+    public final static int hsi88 = 0;
+    public final static int hsi88_CS = 1;
 
-    // Current SPROG state
-    public enum SprogState {
+    // Current hsi88 state
+    public enum Hsi88State {
 
         NORMAL, SIIBOOTMODE, V4BOOTMODE
     }
 
-    public enum SprogMode {
+    public enum Hsi88Mode {
 
         SERVICE, OPS
     }

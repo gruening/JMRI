@@ -3,6 +3,8 @@ package jmri.jmrix.hsi88;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import jmri.jmrix.AbstractStreamPortController;
+import jmri.jmrix.sprog.SprogSystemConnectionMemo;
+import jmri.jmrix.sprog.SprogTrafficController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,8 +17,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author	Paul Bender Copyright (C) 2014
  */
-public class Hsi88StreamPortController extends AbstractStreamPortController implements SprogInterface {
-
+public class Hsi88StreamPortController extends AbstractStreamPortController implements Hsi88Interface {
     private Thread rcvNotice = null;
 
     public Hsi88StreamPortController(DataInputStream in, DataOutputStream out, String pname) {
@@ -27,12 +28,14 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
     public void configure() {
         log.debug("configure() called.");
         Hsi88TrafficController control = new Hsi88TrafficController(this.getSystemConnectionMemo());
+	//        Hsi88TrafficController control = new Hsi88TrafficController(this.hsi88Memo());
+
 
         // connect to the traffic controller
-        this.getSystemConnectionMemo().setSprogTrafficController(control);
-        control.setAdapterMemo(this.getSystemConnectionMemo());
-        this.getSystemConnectionMemo().configureCommandStation();
-        this.getSystemConnectionMemo().configureManagers();
+        this.hsi88Memo().setSprogTrafficController(control);
+        control.setAdapterMemo(this.hsi88Memo());
+        this.hsi88Memo().configureCommandStation();
+        this.hsi88Memo().configureManagers();
         control.connectPort(this);
 
         // start thread to notify controller when data is available
@@ -61,23 +64,23 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
 
     // SPROG Interface methods.
     @Override
-    public void addSprogListener(SprogListener l) {
-        this.getSystemConnectionMemo().getSprogTrafficController().addSprogListener(l);
+    public void addHsi88Listener(Hsi88Listener l) {
+        this.hsi88Memo().getHsi88TrafficController().addHsi88Listener(l);
     }
 
     @Override
-    public void removeSprogListener(SprogListener l) {
-        this.getSystemConnectionMemo().getSprogTrafficController().removeSprogListener(l);
+    public void removeHsi88Listener(Hsi88Listener l) {
+        this.hsi88Memo().getHsi88TrafficController().removeHsi88Listener(l);
     }
 
     @Override
-    public void sendSprogMessage(SprogMessage m, SprogListener l) {
-        this.getSystemConnectionMemo().getSprogTrafficController().sendSprogMessage(m, l);
+    public void sendHsi88Message(Hsi88Message m, Hsi88Listener l) {
+        this.hsi88Memo().getHsi88TrafficController().sendHsi88Message(m, l);
     }
 
     @Override
-    public SprogSystemConnectionMemo getSystemConnectionMemo() {
-        return (SprogSystemConnectionMemo) super.getSystemConnectionMemo();
+    public SprogSystemConnectionMemo hsi88Memo() {
+        return (SprogSystemConnectionMemo) super.hsi88Memo();
     }
 
     // internal thread to check to see if the stream has data and

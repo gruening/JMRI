@@ -1,15 +1,14 @@
-// SprogReply.java
 package jmri.jmrix.hsi88;
 
 import jmri.jmrix.AbstractMRReply;
-import jmri.jmrix.sprog.SprogConstants.SprogState;
+import jmri.jmrix.hsi88.Hsi88Constants.Hsi88State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * SprogReply.java
+ * hsi88Reply.java
  *
- * Description:	Carries the reply to a SprogMessage
+ * Description:	Carries the reply to a hsi88Message
  *
  * @author	Bob Jacobsen Copyright (C) 2001
  * @author	Andrew Berridge - refactored, cleaned up, Feb 2010
@@ -31,9 +30,9 @@ public class Hsi88Reply extends AbstractMRReply {
     }
 
     /**
-     * Create a new SprogReply as a deep copy of an existing SprogReply
+     * Create a new hsi88Reply as a deep copy of an existing hsi88Reply
      *
-     * @param m the SprogReply to copy
+     * @param m the hsi88Reply to copy
      */
     @SuppressWarnings("null")
     public Hsi88Reply(Hsi88Reply m) {
@@ -53,7 +52,7 @@ public class Hsi88Reply extends AbstractMRReply {
     }
 
     /**
-     * Create a SprogReply from a String
+     * Create a hsi88Reply from a String
      *
      * @param replyString a String containing the contents of the reply
      * @param isBoot a boolean indicating if this is a boot reply
@@ -81,31 +80,31 @@ public class Hsi88Reply extends AbstractMRReply {
         return (this.toString().indexOf("!E") >= 0);
     }
 
-    // Check and strip framing characters and DLE from a sprog bootloader reply
+    // Check and strip framing characters and DLE from a hsi88 bootloader reply
     public boolean strip() {
         char tmp[] = new char[_nDataChars];
         int j = 0;
         _isBoot = true; // definitely a boot message
         // Check framing characters
-        if (_dataChars[0] != SprogMessage.STX) {
+        if (_dataChars[0] != Hsi88Message.STX) {
             return false;
         }
-        if (_dataChars[1] != SprogMessage.STX) {
+        if (_dataChars[1] != Hsi88Message.STX) {
             return false;
         }
-        if (_dataChars[_nDataChars - 1] != SprogMessage.ETX) {
+        if (_dataChars[_nDataChars - 1] != Hsi88Message.ETX) {
             return false;
         }
 
         // Ignore framing characters and strip DLEs
         for (int i = 2; i < _nDataChars - 1; i++) {
-            if (_dataChars[i] == SprogMessage.DLE) {
+            if (_dataChars[i] == Hsi88Message.DLE) {
                 i++;
             }
             tmp[j++] = (char) _dataChars[i];
         }
 
-        // Copy back to original SprogReply
+        // Copy back to original hsi88Reply
         for (int i = 0; i < j; i++) {
             _dataChars[i] = tmp[i];
         }
@@ -113,7 +112,7 @@ public class Hsi88Reply extends AbstractMRReply {
         return true;
     }
 
-    // Check and strip checksum from a sprog bootloader reply
+    // Check and strip checksum from a hsi88 bootloader reply
     // Assumes framing and DLE chars have been stripped
     public boolean getChecksum() {
         int checksum = 0;
@@ -125,12 +124,12 @@ public class Hsi88Reply extends AbstractMRReply {
     }
 
     /**
-     * Returns a string representation of this SprogReply
+     * Returns a string representation of this hsi88Reply
      */
     public String toString() {
         //String s = "";
         StringBuffer buf = new StringBuffer();
-        if (_isBoot || (_dataChars[0] == SprogMessage.STX)) {
+        if (_isBoot || (_dataChars[0] == Hsi88Message.STX)) {
             for (int i = 0; i < _nDataChars; i++) {
                 //s+="<"+(((char)_dataChars[i]) & 0xff)+">";
                 buf.append("<");
@@ -150,7 +149,7 @@ public class Hsi88Reply extends AbstractMRReply {
      * Extracts Read-CV returned value from a message. Returns -1 if message
      * can't be parsed.
      *
-     * SPROG is assumed to not be echoing commands. A reply to a command may
+     * hsi88 is assumed to not be echoing commands. A reply to a command may
      * include the prompt that was printed after the previous command Reply to a
      * CV read is of the form " = hvv" where vv is the CV value in hex
      */
@@ -195,16 +194,16 @@ public class Hsi88Reply extends AbstractMRReply {
     }
 
     /*
-     * Normal SPROG replies will end with the prompt for the next command
+     * Normal hsi88 replies will end with the prompt for the next command
      * Bootloader will end with ETX with no preceding DLE
-     * SPROG v4 bootloader replies "L>" on entry and replies "." at other
+     * hsi88 v4 bootloader replies "L>" on entry and replies "." at other
      * times
      */
     public boolean endNormalReply() {
         // Detect that the reply buffer ends with "P> " or "R> " (note ending space)
         int num = this.getNumDataElements();
         if (num >= 3) {
-            // ptr is offset of last element in SprogReply
+            // ptr is offset of last element in hsi88Reply
             int ptr = num - 1;
             if (this.getElement(ptr) != ' ') {
                 return false;
@@ -231,16 +230,16 @@ public class Hsi88Reply extends AbstractMRReply {
 
     public boolean endBootReply() {
         // Detect that the reply buffer ends with ETX with no preceding DLE
-        // This is the end of a SPROG II bootloader reply or the end of
-        // a SPROG v4 echoing the botloader version request
+        // This is the end of a hsi88 II bootloader reply or the end of
+        // a hsi88 v4 echoing the botloader version request
         int num = this.getNumDataElements();
         if (num >= 2) {
-            // ptr is offset of last element in SprogReply
+            // ptr is offset of last element in hsi88Reply
             int ptr = num - 1;
-            if ((this.getElement(ptr) & 0xff) != SprogMessage.ETX) {
+            if ((this.getElement(ptr) & 0xff) != Hsi88Message.ETX) {
                 return false;
             }
-            if ((this.getElement(ptr - 1) & 0xff) == SprogMessage.DLE) {
+            if ((this.getElement(ptr - 1) & 0xff) == Hsi88Message.DLE) {
                 return false;
             }
             return true;
@@ -249,17 +248,17 @@ public class Hsi88Reply extends AbstractMRReply {
         }
     }
 
-    public boolean endBootloaderReply(SprogState sprogState) {
-        // Detect that the reply buffer ends with "L>" or "." from a SPROG v4
+    public boolean endBootloaderReply(Hsi88State hsi88State) {
+        // Detect that the reply buffer ends with "L>" or "." from a hsi88 v4
         // bootloader
         int num = this.getNumDataElements();
         int ptr = num - 1;
-        if ((sprogState == SprogState.V4BOOTMODE) && ((this.getElement(ptr) == '.')
+        if ((hsi88State == hsi88State.V4BOOTMODE) && ((this.getElement(ptr) == '.')
                 || (this.getElement(ptr) == 'S'))) {
             return true;
         }
         if (num >= 2) {
-            // ptr is offset of last element in SprogReply
+            // ptr is offset of last element in hsi88Reply
             if (this.getElement(ptr) != '>') {
                 return false;
             }
@@ -275,6 +274,3 @@ public class Hsi88Reply extends AbstractMRReply {
     private final static Logger log = LoggerFactory.getLogger(Hsi88Reply.class.getName());
 
 }
-
-
-/* @(#)SprogReply.java */

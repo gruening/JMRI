@@ -1,4 +1,3 @@
-// SprogPowerManager.java
 package jmri.jmrix.hsi88;
 
 import jmri.JmriException;
@@ -11,7 +10,7 @@ import jmri.jmrix.AbstractMessage;
  * @author	Bob Jacobsen Copyright (C) 2001
   */
 public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
-        implements PowerManager, SprogListener {
+        implements PowerManager, Hsi88Listener {
 
     Hsi88TrafficController trafficController = null;
 
@@ -77,7 +76,7 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
     }
 
     // to listen for status changes from Sprog system
-    public void notifyReply(SprogReply m) {
+    public void notifyReply(Hsi88Reply m) {
         if (waiting) {
             power = onReply;
             firePropertyChange("Power", null, null);
@@ -85,7 +84,7 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
         waiting = false;
     }
 
-    public void notifyMessage(SprogMessage m) {
+    public void notifyMessage(Hsi88Message m) {
         if (m.isKillMain()) {
             // configure to wait for reply
             waiting = true;
@@ -98,10 +97,10 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
     }
 
     public void notify(AbstractMessage m) {
-        if (m instanceof SprogMessage) {
-            this.notifyMessage((SprogMessage) m);
+        if (m instanceof Hsi88Message) {
+            this.notifyMessage((Hsi88Message) m);
         } else {
-            this.notifyReply((SprogReply) m);
+            this.notifyReply((Hsi88Reply) m);
         }
 
     }

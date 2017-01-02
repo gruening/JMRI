@@ -1,16 +1,15 @@
-// SprogMessage.java
 package jmri.jmrix.hsi88;
 
 import jmri.ProgrammingMode;
-import jmri.jmrix.sprog.SprogConstants.SprogState;
+import jmri.jmrix.hsi88.Hsi88Constants.Hsi88State;
 import jmri.managers.DefaultProgrammerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Encodes a message to an SPROG command station.
+ * Encodes a message to an HSI88 command station.
  * <P>
- * The {@link SprogReply} class handles the response from the command station.
+ * The {@link Hsi88Reply} class handles the response from the command station.
  *
  * @author	Bob Jacobsen Copyright (C) 2001
   */
@@ -42,7 +41,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
     }
 
     /**
-     * Creates a new SprogMessage containing a byte array to represent a packet
+     * Creates a new Hsi88Message containing a byte array to represent a packet
      * to output
      *
      * @param packet The contents of the packet
@@ -238,23 +237,23 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
      *                   the Sprog
      * @return the formatted message as a byte array
      */
-    public byte[] getFormattedMessage(SprogState sprogState) {
+    public byte[] getFormattedMessage(Hsi88State hsi88State) {
         int len = this.getNumDataElements();
 
         // space for carriage return if required
         int cr = 0;
-        if (sprogState != SprogState.SIIBOOTMODE) {
+        if (hsi88State != Hsi88State.SIIBOOTMODE) {
             cr = 1;
         }
 
         byte msg[] = new byte[len + cr];
 
         for (int i = 0; i < len; i++) {
-            if (sprogState != SprogState.SIIBOOTMODE) {
+            if (hsi88State != Hsi88State.SIIBOOTMODE) {
                msg[i] = (byte) ( this.getElement(i) & 0x7f);
             }
         }
-        if (sprogState != SprogState.SIIBOOTMODE) {
+        if (hsi88State != Hsi88State.SIIBOOTMODE) {
             msg[len] = 0x0d;
         }
         return msg;

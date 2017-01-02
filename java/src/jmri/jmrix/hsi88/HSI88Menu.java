@@ -4,7 +4,7 @@ import java.util.ResourceBundle;
 import javax.swing.JMenu;
 
 /**
- * Create a "Systems" menu containing the Jmri SPROG-specific tools
+ * Create a "Systems" menu containing the Jmri hsi88-specific tools
  *
  * @author	Bob Jacobsen Copyright 2003
  */
@@ -21,12 +21,12 @@ public class HSI88Menu extends JMenu {
 
         setText(memo.getUserName());
 
-        add(new jmri.jmrix.hsi88.sprogmon.SprogMonAction(rb.getString("MenuItemCommandMonitor"),_memo));
-        add(new jmri.jmrix.hsi88.packetgen.SprogPacketGenAction(rb.getString("MenuItemSendCommand"),_memo));
-        add(new jmri.jmrix.hsi88.console.SprogConsoleAction(rb.getString("MenuItemConsole"),_memo));
-        // add(new jmri.jmrix.sprog.update.SprogVersionAction("Get SPROG Firmware Version",memo));
-        // add(new jmri.jmrix.sprog.update.Sprogv4UpdateAction("SPROG v3/v4 Firmware Update",memo));
-        // add(new jmri.jmrix.sprog.update.SprogIIUpdateAction("SPROG II/SPROG 3 Firmware Update",memo));
+        add(new jmri.jmrix.hsi88.hsi88mon.hsi88MonAction(rb.getString("MenuItemCommandMonitor"),_memo));
+        add(new jmri.jmrix.hsi88.packetgen.hsi88PacketGenAction(rb.getString("MenuItemSendCommand"),_memo));
+        add(new jmri.jmrix.hsi88.console.hsi88ConsoleAction(rb.getString("MenuItemConsole"),_memo));
+        // add(new jmri.jmrix.hsi88.update.hsi88VersionAction("Get hsi88 Firmware Version",memo));
+        // add(new jmri.jmrix.hsi88.update.hsi88v4UpdateAction("hsi88 v3/v4 Firmware Update",memo));
+        // add(new jmri.jmrix.hsi88.update.hsi88IIUpdateAction("hsi88 II/hsi88 3 Firmware Update",memo));
 
     }
 

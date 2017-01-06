@@ -3,16 +3,14 @@ package jmri.jmrix.hsi88;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import jmri.jmrix.AbstractStreamPortController;
-import jmri.jmrix.sprog.SprogSystemConnectionMemo;
-import jmri.jmrix.sprog.SprogTrafficController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract base for classes representing an SPROG Command Station
+ * Abstract base for classes representing an hsi88 Command Station
  * communications port
  * <p>
- * NOTE: This currently only supports the SPROG Command Station interfaces.
+ * NOTE: This currently only supports the hsi88 Command Station interfaces.
  * <p>
  *
  * @author	Paul Bender Copyright (C) 2014
@@ -28,14 +26,13 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
     public void configure() {
         log.debug("configure() called.");
         Hsi88TrafficController control = new Hsi88TrafficController(this.getSystemConnectionMemo());
-	//        Hsi88TrafficController control = new Hsi88TrafficController(this.hsi88Memo());
-
+        //        Hsi88TrafficController control = new Hsi88TrafficController(this.hsi88Memo());
 
         // connect to the traffic controller
-        this.hsi88Memo().setSprogTrafficController(control);
-        control.setAdapterMemo(this.hsi88Memo());
-        this.hsi88Memo().configureCommandStation();
-        this.hsi88Memo().configureManagers();
+        this.getSystemConnectionMemo().setHsi88TrafficController(control);
+        control.setAdapterMemo(this.getSystemConnectionMemo());
+        this.getSystemConnectionMemo().configureCommandStation();
+        this.getSystemConnectionMemo().configureManagers();
         control.connectPort(this);
 
         // start thread to notify controller when data is available
@@ -62,35 +59,35 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
         return (true);
     }
 
-    // SPROG Interface methods.
+    // hsi88 Interface methods.
     @Override
     public void addHsi88Listener(Hsi88Listener l) {
-        this.hsi88Memo().getHsi88TrafficController().addHsi88Listener(l);
+        this.getSystemConnectionMemo().getHsi88TrafficController().addHsi88Listener(l);
     }
 
     @Override
     public void removeHsi88Listener(Hsi88Listener l) {
-        this.hsi88Memo().getHsi88TrafficController().removeHsi88Listener(l);
+        this.getSystemConnectionMemo().getHsi88TrafficController().removeHsi88Listener(l);
     }
 
     @Override
     public void sendHsi88Message(Hsi88Message m, Hsi88Listener l) {
-        this.hsi88Memo().getHsi88TrafficController().sendHsi88Message(m, l);
+        this.getSystemConnectionMemo().getHsi88TrafficController().sendHsi88Message(m, l);
     }
 
     @Override
-    public SprogSystemConnectionMemo hsi88Memo() {
-        return (SprogSystemConnectionMemo) super.hsi88Memo();
+    public Hsi88SystemConnectionMemo getSystemConnectionMemo() {
+        return (Hsi88SystemConnectionMemo) super.getSystemConnectionMemo();
     }
 
     // internal thread to check to see if the stream has data and
     // notify the Traffic Controller.
     static protected class rcvCheck implements Runnable {
 
-        private SprogTrafficController control;
+        private Hsi88TrafficController control;
         private DataInputStream in;
 
-        public rcvCheck(DataInputStream in, SprogTrafficController control) {
+        public rcvCheck(DataInputStream in, Hsi88TrafficController control) {
             this.in = in;
             this.control = control;
         }

@@ -2,12 +2,10 @@ package jmri.jmrix.hsi88;
 
 import java.util.ResourceBundle;
 import jmri.InstanceManager;
-import jmri.ProgrammerManager;
 // import jmri.ProgrammerManager; // to go
 // import jmri.ThrottleManager; // to go
 // import jmri.TurnoutManager; // to go
 import jmri.SensorManager;
-import jmri.TurnoutManager;
 import jmri.jmrix.hsi88.Hsi88Constants.Hsi88Mode; // to be modified
 // import jmri.jmrix.hsi88.update.Hsi88Type; // to be modified
 // import jmri.jmrix.hsi88.update.Hsi88Version; // to go
@@ -96,6 +94,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
 
     /**
      * Set the HSI88 version object for this connection
+     * @param version 
      */
     public void setHsi88Version(Hsi88Version version) {
         hsi88Version = version;
@@ -160,25 +159,11 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         if (getDisabled()) {
             return false;
         }
-        if (type.equals(jmri.ProgrammerManager.class)) {
-            return true;
-        }
-        if (type.equals(jmri.GlobalProgrammerManager.class)) {
-            return getProgrammerManager().isGlobalProgrammerAvailable();
-        }
-        if (type.equals(jmri.AddressedProgrammerManager.class)) {
-            return getProgrammerManager().isAddressedModePossible();
-        }
+       
         if (type.equals(jmri.PowerManager.class)) {
             return true;
         }
-        if (type.equals(jmri.ThrottleManager.class)) {
-            return true;
-        }
-        if (type.equals(jmri.TurnoutManager.class)) {
-            return true;
-        }
-        if (type.equals(jmri.SensorManage.class)) {
+        if (type.equals(jmri.SensorManager.class)) {
             return true;
         }
         if ((type.equals(jmri.CommandStation.class))) {
@@ -201,29 +186,12 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         if (getDisabled()) {
             return null;
         }
-        if (T.equals(jmri.ProgrammerManager.class)) {
-            return (T) getProgrammerManager();
-        }
-        if (T.equals(jmri.GlobalProgrammerManager.class)) {
-            return (T) getProgrammerManager();
-        }
-        if (T.equals(jmri.AddressedProgrammerManager.class)) {
-            return (T) getProgrammerManager();
-        }
-
         if (T.equals(jmri.PowerManager.class)) {
             return (T) getPowerManager();
-        }
-        if (T.equals(jmri.ThrottleManager.class)) {
-            return (T) getThrottleManager();
-        }
-        if (T.equals(jmri.TurnoutManager.class)) {
-            return (T) getTurnoutManager();
         }
         if (T.equals(jmri.SensorManager.class)) {
             return (T) getSensorManager();
         }
-
         if (T.equals(jmri.CommandStation.class)) {
             return (T) getCommandStation();
         }
@@ -238,72 +206,22 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
      */
     public void configureManagers() {
 
-        jmri.InstanceManager.setProgrammerManager(
-                getProgrammerManager());
-
         powerManager = new jmri.jmrix.hsi88.Hsi88PowerManager(this);
         jmri.InstanceManager.store(powerManager, jmri.PowerManager.class);
 
-        // hsi88TurnoutManager = new jmri.jmrix.hsi88.Hsi88TurnoutManager(this);
-        // jmri.InstanceManager.setTurnoutManager(hsi88TurnoutManager);
-
-        hsi88SensorManager = new jmri.jmrix.hsi88.Hsi88SensorManager(this);
-        jmri.InstanceManager.setSensorManager(hsi88SensorManager);
-
-        /*
-         * switch (hsi88Mode) { case OPS: hsi88CSThrottleManager = new
-         * jmri.jmrix.hsi88.Hsi88CSThrottleManager(this);
-         * jmri.InstanceManager.setThrottleManager(hsi88CSThrottleManager);
-         * break; case SERVICE: hsi88ThrottleManager = new
-         * jmri.jmrix.hsi88.Hsi88ThrottleManager(this);
-         * jmri.InstanceManager.setThrottleManager(hsi88ThrottleManager); break;
-         * 
-         * }
-         */
+        sensorManager = new jmri.jmrix.hsi88.Hsi88SensorManager(this);
+        jmri.InstanceManager.setSensorManager(sensorManager);
     }
 
-    private ProgrammerManager programmerManager;
-    private Hsi88CSThrottleManager hsi88CSThrottleManager;
-    private Hsi88ThrottleManager hsi88ThrottleManager;
-    private Hsi88TurnoutManager hsi88TurnoutManager;
     private Hsi88PowerManager powerManager;
     private Hsi88SensorManager sensorManager;
-
-    public ProgrammerManager getProgrammerManager() {
-        if (programmerManager == null) {
-            programmerManager = new Hsi88ProgrammerManager(new Hsi88Programmer(this), hsi88Mode, this);
-        }
-        return programmerManager;
-    }
-
-    public void setProgrammerManager(ProgrammerManager p) {
-        programmerManager = p;
-    }
 
     public Hsi88PowerManager getPowerManager() {
         return powerManager;
     }
 
-    public ThrottleManager getThrottleManager() {
-        if (hsi88Mode == null) {
-            log.error("Hsi88 Mode not set");
-            return null;
-        }
-        switch (hsi88Mode) {
-            case OPS:
-                return hsi88CSThrottleManager;
-            case SERVICE:
-                return hsi88ThrottleManager;
-        }
-        return null;
-    }
-
-    public TurnoutManager getTurnoutManager() {
-        return hsi88TurnoutManager;
-    }
-
     public SensorManager getSensorManager() {
-        return hsi88SensorManager;
+        return sensorManager;
     }
 
     protected ResourceBundle getActionModelResourceBundle() {
@@ -318,18 +236,6 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
             InstanceManager.deregister(cf, jmri.jmrix.swing.ComponentFactory.class);
         }
         super.dispose();
-    }
-
-    private Hsi88VersionQuery svq = null;
-
-    /*
-     * return an Hsi88VersionQuery object for this connection.
-     */
-    public Hsi88VersionQuery getHsi88VersionQuery() {
-        if (svq == null) {
-            svq = new Hsi88VersionQuery(this);
-        }
-        return svq;
     }
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88SystemConnectionMemo.class.getName());

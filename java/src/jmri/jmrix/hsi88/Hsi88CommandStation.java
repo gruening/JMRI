@@ -144,7 +144,7 @@ public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runna
             }
             
             // Is it time to send a status request?
-            if ((statusDue == 40) && monFrame != null) {
+            if (statusDue == 40) {
                 // Only ask for status if it's actually being displayed
                 log.debug("Sending status request");
                 tc.sendHsi88Message(Hsi88Message.getStatus(), this);
@@ -159,41 +159,23 @@ public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runna
                     //Check that we got a status message before acting on it
                     //by checking that "h" was found in the reply
                     if (i > -1) {
-                        int milliAmps = (int) ((Integer.decode("0x" + s.substring(i + 7, i + 11)))s;
+                        int milliAmps = (int) ((Integer.decode("0x" + s.substring(i + 7, i + 11))));
                         statusA[0] = milliAmps;
                         String ampString;
                         ampString = Float.toString((float) statusA[0] / 1000);
-                        monFrame.updateStatus(ampString);
                         statusDue = 0;
                     }
                 } else {
                     // Get next packet to send
                     log.debug("Get next packet to send");
                     // Hsi88Slot s = sendNow.poll();
-                    Object s
-                    if (s != null) {
-                        // New throttle action to be sent immediately
-                        p = s.getPayload();
-                        log.debug("Packet from immediate send queue");
-                    } else {
-                        // Or take the next one from the stack
-                        p = getNextPacket();
-                        if (p != null) {
-                            log.debug("Packet from stack");
-                        }
-                    }
-                    if (p != null) {
-                        // Send the packet
-                        sendPacket(p, Hsi88Constants.S_REPEATS);
-                        log.debug("Packet sent");
-                        if (monFrame != null) {
-                            statusDue++;
-                        }
-                    } else {
+                    
+                    // Or take the next one from the stack
+                        
                         // Do nothing for a while
-                        log.debug("Start timeout");
-                    }
-                }
+                    log.debug("Start timeout");
+                    
+                }   
             }
             restartTimer(100);
         }
@@ -275,19 +257,11 @@ public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runna
      * Set the slot hsi88SlotMonFrame associated with this Command Station
      * There can currently be only one hsi88SlotMonFrame.
      */
-    public void sethsi88SlotMonFrame(Hsi88SlotMonFrame s) {
-       monFrame = s;
+    public void setHsi88SlotMonFrame(Object s) {
     }
 
-    /**
-     * Get the slot hsi88SlotMonFrame associated with this Command Station
-     * There can currently be only one hsi88SlotMonFrame.
-     */
-    public Hsi88SlotMonFrame gethsi88SlotMonFrame() {
-       return monFrame;
-    }
+  
 
-    private Hsi88SlotMonFrame monFrame = null;
 
     // initialize logging
     private final static Logger log = LoggerFactory.getLogger(Hsi88CommandStation.class.getName());

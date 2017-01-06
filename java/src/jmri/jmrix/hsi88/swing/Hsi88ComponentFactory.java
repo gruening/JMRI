@@ -29,7 +29,8 @@ public class Hsi88ComponentFactory extends jmri.jmrix.swing.ComponentFactory {
         if(memo.getHsi88Mode() == Hsi88Mode.SERVICE) {
             return new HSI88Menu(memo);
         } else {  // must be command station mode.
-            return new HSI88CSMenu(memo);
+            // return new HSI88CSMenu(memo);
+            return new HSI88Menu(memo);
         }
     }
 }

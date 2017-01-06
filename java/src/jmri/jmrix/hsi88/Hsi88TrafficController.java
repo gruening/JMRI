@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.OutputStream;
 import java.util.Vector;
 import jmri.jmrix.AbstractPortController;
+import jmri.jmrix.SystemConnectionMemo;
 import jmri.jmrix.hsi88.Hsi88Constants.Hsi88State;
 import jmri.jmrix.hsi88.serialdriver.SerialDriverAdapter;
 import org.slf4j.Logger;
@@ -32,8 +33,8 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
 
 	private Hsi88State hsi88State = Hsi88State.NORMAL;
 
-	public Hsi88TrafficController(Hsi88SystemConnectionMemo adaptermemo) {
-		memo = adaptermemo;
+	public Hsi88TrafficController(SystemConnectionMemo systemConnectionMemo) {
+		memo = (Hsi88SystemConnectionMemo) systemConnectionMemo;
 	}
 
 	// The methods to implement the Hsi88Interface

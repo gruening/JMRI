@@ -1,7 +1,7 @@
 package jmri.jmrix.hsi88.swing;
 
-import jmri.jmrix.hsi88.Hsi88Menu;
 import jmri.jmrix.hsi88.Hsi88Constants.Hsi88Mode;
+import jmri.jmrix.hsi88.Hsi88Menu;
 import jmri.jmrix.hsi88.Hsi88SystemConnectionMemo;
 
 /**
@@ -27,10 +27,10 @@ public class Hsi88ComponentFactory extends jmri.jmrix.swing.ComponentFactory {
             return null;
         }
         if(memo.getHsi88Mode() == Hsi88Mode.SERVICE) {
-            return new HSI88Menu(memo);
+            return new Hsi88Menu(memo);
         } else {  // must be command station mode.
             // return new HSI88CSMenu(memo);
-            return new HSI88Menu(memo);
+            return new Hsi88Menu(memo);
         }
     }
 }

@@ -1,4 +1,3 @@
-// SprogConnectionTypeList.java
 package jmri.jmrix.hsi88;
 
 /**
@@ -13,17 +12,13 @@ package jmri.jmrix.hsi88;
  */
 public class Hsi88ConnectionTypeList implements jmri.jmrix.ConnectionTypeList {
 
-	public static final String HSI88 = "HSI 88";
+	public static final String HSI88 = "HSI88";
 
 	@Override
 	public String[] getAvailableProtocolClasses() {
 		return new String[] {
-				// "jmri.jmrix.sprog.sprog.ConnectionConfig",
-				"jmri.jmrix.sprog.sprogCS.ConnectionConfig",
-				// "jmri.jmrix.sprog.sprognano.ConnectionConfig",
-				// "jmri.jmrix.sprog.pi.pisprogone.ConnectionConfig",
-				// "jmri.jmrix.sprog.pi.pisprogonecs.ConnectionConfig",
-				// "jmri.jmrix.sprog.pi.pisprognano.ConnectionConfig"
+				// "jmri.jmrix.hsi88.hsi88.ConnectionConfig",
+				"jmri.jmrix.hsi88.hsi88CS.ConnectionConfig",
 		};
 	}
 

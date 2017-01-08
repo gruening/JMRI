@@ -5,10 +5,11 @@ import jmri.PowerManager;
 import jmri.jmrix.AbstractMessage;
 
 /**
- * PowerManager implementation for controlling SPROG layout power.
+ * PowerManager implementation for controlling HSI88 layout power.
  *
  * @author	Bob Jacobsen Copyright (C) 2001
-  */
+ *
+ */
 public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
         implements PowerManager, Hsi88Listener {
 
@@ -71,11 +72,11 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
 
     private void checkTC() throws JmriException {
         if (trafficController == null) {
-            throw new JmriException("attempt to use SprogPowerManager after dispose");
+            throw new JmriException("attempt to use Hsi88PowerManager after dispose");
         }
     }
 
-    // to listen for status changes from Sprog system
+    // to listen for status changes from Hsi88 system
     public void notifyReply(Hsi88Reply m) {
         if (waiting) {
             power = onReply;
@@ -106,5 +107,3 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
     }
 
 }
-
-/* @(#)SprogPowerManager.java */

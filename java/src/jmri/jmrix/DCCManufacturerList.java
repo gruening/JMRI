@@ -77,6 +77,8 @@ public class DCCManufacturerList {
             return "RFID";
         } else if (a == 'G') {
             return "Grapevine";
+        } else if (a == 'H') {
+            return "HSI88";
         } else if (a == 'K') {
             return "Maple";
         } else if (a == 'L') {
@@ -145,6 +147,8 @@ public class DCCManufacturerList {
             return 'F';
         } else if (a.equals("Grapevine")) {
             return 'G';
+        } else if (a.equals("HSI88")) {
+            return 'H';
         } else if (a.equals("Maple")) {
             return 'K';
         } else if (a.equals("LocoNet")) {

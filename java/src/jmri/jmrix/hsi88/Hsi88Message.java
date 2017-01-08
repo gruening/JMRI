@@ -231,8 +231,8 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
      * Get formatted message for direct output to stream - this is the final
      * format of the message as a byte array
      *
-     * @param sprogState a SprogState variable representing the current state of
-     *            the Sprog
+     * @param hsi88State a Hsi88State variable representing the current state of
+     *            the Hsi88
      * @return the formatted message as a byte array
      */
     public byte[] getFormattedMessage(Hsi88State hsi88State) {
@@ -285,7 +285,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
         return m;
     }
 
-    // [AC] 11/09/2002 Leave SPROG in programmer mode. Don't want to go
+    // [AC] 11/09/2002 Leave HSI88 in programmer mode. Don't want to go
     // to booster mode as this would power up the track.
     static public Hsi88Message getExitProgMode() {
         Hsi88Message m = new Hsi88Message(1);
@@ -300,7 +300,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
     }
 
     /*
-     * SPROG uses same commands for reading and writing, with the number of
+     * HSI88 uses same commands for reading and writing, with the number of
      * parameters determining the action. Currently supports page mode and bit
      * direct modes. A single parameter is taken as the CV address to read. Two
      * parametes are taken as the CV address and data to be written.
@@ -331,10 +331,10 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
         return m;
     }
 
-    // [AC] 11/09/2002 SPROG doesn't currently support registered mode
+    // [AC] 11/09/2002 HSI88 doesn't currently support registered mode
     static public Hsi88Message getReadRegister(int reg) { //Vx
         //        if (reg>8) log.error("register number too large: "+reg);
-        //        SprogMessage m = new SprogMessage(2);
+        //        Hsi88Message m = new Hsi88Message(2);
         //        m.setOpCode('V');
         //        String s = ""+reg;
         //        m.setElement(1, s.charAt(s.length()-1));
@@ -346,7 +346,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
 
     static public Hsi88Message getWriteRegister(int reg, int val) { //Sx xx
         //        if (reg>8) log.error("register number too large: "+reg);
-        //        SprogMessage m = new SprogMessage(4);
+        //        Hsi88Message m = new Hsi88Message(4);
         //        m.setOpCode('S');
         //        String s = ""+reg;
         //        m.setElement(1, s.charAt(s.length()-1));
@@ -361,7 +361,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
      * Get a message containing a DCC packet
      *
      * @param bytes byte[]
-     * @return SprogMessage
+     * @return Hsi88Message
      */
     static public Hsi88Message getPacketMessage(byte[] bytes) {
         Hsi88Message m = new Hsi88Message(1 + 3 * bytes.length);
@@ -540,5 +540,3 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
     private final static Logger log = LoggerFactory.getLogger(Hsi88Message.class.getName());
 
 }
-
-/* @(#)SprogMessage.java */

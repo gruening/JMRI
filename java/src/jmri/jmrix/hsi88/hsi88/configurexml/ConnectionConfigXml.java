@@ -1,8 +1,8 @@
 package jmri.jmrix.hsi88.hsi88.configurexml;
 
 import jmri.jmrix.configurexml.AbstractSerialConnectionConfigXml;
-import jmri.jmrix.sprog.serialdriver.SerialDriverAdapter;
-import jmri.jmrix.sprog.sprog.ConnectionConfig;
+import jmri.jmrix.hsi88.serialdriver.SerialDriverAdapter;
+import jmri.jmrix.hsi88.hsi88.ConnectionConfig;
 
 /**
  * Handle XML persistence of layout connections by persistening the

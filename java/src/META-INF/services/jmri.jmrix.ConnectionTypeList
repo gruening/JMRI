@@ -13,6 +13,7 @@ jmri.jmrix.dcc4pc.Dcc4PcConnectionTypeList
 jmri.jmrix.ecos.EcosConnectionTypeList
 jmri.jmrix.lenz.hornbyelite.EliteConnectionTypeList
 jmri.jmrix.ieee802154.SerialConnectionTypeList
+jmri.jmrix.hsi88.Hsi88ConnectionTypeList
 jmri.jmrix.lenz.LenzConnectionTypeList
 jmri.jmrix.tmcc.SerialConnectionTypeList
 jmri.jmrix.maple.SerialConnectionTypeList

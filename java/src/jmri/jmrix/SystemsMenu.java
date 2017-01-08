@@ -57,6 +57,8 @@ public class SystemsMenu extends JMenu {
         add(new jmri.jmrix.dccpp.swing.DCCppMenu(null));
         addMenu("jmri.jmrix.easydcc.EasyDCCMenu");
         addMenu("jmri.jmrix.grapevine.GrapevineMenu");
+	addMenu("jmri.jmrix.hsi88.Hsi88Menu");
+
 
         // LocoNet is migrated
         add(new jmri.jmrix.loconet.swing.LocoNetMenu(null));

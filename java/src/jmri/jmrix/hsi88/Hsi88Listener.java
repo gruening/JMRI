@@ -1,4 +1,3 @@
-// SprogListener.java
 package jmri.jmrix.hsi88;
 
 /**
@@ -14,4 +13,3 @@ public interface Hsi88Listener extends java.util.EventListener {
     public void notifyReply(Hsi88Reply m);
 }
 
-/* @(#)SprogListener.java */

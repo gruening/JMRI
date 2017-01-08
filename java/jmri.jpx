@@ -157,6 +157,8 @@
   <node name="jmri.jmrix.configurexml" type="Package"/>
   <node name="jmri.jmrix.easydcc.configurexml" type="Package"/>
   <node name="jmri.jmrix.easydcc.serialdriver.configurexml" type="Package"/>
+  <node name="jmri.jmrix.hsi88.configurexml" type="Package"/>
+  <node name="jmri.jmrix.hsi88.serialdriver.configurexml" type="Package"/>
   <node name="jmri.jmrix.lenz.configurexml" type="Package"/>
   <node name="jmri.jmrix.lenz.li100.configurexml" type="Package"/>
   <node name="jmri.jmrix.loconet.configurexml" type="Package"/>

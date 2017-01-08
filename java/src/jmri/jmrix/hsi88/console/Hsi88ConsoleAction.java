@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Swing action to create and register a SprogConsoleFrame object
+ * Swing action to create and register a Hsi88ConsoleFrame object
  *
  * @author	Andrew Crosland Copyright (C) 2008
  */

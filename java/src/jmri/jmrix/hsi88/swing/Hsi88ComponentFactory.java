@@ -1,6 +1,6 @@
 package jmri.jmrix.hsi88.swing;
 
-import jmri.jmrix.hsi88.HSI88Menu;
+import jmri.jmrix.hsi88.Hsi88Menu;
 import jmri.jmrix.hsi88.Hsi88Constants.Hsi88Mode;
 import jmri.jmrix.hsi88.Hsi88SystemConnectionMemo;
 

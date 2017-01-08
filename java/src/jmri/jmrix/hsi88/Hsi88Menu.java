@@ -8,11 +8,11 @@ import javax.swing.JMenu;
  *
  * @author	Bob Jacobsen Copyright 2003
  */
-public class HSI88Menu extends JMenu {
+public class Hsi88Menu extends JMenu {
 
     Hsi88SystemConnectionMemo _memo = null;
 
-    public HSI88Menu(Hsi88SystemConnectionMemo memo) {
+    public Hsi88Menu(Hsi88SystemConnectionMemo memo) {
 
         super();
         _memo = memo;

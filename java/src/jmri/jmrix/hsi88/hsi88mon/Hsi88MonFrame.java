@@ -21,7 +21,7 @@ public class Hsi88MonFrame extends jmri.jmrix.AbstractMonFrame implements Hsi88L
     }
 
     protected String title() {
-        return "hsi88 Command Monitor";
+        return "Hsi88 Command Monitor";
     }
 
     protected void init() {

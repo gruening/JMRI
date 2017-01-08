@@ -27,7 +27,7 @@ public class ConnectionConfig extends jmri.jmrix.AbstractSerialConnectionConfig 
     }
 
     public String name() {
-        return "hsi88 Command Station";
+        return "Hsi88 Command Station";
     }
 
     public String getManufacturer() {

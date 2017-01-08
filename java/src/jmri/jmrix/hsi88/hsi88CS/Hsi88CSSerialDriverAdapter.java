@@ -22,7 +22,7 @@ public class Hsi88CSSerialDriverAdapter extends jmri.jmrix.hsi88.serialdriver.Se
         options.put("TrackPowerState",
                 new Option("Track Power At StartUp:", new String[]{"Powered Off", "Powered On"}, true));
         //Set the username to match name, once refactored to handle multiple connections or user setable names/prefixes then this can be removed 
-        this.getSystemConnectionMemo().setUserName("hsi88 Command Station");
+        this.getSystemConnectionMemo().setUserName("Hsi88 Command Station");
     }
 
     /**

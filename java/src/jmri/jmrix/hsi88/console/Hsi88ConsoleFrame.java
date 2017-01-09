@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Frame for hsi88 Console
+ * Frame for Hsi88 Console
  *
  * Updated Jan 2010 by Andrew Berridge - fixed errors caused by trying to send
  * some commands while slot manager is active
@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
  * status, implement a timeout and look for the correct replies which may be
  * delayed by replies for slot manager.
  *
- * Refactored
+ * Refactored.
  *
- * @author	Andrew Crosland Copyright (C) 2008, 2016
+ * @author Andrew Crosland Copyright (C) 2008, 2016
  */
 public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hsi88Listener {
 
@@ -72,7 +72,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         MODEQUERYSENT, // awaiting reply to "M"
         CURRENTSENT, // awaiting reply to "I xxx"
         MODESENT, // awaiting reply to "M xxx"
-        WRITESENT   		// awaiting reply to "W"
+        WRITESENT // awaiting reply to "W"
     }
 
     public Hsi88ConsoleFrame(Hsi88SystemConnectionMemo memo) {
@@ -82,7 +82,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
     @Override
     protected String title() {
-        return "hsi88 Console";
+        return "Hsi88 Console";
     }
 
     @Override
@@ -132,11 +132,10 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         sendButton.setToolTipText("Send packet");
 
         cmdTextField.setText("");
-        cmdTextField.setToolTipText("Enter a hsi88 command");
+        cmdTextField.setToolTipText("Enter a Hsi88 command");
         cmdTextField.setMaximumSize(
                 new Dimension(cmdTextField.getMaximumSize().width,
-                        cmdTextField.getPreferredSize().height)
-        );
+                        cmdTextField.getPreferredSize().height));
 
         cmdTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -192,10 +191,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         currentTextField.setToolTipText("Enter new current limit in milliAmps (less than 1000)");
         currentTextField.setMaximumSize(
                 new Dimension(currentTextField.getMaximumSize().width,
-                        currentTextField.getPreferredSize().height
-                )
-        );
-
+                        currentTextField.getPreferredSize().height));
 
         ztcCheckBox.setText("Set ZTC mode");
         ztcCheckBox.setVisible(true);
@@ -268,7 +264,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     }
 
     public void sendButtonActionPerformed(java.awt.event.ActionEvent e) {
-        Hsi88Message m = new Hsi88Message(cmdTextField.getText());
+        Hsi88Message m = new Hsi88Message(cmdTextField.getText() + "\r");
         // Messages sent by us will not be forwarded back so add to display manually
         nextLine("cmd: \"" + m.toString() + "\"\n", "");
         tc.sendHsi88Message(m, this);
@@ -282,15 +278,15 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         try {
             currentLimit = Integer.parseInt(currentTextField.getText());
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Invalid Current Limit Entered\n"
-                    + "Please enter a value in the range " + currentRange,
+            JOptionPane.showMessageDialog(null,
+                    "Invalid Current Limit Entered\n" + "Please enter a value in the range " + currentRange,
                     "hsi88 Console", JOptionPane.ERROR_MESSAGE);
             currentLimit = validLimit;
             return;
         }
         if ((currentLimit > validLimit) || (currentLimit < 200)) {
-            JOptionPane.showMessageDialog(null, "Invalid Current Limit Entered\n"
-                    + "Please enter a value in the range " + currentRange,
+            JOptionPane.showMessageDialog(null,
+                    "Invalid Current Limit Entered\n" + "Please enter a value in the range " + currentRange,
                     "hsi88 Console", JOptionPane.ERROR_MESSAGE);
             currentLimit = validLimit;
         }
@@ -320,7 +316,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC")
     // Called from synchronised code
     public boolean isCurrentLimitPossible() {
-        return true; 
+        return true;
     }
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC")
@@ -341,136 +337,139 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         return false;
     }
 
-
-
     @Override
-    public synchronized void notifyMessage(Hsi88Message l) {  // receive a message and log it
+    public synchronized void notifyMessage(Hsi88Message l) { // receive a message and log it
         nextLine("cmd: \"" + l.toString() + "\"\n", "");
     }
 
     @Override
-    public synchronized void notifyReply(Hsi88Reply l) {  // receive a reply message and log it
+    public synchronized void notifyReply(Hsi88Reply l) { // receive a reply message and log it
         Hsi88Message msg;
         int currentLimitFromHardware;
         replyString = l.toString();
         nextLine("rep: \"" + replyString + "\"\n", "");
 
-        // *** Check for error reply
-        switch (state) {
-            case IDLE:
-                log.debug("reply in IDLE state: " + replyString);
-                break;
-            case CURRENTQUERYSENT:
-                // Look for an "I=" reply
-                log.debug("reply in CURRENTQUERYSENT state: " + replyString);
-                if (replyString.contains("I=")) {
-                    stopTimer();
-                    int valueLength = 4;
+        if (1 == 2) {
+            // *** Check for error reply
+            switch (state) {
+                case IDLE:
+                    log.debug("reply in IDLE state: " + replyString);
+                    break;
+                case CURRENTQUERYSENT:
+                    // Look for an "I=" reply
+                    log.debug("reply in CURRENTQUERYSENT state: " + replyString);
+                    if (replyString.contains("I=")) {
+                        stopTimer();
+                        int valueLength = 4;
 
-                    tmpString = replyString.substring(replyString.indexOf("=")
-                            + 1, replyString.indexOf("=") + valueLength);
-                    log.debug("Current limit string: " + tmpString);
-                    try {
-                        currentLimitFromHardware = Integer.parseInt(tmpString);
-                    } catch (NumberFormatException e) {
-                        JOptionPane.showMessageDialog(null, "Malformed Reply for current limit",
-                                "hsi88 Console", JOptionPane.ERROR_MESSAGE);
-                        state = State.IDLE;
-                        return;
+                        tmpString = replyString.substring(replyString.indexOf("=") + 1,
+                                replyString.indexOf("=") + valueLength);
+                        log.debug("Current limit string: " + tmpString);
+                        try {
+                            currentLimitFromHardware = Integer.parseInt(tmpString);
+                        } catch (NumberFormatException e) {
+                            JOptionPane.showMessageDialog(null, "Malformed Reply for current limit",
+                                    "hsi88 Console", JOptionPane.ERROR_MESSAGE);
+                            state = State.IDLE;
+                            return;
+                        }
+                        // Value written is scaled from hardware units to mA
+                        currentLimit = (int) (currentLimitFromHardware);
+                        log.debug("Current limit from hardware: " +
+                                currentLimitFromHardware +
+                                " scaled to: " +
+                                currentLimit +
+                                "mA");
+                        currentTextField.setText(String.valueOf(currentLimit));
+                        currentTextField.setEnabled(true);
+
+                        // Next get the mode word
+                        state = State.MODEQUERYSENT;
+                        msg = new Hsi88Message(1);
+                        msg.setOpCode('M');
+                        nextLine("cmd: \"" + msg + "\"\n", "");
+                        tc.sendHsi88Message(msg, this);
+                        startTimer();
                     }
-                    // Value written is scaled from hardware units to mA
-                    currentLimit = (int)(currentLimitFromHardware);
-                    log.debug("Current limit from hardware: " + currentLimitFromHardware + " scaled to: " + currentLimit + "mA");
-                    currentTextField.setText(String.valueOf(currentLimit));
-                    currentTextField.setEnabled(true);
+                    break;
+                case MODEQUERYSENT:
+                    log.debug("reply in MODEQUERYSENT state: " + replyString);
+                    if (replyString.contains("M=")) {
+                        stopTimer();
+                        tmpString = replyString.substring(replyString.indexOf("=") + 2, replyString.indexOf("=") + 6);
+                        // Value returned is in hex
+                        try {
+                            modeWord = Integer.parseInt(tmpString, 16);
+                        } catch (NumberFormatException e) {
+                            JOptionPane.showMessageDialog(null, "Malformed Reply for mode word",
+                                    "hsi88 Console", JOptionPane.ERROR_MESSAGE);
+                            state = State.IDLE;
+                            return;
+                        }
+                        state = State.IDLE;
+                        // Set Speed step radio buttons, etc., according to mode word
+                        if ((modeWord & Hsi88Constants.STEP14_BIT) != 0) {
+                            speed14Button.setSelected(true);
+                        } else if ((modeWord & Hsi88Constants.STEP28_BIT) != 0) {
+                            speed28Button.setSelected(true);
+                        } else {
+                            speed128Button.setSelected(true);
+                        }
+                        if ((modeWord & Hsi88Constants.ZTC_BIT) != 0) {
+                            ztcCheckBox.setSelected(true);
+                        }
+                        if ((modeWord & Hsi88Constants.BLUE_BIT) != 0) {
+                            blueCheckBox.setSelected(true);
+                        }
+                    }
+                    break;
+                case CURRENTSENT:
+                    // Any reply will do here
+                    log.debug("reply in CURRENTSENT state: " + replyString);
+                    // Get new mode word - assume 128 steps
+                    modeWord = Hsi88Constants.STEP128_BIT;
+                    if (speed14Button.isSelected()) {
+                        modeWord = modeWord & ~Hsi88Constants.STEP_MASK | Hsi88Constants.STEP14_BIT;
+                    } else if (speed28Button.isSelected()) {
+                        modeWord = modeWord & ~Hsi88Constants.STEP_MASK | Hsi88Constants.STEP28_BIT;
+                    }
 
-                    // Next get the mode word
-                    state = State.MODEQUERYSENT;
-                    msg = new Hsi88Message(1);
-                    msg.setOpCode('M');
-                    nextLine("cmd: \"" + msg + "\"\n", "");
+                    // ZTC mode
+                    if (ztcCheckBox.isSelected() == true) {
+                        modeWord = modeWord | Hsi88Constants.ZTC_BIT;
+                    }
+
+                    // Blueline mode
+                    if (blueCheckBox.isSelected() == true) {
+                        modeWord = modeWord | Hsi88Constants.BLUE_BIT;
+                    }
+
+                    // firmware unlock
+                    if (unlockCheckBox.isSelected() == true) {
+                        modeWord = modeWord | Hsi88Constants.UNLOCK_BIT;
+                    }
+
+                    // Send new mode word
+                    state = State.MODESENT;
+                    msg = new Hsi88Message("M " + modeWord);
+                    nextLine("cmd: \"" + msg.toString() + "\"\n", "");
                     tc.sendHsi88Message(msg, this);
-                    startTimer();
-                }
-                break;
-            case MODEQUERYSENT:
-                log.debug("reply in MODEQUERYSENT state: " + replyString);
-                if (replyString.contains("M=")) {
-                    stopTimer();
-                    tmpString = replyString.substring(replyString.indexOf("=")
-                            + 2, replyString.indexOf("=") + 6);
-                    // Value returned is in hex
-                    try {
-                        modeWord = Integer.parseInt(tmpString, 16);
-                    } catch (NumberFormatException e) {
-                        JOptionPane.showMessageDialog(null, "Malformed Reply for mode word",
-                                "hsi88 Console", JOptionPane.ERROR_MESSAGE);
-                        state = State.IDLE;
-                        return;
-                    }
+                    break;
+                case MODESENT:
+                    // Any reply will do here
+                    log.debug("reply in MODESENT state: " + replyString);
+                    // Write to EEPROM
+                    state = State.WRITESENT;
+                    msg = new Hsi88Message("W");
+                    nextLine("cmd: \"" + msg.toString() + "\"\n", "");
+                    tc.sendHsi88Message(msg, this);
+                    break;
+                case WRITESENT:
+                    // Any reply will do here
+                    log.debug("reply in WRITESENT state: " + replyString);
+                    // All done
                     state = State.IDLE;
-                    // Set Speed step radio buttons, etc., according to mode word
-                    if ((modeWord & Hsi88Constants.STEP14_BIT) != 0) {
-                        speed14Button.setSelected(true);
-                    } else if ((modeWord & Hsi88Constants.STEP28_BIT) != 0) {
-                        speed28Button.setSelected(true);
-                    } else {
-                        speed128Button.setSelected(true);
-                    }
-                    if ((modeWord & Hsi88Constants.ZTC_BIT) != 0) {
-                        ztcCheckBox.setSelected(true);
-                    }
-                    if ((modeWord & Hsi88Constants.BLUE_BIT) != 0) {
-                        blueCheckBox.setSelected(true);
-                    }
-                }
-                break;
-            case CURRENTSENT:
-                // Any reply will do here
-                log.debug("reply in CURRENTSENT state: " + replyString);
-                // Get new mode word - assume 128 steps
-                modeWord = Hsi88Constants.STEP128_BIT;
-                if (speed14Button.isSelected()) {
-                    modeWord = modeWord & ~Hsi88Constants.STEP_MASK | Hsi88Constants.STEP14_BIT;
-                } else if (speed28Button.isSelected()) {
-                    modeWord = modeWord & ~Hsi88Constants.STEP_MASK | Hsi88Constants.STEP28_BIT;
-                }
-
-                // ZTC mode
-                if (ztcCheckBox.isSelected() == true) {
-                    modeWord = modeWord | Hsi88Constants.ZTC_BIT;
-                }
-
-                // Blueline mode
-                if (blueCheckBox.isSelected() == true) {
-                    modeWord = modeWord | Hsi88Constants.BLUE_BIT;
-                }
-
-                // firmware unlock
-                if (unlockCheckBox.isSelected() == true) {
-                    modeWord = modeWord | Hsi88Constants.UNLOCK_BIT;
-                }
-
-                // Send new mode word
-                state = State.MODESENT;
-                msg = new Hsi88Message("M " + modeWord);
-                nextLine("cmd: \"" + msg.toString() + "\"\n", "");
-                tc.sendHsi88Message(msg, this);
-                break;
-            case MODESENT:
-                // Any reply will do here
-                log.debug("reply in MODESENT state: " + replyString);
-                // Write to EEPROM
-                state = State.WRITESENT;
-                msg = new Hsi88Message("W");
-                nextLine("cmd: \"" + msg.toString() + "\"\n", "");
-                tc.sendHsi88Message(msg, this);
-                break;
-            case WRITESENT:
-                // Any reply will do here
-                log.debug("reply in WRITESENT state: " + replyString);
-                // All done
-                state = State.IDLE;
+            }
         }
     }
 
@@ -478,7 +477,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
      * Internal routine to handle a timeout
      */
     synchronized protected void timeout() {
-        JOptionPane.showMessageDialog(null, "Timeout talking to hsi88",
+        JOptionPane.showMessageDialog(null, "Timeout talking to Hsi88",
                 "Timeout", JOptionPane.ERROR_MESSAGE);
         state = State.IDLE;
     }

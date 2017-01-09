@@ -1,6 +1,6 @@
 package jmri.jmrix.hsi88.hsi88CS;
 
-import jmri.jmrix.hsi88.Hsi88Constants.Hsi88Mode;
+import jmri.jmrix.hsi88.Hsi88Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 public class Hsi88CSSerialDriverAdapter extends jmri.jmrix.hsi88.serialdriver.SerialDriverAdapter {
 
     public Hsi88CSSerialDriverAdapter() {
-        super(Hsi88Mode.OPS);
-        options.put("TrackPowerState",
-                new Option("Track Power At StartUp:", new String[]{"Powered Off", "Powered On"}, true));
-        //Set the username to match name, once refactored to handle multiple connections or user setable names/prefixes then this can be removed 
+        super(Hsi88Mode.TerminalMode);
+        options.put("PowerState",
+                new Option("Power At StartUp:", new String[]{"Powered Off", "Powered On"}, true));
+        //Set the user name to match name, once refactored to handle multiple connections or user setable names/prefixes then this can be removed 
         this.getSystemConnectionMemo().setUserName("Hsi88 Command Station");
     }
 

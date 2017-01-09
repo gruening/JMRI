@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Swing action to create and register a Hsi88ConsoleFrame object
  *
- * @author	Andrew Crosland Copyright (C) 2008
+ * @author Andrew Crosland Copyright (C) 2008
+ * 
+ * Andre Gruening adapted for HSI88 2017
  */
 public class Hsi88ConsoleAction extends AbstractAction {
 

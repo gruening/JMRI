@@ -34,19 +34,18 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
             // configure to wait for reply
             waiting = true;
             onReply = PowerManager.ON;
-            // send "Enable main track"
-            Hsi88Message l = Hsi88Message.getEnableMain();
+            // enable S88 polling
+            Hsi88Message l = new Hsi88Message(Hsi88Message.Command.Setup, 2,2,2);
             trafficController.sendHsi88Message(l, this);
         } else if (v == OFF) {
             // configure to wait for reply
             waiting = true;
             onReply = PowerManager.OFF;
             firePropertyChange("Power", null, null);
-            // send "Kill main track"
-            Hsi88Message l = Hsi88Message.getKillMain();
-            for (int i = 0; i < 3; i++) {
-                trafficController.sendHsi88Message(l, this);
-            }
+            // disable S88 polling
+            Hsi88Message l = new Hsi88Message(Hsi88Message.Command.Setup, 0,0,0);
+            trafficController.sendHsi88Message(l, this);
+            
         }
         firePropertyChange("Power", null, null);
     }
@@ -85,16 +84,17 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
         waiting = false;
     }
 
+    /** @todo What could we do here? */
     public void notifyMessage(Hsi88Message m) {
-        if (m.isKillMain()) {
-            // configure to wait for reply
-            waiting = true;
-            onReply = PowerManager.OFF;
-        } else if (m.isEnableMain()) {
-            // configure to wait for reply
-            waiting = true;
-            onReply = PowerManager.ON;
-        }
+        // if (m.isKillMain()) {
+        //    // configure to wait for reply
+        //    waiting = true;
+         //   onReply = PowerManager.OFF;
+        //} else if (m.isEnableMain()) {
+        //    // configure to wait for reply
+        //    waiting = true;
+        //    onReply = PowerManager.ON;
+       // }
     }
 
     public void notify(AbstractMessage m) {
@@ -103,7 +103,5 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
         } else {
             this.notifyReply((Hsi88Reply) m);
         }
-
     }
-
 }

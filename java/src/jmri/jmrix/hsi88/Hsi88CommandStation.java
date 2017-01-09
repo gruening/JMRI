@@ -7,47 +7,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Controls a collection of slots, acting as a soft command station for hsi88
- * <P>
- * A SlotListener can register to hear changes. By registering here, the
- * SlotListener is saying that it wants to be notified of a change in any slot.
- * Alternately, the SlotListener can register with some specific slot, done via
- * the hsi88Slot object itself.
- * <P>
- * This Programmer implementation is single-user only. It's not clear whether
- * the command stations can have multiple programming requests outstanding (e.g.
- * service mode and ops mode, or two ops mode) at the same time, but this code
- * definitely can't.
- * <P>
- * Updated by Andrew Berridge, January 2010 - state management code now safer,
- * uses enum, etc. Amalgamated with hsi88 Slot Manager into a single class -
- * reduces code duplication </P>
- * <P>
- * Updated by Andrew Crosland February 2012 to allow slots to hold 28 step speed
- * packets</P>
- * 
- * Re-written by Andrew Crosland to send the next packet as soon as a reply is 
- * notified. This removes a race between the old state machine running before 
- * the traffic controller despatches a reply, missing the opportunity to send a 
- * new packet to the layout until the next JVM time slot, which can be 15ms on 
- * Windows platforms.
- *
- * @author	Bob Jacobsen Copyright (C) 2001, 2003 
- * @author      Andrew Crosland (C) 2006 ported to hsi88, 2012, 2016
+ * Controls the HSI88 interface acting as a soft command station for hsi88
+ *  
+ * @author Bob Jacobsen Copyright (C) 2001, 2003
+ * @author Andrew Crosland (C) 2006 ported to sprog, 2012, 2016
+ * @author Andre Gruening (C) 2017 ported to HSI88
  */
 public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runnable {
 
     private boolean running = false;
-    
-    protected int currentSlot = 0;
-    protected int currenthsi88Address = -1;
 
-    // protected LinkedList<Hsi88Slot> slots;
-    // protected Queue<Hsi88Slot> sendNow;
+    private javax.swing.Timer timer = null;
 
-    javax.swing.Timer timer = null;
-
-    private Hsi88TrafficController tc = null;
+    final private Hsi88TrafficController tc;
 
     public Hsi88CommandStation(Hsi88TrafficController controller) {
         tc = controller;
@@ -61,8 +33,8 @@ public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runna
      * create a new runnable object to despatch the message to the traffic
      * controller.
      *
-     * @param packet  Byte array representing the packet, including the
-     *                error-correction byte. Must not be null.
+     * @param packet Byte array representing the packet, including the
+     *            error-correction byte. Must not be null.
      * @param repeats number of times to repeat the packet
      */
     @Override
@@ -75,7 +47,7 @@ public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runna
         }
         final Hsi88Message m = new Hsi88Message(packet);
         if (log.isDebugEnabled()) {
-            log.debug("Sending packet " + m.toString(tc.isSIIBootMode()));
+            log.debug("Sending packet " + m.toString());
         }
         for (int i = 0; i < repeats; i++) {
             final Hsi88TrafficController thisTC = tc;
@@ -98,7 +70,7 @@ public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runna
 
     @Override
     /**
-     * The run() method will only be called (from hsi88SystemconnecionMemo 
+     * The run() method will only be called (from hsi88SystemconnecionMemo
      * ConfigureCommandStation()) if the connected hsi88 is in OPS mode.
      * 
      */
@@ -110,16 +82,15 @@ public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runna
     }
 
     /*
-     * Needs to listen to replies
-     * Need to implement asynch replies for overload & notify power manager
+     * Needs to listen to replies. Need to implement asynch replies for overload
+     * & notify power manager
      *
-     * How does POM work??? how does programmer send packets??
      *
      * @param m the hsi88 message received
      */
     @Override
     public void notifyMessage(Hsi88Message m) {
-//        log.error("message received unexpectedly: "+m.toString(tc.isSIIBootMode()));
+        log.warn("message received: " + m.toString());
     }
 
     private Hsi88Reply replyForMe;
@@ -131,23 +102,23 @@ public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runna
      */
     @Override
     public void notifyReply(Hsi88Reply m) {
-        // Here we wou;d need to act on an reply from the HSI88 device!
+        // Here we would need to act on an reply from the HSI88 device!
         if (running == true) {
             byte[] p;
             statusA = new int[4];
 
             replyForMe = m;
-            log.debug("reply received: "+m.toString() + "StatusDue = " + statusDue);
-            if (m.isUnsolicited() && m.isOverload()) {
-                log.error("Overload");
+            log.debug("reply received: " + m.toString() + "StatusDue = " + statusDue);
+            if (m.isUnsolicited()) {
+                log.error("Unsolicted");
                 // *** turn power off
             }
-            
+
             // Is it time to send a status request?
             if (statusDue == 40) {
                 // Only ask for status if it's actually being displayed
                 log.debug("Sending status request");
-                tc.sendHsi88Message(Hsi88Message.getStatus(), this);
+                //tc.sendHsi88Message(Hsi88Message.getStatus(), this);
                 statusDue++;
             } else {
                 // Are we waiting for a status reply
@@ -161,21 +132,21 @@ public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runna
                     if (i > -1) {
                         int milliAmps = (int) ((Integer.decode("0x" + s.substring(i + 7, i + 11))));
                         statusA[0] = milliAmps;
-                        String ampString;
-                        ampString = Float.toString((float) statusA[0] / 1000);
+                        // String ampString;
+                        // ampString = Float.toString((float) statusA[0] / 1000);
                         statusDue = 0;
                     }
                 } else {
                     // Get next packet to send
                     log.debug("Get next packet to send");
                     // Hsi88Slot s = sendNow.poll();
-                    
+
                     // Or take the next one from the stack
-                        
-                        // Do nothing for a while
+
+                    // Do nothing for a while
                     log.debug("Start timeout");
-                    
-                }   
+
+                }
             }
             restartTimer(100);
         }
@@ -225,7 +196,7 @@ public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runna
     /**
      * Internal routine to handle a timeout
      */
-    synchronized protected void timeout() {
+    synchronized private void timeout() {
         Runnable r = () -> {
             log.debug("Send CR due to timeout");
             // Send a CR to prompt a reply from hardware and keep things running
@@ -239,7 +210,7 @@ public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runna
      * 
      * @param delay timer delay
      */
-    protected void restartTimer(int delay) {
+    private void restartTimer(int delay) {
         log.debug("Restart timer");
         if (timer == null) {
             timer = new javax.swing.Timer(delay, (java.awt.event.ActionEvent e) -> {
@@ -251,17 +222,6 @@ public class Hsi88CommandStation implements CommandStation, Hsi88Listener, Runna
         timer.setRepeats(false);
         timer.start();
     }
-
-
-    /**
-     * Set the slot hsi88SlotMonFrame associated with this Command Station
-     * There can currently be only one hsi88SlotMonFrame.
-     */
-    public void setHsi88SlotMonFrame(Object s) {
-    }
-
-  
-
 
     // initialize logging
     private final static Logger log = LoggerFactory.getLogger(Hsi88CommandStation.class.getName());

@@ -19,7 +19,7 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
     private Thread rcvNotice = null;
 
     public Hsi88StreamPortController(DataInputStream in, DataOutputStream out, String pname) {
-        super(new Hsi88SystemConnectionMemo(Hsi88Constants.Hsi88Mode.OPS), in, out, pname);
+        super(new Hsi88SystemConnectionMemo(Hsi88Mode.TerminalMode), in, out, pname);
     }
 
     @Override

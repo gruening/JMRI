@@ -1,6 +1,5 @@
 package jmri.jmrix.hsi88;
 
-import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import java.io.DataInputStream;
@@ -8,7 +7,6 @@ import java.io.OutputStream;
 import java.util.Vector;
 import jmri.jmrix.AbstractPortController;
 import jmri.jmrix.SystemConnectionMemo;
-import jmri.jmrix.hsi88.Hsi88Constants.Hsi88State;
 import jmri.jmrix.hsi88.serialdriver.SerialDriverAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +29,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
 	private boolean waitingForReply = false;
 	Hsi88Listener lastSender = null;
 
-	private Hsi88State hsi88State = Hsi88State.NORMAL;
+	private Hsi88Mode hsi88Mode = Hsi88Mode.HexMode;
 
 	public Hsi88TrafficController(SystemConnectionMemo systemConnectionMemo) {
 		memo = (Hsi88SystemConnectionMemo) systemConnectionMemo;
@@ -60,38 +58,13 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
 		}
 	}
 
-	public Hsi88State getHsi88State() {
-		return hsi88State;
+	public Hsi88Mode getHsi88State() {
+		return hsi88Mode;
 	}
 
-	public void setHsi88State(Hsi88State s) {
-		this.hsi88State = s;
-		if (s == Hsi88State.V4BOOTMODE) {
-			// enable flow control - required for hsi88 v4 bootloader
-			getController().setHandshake(SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT);
-
-		} else {
-			// disable flow control
-			// AJB - removed Jan 2010 - this stops HSI88 from sending. Could
-			// cause problems with
-			// serial Hsi88s, but I have no way of testing:
-			// getController().setHandshake(0);
-		}
-		if (log.isDebugEnabled()) {
-			log.debug("Setting hsi88State " + s);
-		}
-	}
-
-	public boolean isNormalMode() {
-		return hsi88State == Hsi88State.NORMAL;
-	}
-
-	public boolean isSIIBootMode() {
-		return hsi88State == Hsi88State.SIIBOOTMODE;
-	}
-
-	public boolean isV4BootMode() {
-		return hsi88State == Hsi88State.V4BOOTMODE;
+	public void setHsi88Mode(Hsi88Mode s) {
+		this.hsi88Mode = s;
+	
 	}
 
 	@SuppressWarnings("unchecked")
@@ -153,7 +126,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
 		// stream to port in single write, as that's needed by serial
 		try {
 			if (ostream != null) {
-				ostream.write(m.getFormattedMessage(hsi88State));
+				ostream.write(m.getFormattedMessage());
 			} else {
 				// no stream connected
 				log.warn("sendMessage: no connection established");
@@ -165,7 +138,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
 
 	/**
 	 * Forward a preformatted message to the actual interface (by calling
-	 * SendHsi88Message(Hsi88Message) after notifying any listeners Notifies
+	 * sendHsi88Message(Hsi88Message) after notifying any listeners Notifies
 	 * listeners
 	 */
 	public synchronized void sendHsi88Message(Hsi88Message m, Hsi88Listener replyTo) {
@@ -254,7 +227,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
 	OutputStream ostream = null;
 
 	boolean endReply(Hsi88Reply msg) {
-		return msg.endNormalReply() || msg.endBootReply() || msg.endBootloaderReply(this.getHsi88State());
+		return msg.endReply();
 	}
 
 	private boolean unsolicited;
@@ -293,7 +266,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
 		// fill the current reply with any data received
 		int replyCurrentSize = this.reply.getNumDataElements();
 		int i;
-		for (i = replyCurrentSize; i < Hsi88Reply.maxSize - replyCurrentSize; i++) {
+		for (i = replyCurrentSize; i < Hsi88Reply.MAXSIZE - replyCurrentSize; i++) {
 			try {
 				if (istream.available() == 0) {
 					break; // nothing waiting to be read

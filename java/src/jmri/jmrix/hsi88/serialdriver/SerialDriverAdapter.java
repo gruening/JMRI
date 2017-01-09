@@ -7,11 +7,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.util.TooManyListenersException;
-import jmri.jmrix.hsi88.Hsi88Constants.Hsi88Mode;
+import jmri.jmrix.hsi88.Hsi88Mode;
 import jmri.jmrix.hsi88.Hsi88PortController;
 import jmri.jmrix.hsi88.Hsi88SystemConnectionMemo;
 import jmri.jmrix.hsi88.Hsi88TrafficController;
-import jmri.jmrix.hsi88.Hsi88Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmrix.SerialPortAdapter {
 
     public SerialDriverAdapter() {
-        super(new Hsi88SystemConnectionMemo(Hsi88Mode.SERVICE));
+        super(new Hsi88SystemConnectionMemo(Hsi88Mode.TerminalMode));
         //Set the username to match name, once refactored to handle multiple connections or user setable names/prefixes then this can be removed
         this.baudRate = 9600;
         this.getSystemConnectionMemo().setUserName("hsi88 Programmer");
@@ -48,7 +47,7 @@ public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmr
         this.getSystemConnectionMemo().setHsi88TrafficController(new Hsi88TrafficController(this.getSystemConnectionMemo()));
     }
 
-    public SerialDriverAdapter(Hsi88Mode sm, int baud, Hsi88Type type) {
+    public SerialDriverAdapter(Hsi88Mode sm, int baud, Hsi88Mode type) {
         super(new Hsi88SystemConnectionMemo(sm, type));
         this.baudRate = baud;
         this.getSystemConnectionMemo().setUserName("hsi88");
@@ -201,7 +200,7 @@ public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmr
         this.getSystemConnectionMemo().configureCommandStation();
         this.getSystemConnectionMemo().configureManagers();
 
-        if (this.getSystemConnectionMemo().getHsi88Mode() == Hsi88Mode.OPS) {
+        if (this.getSystemConnectionMemo().getHsi88Mode() == Hsi88Mode.TerminalMode) {
             jmri.jmrix.hsi88.ActiveFlagCS.setActive();
         } else {
             jmri.jmrix.hsi88.ActiveFlag.setActive();            

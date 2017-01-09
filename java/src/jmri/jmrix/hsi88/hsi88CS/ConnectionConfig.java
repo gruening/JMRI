@@ -42,7 +42,7 @@ public class ConnectionConfig extends jmri.jmrix.AbstractSerialConnectionConfig 
     @Override
     protected String[] getPortFriendlyNames() {
         if (SystemType.isWindows()) {
-            return new String[]{"hsi88"};
+            return new String[]{"Hsi88"};
         }
         return new String[]{};
     }

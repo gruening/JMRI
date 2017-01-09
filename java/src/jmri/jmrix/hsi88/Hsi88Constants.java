@@ -3,7 +3,7 @@ package jmri.jmrix.hsi88;
 /**
  * hsi88Constants.java
  *
- * Description:	Constants to represent values seen in hsi88 traffic
+ * Description:	Constants to represent values seen in Hsi88 traffic
  *
  * @author	Andrew Crosland Copyright (C) 2006 from LnConstants.java
  */
@@ -13,16 +13,9 @@ public final class Hsi88Constants {
     public final static int hsi88 = 0;
     public final static int hsi88_CS = 1;
 
-    // Current hsi88 state
-    public enum Hsi88State {
+  
 
-        NORMAL, SIIBOOTMODE, V4BOOTMODE
-    }
 
-    public enum Hsi88Mode {
-
-        SERVICE, OPS
-    }
 
     /* Maximum number of slots for soft command station */
     public final static int MAX_SLOTS = 16;

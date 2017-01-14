@@ -29,7 +29,6 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
 	private boolean waitingForReply = false;
 	Hsi88Listener lastSender = null;
 
-	private Hsi88Mode hsi88Mode = Hsi88Mode.HexMode;
 
 	public Hsi88TrafficController(SystemConnectionMemo systemConnectionMemo) {
 		memo = (Hsi88SystemConnectionMemo) systemConnectionMemo;
@@ -56,15 +55,6 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
 		if (cmdListeners.contains(l)) {
 			cmdListeners.removeElement(l);
 		}
-	}
-
-	public Hsi88Mode getHsi88State() {
-		return hsi88Mode;
-	}
-
-	public void setHsi88Mode(Hsi88Mode s) {
-		this.hsi88Mode = s;
-	
 	}
 
 	@SuppressWarnings("unchecked")

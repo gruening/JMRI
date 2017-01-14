@@ -2,13 +2,8 @@ package jmri.jmrix.hsi88;
 
 import java.util.ResourceBundle;
 import jmri.InstanceManager;
-// import jmri.ProgrammerManager; // to go
-// import jmri.ThrottleManager; // to go
-// import jmri.TurnoutManager; // to go
 import jmri.SensorManager;
-// import jmri.jmrix.hsi88.update.Hsi88Type; // to be modified
-// import jmri.jmrix.hsi88.update.Hsi88Version; // to go
-// import jmri.jmrix.hsi88.update.Hsi88VersionQuery; // to go
+import jmri.jmrix.hsi88.Hsi88Setup.Hsi88Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +36,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         InstanceManager.store(cf = new jmri.jmrix.hsi88.swing.Hsi88ComponentFactory(this),
                 jmri.jmrix.swing.ComponentFactory.class);
     }
-
+    
     public Hsi88SystemConnectionMemo(Hsi88Mode sm, Hsi88Mode type) {
         super("H", "Hsi88");
         hsi88Mode = sm; // static
@@ -84,7 +79,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
      * @return Hsi88Type
      */
     public Hsi88Mode getHsi88Mode1() {
-        return Hsi88Mode.TerminalMode;
+        return Hsi88Setup.mode;
     }
 
     jmri.jmrix.swing.ComponentFactory cf = null;

@@ -32,6 +32,7 @@ public class Hsi88Reply extends AbstractMRReply {
      * Create a new Hsi88Reply as a deep copy of an existing hsi88Reply
      *
      * @param m the Hsi88Reply to copy
+     * @todo rewrite nicer
      */
     @SuppressWarnings("null")
     public Hsi88Reply(Hsi88Reply m) {
@@ -59,15 +60,6 @@ public class Hsi88Reply extends AbstractMRReply {
     }
 
     /**
-     * Is this reply a read from the sensors?
-     * 
-     * @todo simplify
-     */
-    boolean isReading() {
-        return (this.toString().charAt(0) == 'i' || this.toString().charAt(0) == 'm');
-    }
-
-    /**
      * Returns a string representation of this hsi88Reply
      */
     public String toString() {
@@ -76,11 +68,12 @@ public class Hsi88Reply extends AbstractMRReply {
         for (int i : _dataChars) {
             buf.append((char) i);
         }
+        buf.deleteCharAt(_nDataChars-1); // delete terminating cr.
         return buf.toString();
     }
 
     /**
-     * hsi88 replies end with a reply that is \r terminated.
+     * hsi88 replies end with \r.
      */
     public boolean endReply() {
 
@@ -93,4 +86,5 @@ public class Hsi88Reply extends AbstractMRReply {
     }
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88Reply.class.getName());
+
 }

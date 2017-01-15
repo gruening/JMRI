@@ -3,15 +3,15 @@ package jmri.jmrix.hsi88;
 import jmri.JmriException;
 import jmri.PowerManager;
 import jmri.jmrix.AbstractMessage;
+import org.python.jline.internal.Log;
 
 /**
  * PowerManager implementation for controlling HSI88 layout power.
  *
- * @author	Bob Jacobsen Copyright (C) 2001
+ * @author Bob Jacobsen Copyright (C) 2001
  *
  */
-public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
-        implements PowerManager, Hsi88Listener {
+public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implements PowerManager, Hsi88Listener {
 
     Hsi88TrafficController trafficController = null;
 
@@ -35,7 +35,7 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
             waiting = true;
             onReply = PowerManager.ON;
             // enable S88 polling
-            Hsi88Message l = new Hsi88Message(Hsi88Message.Command.Setup, 2,2,2);
+            Hsi88Message l = new Hsi88Message(Hsi88Message.Command.Setup, 2, 2, 2);
             trafficController.sendHsi88Message(l, this);
         } else if (v == OFF) {
             // configure to wait for reply
@@ -43,9 +43,9 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
             onReply = PowerManager.OFF;
             firePropertyChange("Power", null, null);
             // disable S88 polling
-            Hsi88Message l = new Hsi88Message(Hsi88Message.Command.Setup, 0,0,0);
+            Hsi88Message l = new Hsi88Message(Hsi88Message.Command.Setup, 0, 0, 0);
             trafficController.sendHsi88Message(l, this);
-            
+
         }
         firePropertyChange("Power", null, null);
     }
@@ -77,6 +77,7 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
 
     // to listen for status changes from Hsi88 system
     public void notifyReply(Hsi88Reply m) {
+        Log.warn("notified");
         if (waiting) {
             power = onReply;
             firePropertyChange("Power", null, null);
@@ -86,15 +87,7 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
 
     /** @todo What could we do here? */
     public void notifyMessage(Hsi88Message m) {
-        // if (m.isKillMain()) {
-        //    // configure to wait for reply
-        //    waiting = true;
-         //   onReply = PowerManager.OFF;
-        //} else if (m.isEnableMain()) {
-        //    // configure to wait for reply
-        //    waiting = true;
-        //    onReply = PowerManager.ON;
-       // }
+        // nothing to do.
     }
 
     public void notify(AbstractMessage m) {

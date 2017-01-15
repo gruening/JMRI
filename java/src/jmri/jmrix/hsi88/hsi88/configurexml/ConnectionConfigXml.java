@@ -1,8 +1,8 @@
-package jmri.jmrix.hsi88.hsi88CS.configurexml;
+package jmri.jmrix.hsi88.hsi88.configurexml;
 
 import jmri.jmrix.configurexml.AbstractSerialConnectionConfigXml;
-import jmri.jmrix.hsi88.hsi88CS.ConnectionConfig;
-import jmri.jmrix.hsi88.hsi88CS.Hsi88CSSerialDriverAdapter;
+import jmri.jmrix.hsi88.hsi88.ConnectionConfig;
+import jmri.jmrix.hsi88.hsi88.Hsi88SerialDriverAdapter;
 
 /**
  * Handle XML persistance of layout connections by persistening the
@@ -25,7 +25,7 @@ public class ConnectionConfigXml extends AbstractSerialConnectionConfigXml {
     @Override
     protected void getInstance() {
         if (adapter == null) {
-            adapter = new Hsi88CSSerialDriverAdapter();
+            adapter = new Hsi88SerialDriverAdapter();
         }
     }
 

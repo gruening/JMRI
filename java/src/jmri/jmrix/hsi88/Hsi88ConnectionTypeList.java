@@ -17,7 +17,7 @@ public class Hsi88ConnectionTypeList implements jmri.jmrix.ConnectionTypeList {
 	@Override
 	public String[] getAvailableProtocolClasses() {
 		return new String[] {
-				"jmri.jmrix.hsi88.hsi88CS.ConnectionConfig",
+				"jmri.jmrix.hsi88.hsi88.ConnectionConfig",
 		};
 	}
 

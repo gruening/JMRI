@@ -8,13 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract base for classes representing an hsi88 Command Station
- * communications port
- * <p>
- * NOTE: This currently only supports the hsi88 Command Station interfaces.
- * <p>
+ * Abstract base for classes representing an Hsi88 Interface
+ * communications port.
  *
  * @author	Paul Bender Copyright (C) 2014
+ *
+ * Andre Gruening 2017 used the sprog version as a template and trivially modified this for use with Hsi88
  */
 public class Hsi88StreamPortController extends AbstractStreamPortController implements Hsi88Interface {
     private Thread rcvNotice = null;
@@ -32,7 +31,7 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
         // connect to the traffic controller
         this.getSystemConnectionMemo().setHsi88TrafficController(control);
         control.setAdapterMemo(this.getSystemConnectionMemo());
-        this.getSystemConnectionMemo().configureCommandStation();
+        // this.getSystemConnectionMemo().configureCommandStation();
         this.getSystemConnectionMemo().configureManagers();
         control.connectPort(this);
 

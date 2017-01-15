@@ -1,5 +1,5 @@
 // ConnectionConfig.java
-package jmri.jmrix.hsi88.hsi88CS;
+package jmri.jmrix.hsi88.hsi88;
 
 import jmri.util.SystemType;
 
@@ -27,7 +27,7 @@ public class ConnectionConfig extends jmri.jmrix.AbstractSerialConnectionConfig 
     }
 
     public String name() {
-        return "Hsi88 Command Station";
+        return "Hsi88 Interface";
     }
 
     public String getManufacturer() {
@@ -49,7 +49,7 @@ public class ConnectionConfig extends jmri.jmrix.AbstractSerialConnectionConfig 
 
     protected void setInstance() {
         if(adapter == null ) {
-           adapter = new Hsi88CSSerialDriverAdapter();
+           adapter = new Hsi88SerialDriverAdapter();
         } 
     }
 }

@@ -36,7 +36,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         InstanceManager.store(cf = new jmri.jmrix.hsi88.swing.Hsi88ComponentFactory(this),
                 jmri.jmrix.swing.ComponentFactory.class);
     }
-    
+
     public Hsi88SystemConnectionMemo(Hsi88Mode sm, Hsi88Mode type) {
         super("H", "Hsi88");
         hsi88Mode = sm; // static
@@ -96,28 +96,27 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
     }
 
     private Hsi88TrafficController st;
-    private Hsi88CommandStation commandStation;
+    // private Hsi88CommandStation commandStation;
 
     private Thread slotThread;
 
-    /**
-     * Configure the programming manager and "command station" objects
+    /*
+     * /** Configure the programming manager and "command station" objects
+     * 
+     * public void configureCommandStation() {
+     * log.debug("start command station queuing thread"); commandStation = new
+     * jmri.jmrix.hsi88.Hsi88CommandStation(st);
+     * commandStation.setSystemConnectionMemo(this);
+     * jmri.InstanceManager.setCommandStation(commandStation); slotThread = new
+     * Thread(commandStation); slotThread.start(); }
      */
-    public void configureCommandStation() {
-        log.debug("start command station queuing thread");
-        commandStation = new jmri.jmrix.hsi88.Hsi88CommandStation(st);
-        commandStation.setSystemConnectionMemo(this);
-        jmri.InstanceManager.setCommandStation(commandStation);
-        slotThread = new Thread(commandStation);
-        slotThread.start();
-    }
 
     /*
      * Get the command station object associated with this connection
      */
-    public Hsi88CommandStation getCommandStation() {
-        return commandStation;
-    }
+    /**
+     * public Hsi88CommandStation getCommandStation() { return commandStation; }
+     */
 
     @Override
     public boolean provides(Class<?> type) {
@@ -148,9 +147,9 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         if (T.equals(jmri.SensorManager.class)) {
             return (T) getSensorManager();
         }
-        if (T.equals(jmri.CommandStation.class)) {
-            return (T) getCommandStation();
-        }
+        //       if (T.equals(jmri.CommandStation.class)) {
+        //          return (T) getCommandStation();
+        //        }
         return null; // nothing, by default
     }
 

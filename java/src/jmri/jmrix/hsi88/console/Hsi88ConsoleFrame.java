@@ -8,7 +8,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import jmri.jmrix.hsi88.Hsi88Constants;
 import jmri.jmrix.hsi88.Hsi88Listener;
 import jmri.jmrix.hsi88.Hsi88Message;
 import jmri.jmrix.hsi88.Hsi88Reply;
@@ -56,7 +55,6 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     protected JRadioButton speed128Button = new JRadioButton("128 step");
 
     protected int modeWord;
-    protected int currentLimit = Hsi88Constants.DEFAULT_I;
 
     // members for handling the hsi88 interface
     Hsi88TrafficController tc = null;
@@ -276,20 +274,16 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         String currentRange = "200 - 996";
         int validLimit = 996;
         try {
-            currentLimit = Integer.parseInt(currentTextField.getText());
+            // currentLimit = Integer.parseInt(currentTextField.getText());
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null,
                     "Invalid Current Limit Entered\n" + "Please enter a value in the range " + currentRange,
                     "hsi88 Console", JOptionPane.ERROR_MESSAGE);
-            currentLimit = validLimit;
+            // currentLimit = validLimit;
             return;
         }
-        if ((currentLimit > validLimit) || (currentLimit < 200)) {
-            JOptionPane.showMessageDialog(null,
-                    "Invalid Current Limit Entered\n" + "Please enter a value in the range " + currentRange,
-                    "hsi88 Console", JOptionPane.ERROR_MESSAGE);
-            currentLimit = validLimit;
-        }
+ 
+       
     }
 
     synchronized public void saveButtonActionPerformed(java.awt.event.ActionEvent e) {
@@ -300,8 +294,8 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         if (isCurrentLimitPossible()) {
             validateCurrent();
             // Value written is scaled from mA to hardware units
-            currentLimitForHardware = (int) (currentLimit);
-            tmpString = String.valueOf(currentLimitForHardware);
+            // currentLimitForHardware = (int) (currentLimit);
+            // tmpString = String.valueOf(currentLimitForHardware);
             saveMsg = new Hsi88Message("I " + tmpString);
         } else {
             // Else send blank message to kick things off
@@ -374,13 +368,13 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
                             return;
                         }
                         // Value written is scaled from hardware units to mA
-                        currentLimit = (int) (currentLimitFromHardware);
+                        // currentLimit = (int) (currentLimitFromHardware);
                         log.debug("Current limit from hardware: " +
                                 currentLimitFromHardware +
                                 " scaled to: " +
-                                currentLimit +
+                           //     currentLimit +
                                 "mA");
-                        currentTextField.setText(String.valueOf(currentLimit));
+                        // currentTextField.setText(String.valueOf(currentLimit));
                         currentTextField.setEnabled(true);
 
                         // Next get the mode word
@@ -408,6 +402,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
                         }
                         state = State.IDLE;
                         // Set Speed step radio buttons, etc., according to mode word
+                        /*
                         if ((modeWord & Hsi88Constants.STEP14_BIT) != 0) {
                             speed14Button.setSelected(true);
                         } else if ((modeWord & Hsi88Constants.STEP28_BIT) != 0) {
@@ -421,32 +416,33 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
                         if ((modeWord & Hsi88Constants.BLUE_BIT) != 0) {
                             blueCheckBox.setSelected(true);
                         }
+                        */
                     }
                     break;
                 case CURRENTSENT:
                     // Any reply will do here
                     log.debug("reply in CURRENTSENT state: " + replyString);
                     // Get new mode word - assume 128 steps
-                    modeWord = Hsi88Constants.STEP128_BIT;
+                    // modeWord = Hsi88Constants.STEP128_BIT;
                     if (speed14Button.isSelected()) {
-                        modeWord = modeWord & ~Hsi88Constants.STEP_MASK | Hsi88Constants.STEP14_BIT;
+                        // modeWord = modeWord & ~Hsi88Constants.STEP_MASK | Hsi88Constants.STEP14_BIT;
                     } else if (speed28Button.isSelected()) {
-                        modeWord = modeWord & ~Hsi88Constants.STEP_MASK | Hsi88Constants.STEP28_BIT;
+                        // modeWord = modeWord & ~Hsi88Constants.STEP_MASK | Hsi88Constants.STEP28_BIT;
                     }
 
                     // ZTC mode
                     if (ztcCheckBox.isSelected() == true) {
-                        modeWord = modeWord | Hsi88Constants.ZTC_BIT;
+                        // modeWord = modeWord | Hsi88Constants.ZTC_BIT;
                     }
 
                     // Blueline mode
                     if (blueCheckBox.isSelected() == true) {
-                        modeWord = modeWord | Hsi88Constants.BLUE_BIT;
+                        // modeWord = modeWord | Hsi88Constants.BLUE_BIT;
                     }
 
                     // firmware unlock
                     if (unlockCheckBox.isSelected() == true) {
-                        modeWord = modeWord | Hsi88Constants.UNLOCK_BIT;
+                        // modeWord = modeWord | Hsi88Constants.UNLOCK_BIT;
                     }
 
                     // Send new mode word

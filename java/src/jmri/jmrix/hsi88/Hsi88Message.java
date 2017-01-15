@@ -4,9 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Encodes a message to an HSI88 command station.
+ * Encodes a message to an Hsi88 interface.
  * <P>
- * The {@link Hsi88Reply} class handles the response from the command station.
+ * The {@link Hsi88Reply} class handles the responses from the interface
  * 
  * @author Bob Jacobsen Copyright (C) 2001: Original sprog implementation used
  *         as a template

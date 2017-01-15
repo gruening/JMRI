@@ -1,28 +1,30 @@
-package jmri.jmrix.hsi88.hsi88CS;
+package jmri.jmrix.hsi88.hsi88;
 
 import jmri.jmrix.hsi88.Hsi88Setup.Hsi88Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implements SerialPortAdapter for the hsi88 system.
+ * Implements SerialPortAdapter for the Hsi88 system.
  * <P>
- * This connects an hsi88 command station via a serial com port. Also used for
- * the USB hsi88, which appears to the computer as a serial port.
+ * This connects an Hsi88 interface via a serial com port. Also used for
+ * the USB Hsi88, which appears to the computer as a serial port.
  * <P>
  * The current implementation only handles the 9,600 baud rate, and does not use
  * any other options at configuration time.
  *
  * @author Andrew Crosland Copyright (C) 2006
+ * 
+ *         Andre Gruening, 2017: Trivial renaming for HSI88 based on sprog.
  */
-public class Hsi88CSSerialDriverAdapter extends jmri.jmrix.hsi88.serialdriver.SerialDriverAdapter {
+public class Hsi88SerialDriverAdapter extends jmri.jmrix.hsi88.serialdriver.SerialDriverAdapter {
 
-    public Hsi88CSSerialDriverAdapter() {
+    public Hsi88SerialDriverAdapter() {
         super(Hsi88Mode.ASCII);
         options.put("PowerState",
                 new Option("Power At StartUp:", new String[]{"Powered Off", "Powered On"}, true));
         //Set the user name to match name, once refactored to handle multiple connections or user setable names/prefixes then this can be removed 
-        this.getSystemConnectionMemo().setUserName("Hsi88 Command Station");
+        this.getSystemConnectionMemo().setUserName("Hsi88 Interface");
     }
 
     /**
@@ -30,10 +32,10 @@ public class Hsi88CSSerialDriverAdapter extends jmri.jmrix.hsi88.serialdriver.Se
      *             multi-system support structure
      */
     @Deprecated
-    static public Hsi88CSSerialDriverAdapter instance() {
+    static public Hsi88SerialDriverAdapter instance() {
         return null;
     }
 
-    private final static Logger log = LoggerFactory.getLogger(Hsi88CSSerialDriverAdapter.class.getName());
+    private final static Logger log = LoggerFactory.getLogger(Hsi88SerialDriverAdapter.class.getName());
 
 }

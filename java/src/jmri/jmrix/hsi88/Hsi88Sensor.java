@@ -7,34 +7,31 @@ import jmri.Sensor;
 import jmri.implementation.AbstractSensor;
 
 /**
+ * Light weight class to represent a sensor connected to an HSI88 interface. The
+ * actual processing is done in Hsi88SensorManager as the HSI88 protocal is s88
+ * module oriented, not sensor oriented.
+ * 
  * @author Andre Gruening, Copyright (C) 2017
  *
- * @todo make part of SystemConnectionMemo?
  */
 public class Hsi88Sensor extends AbstractSensor implements Sensor {
 
-    private int address;
-
     public Hsi88Sensor(String systemName) {
         super(systemName);
-        // TODO Auto-generated constructor stub
     }
 
     public Hsi88Sensor(String systemName, String userName) {
-        super(systemName, userName); // thi the right thing todo?
-        // TODO Auto-generated constructor stub
+        super(systemName, userName);
     }
 
     /**
      * We currently do not request updates from the layout, but we could simply
-     * send the "m" command.
+     * send the "m" command. (
+     * 
+     * @todo On which thread should we do it -- invoke later?
      */
     @Override
     public void requestUpdateFromLayout() {
         // do nothing
-    }
-
-    public int getAddress() {
-        return address;
     }
 }

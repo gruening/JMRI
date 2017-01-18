@@ -5,13 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * hsi88Reply.java
- *
- * Description: Carries the reply to a hsi88Message
+ * Description: Carries a response from the HSI88 interface.
  *
  * @author Bob Jacobsen Copyright (C) 2001
  * @author Andrew Berridge - refactored, cleaned up, Feb 2010
- * @author Andre Gruening Copyright (C) 2017 : adapted from Sprog to HSI.
+ * @author Andre Gruening Copyright (C) 2017 :HSI88 specific implementation based on sprog implementation
  */
 public class Hsi88Reply extends AbstractMRReply {
 
@@ -23,7 +21,7 @@ public class Hsi88Reply extends AbstractMRReply {
      */
     static public final int MAXSIZE = 4 + 6 * Hsi88Config.MAXMODULES;
 
-    /** create a new one */
+    /** create a new empty reply. */
     public Hsi88Reply() {
         super();
     }

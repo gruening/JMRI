@@ -3,9 +3,9 @@ package jmri.jmrix.hsi88;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import java.io.DataInputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Vector;
+import java.util.LinkedList;
+import java.util.List;
 import jmri.jmrix.AbstractPortController;
 import jmri.jmrix.SystemConnectionMemo;
 import org.slf4j.Logger;
@@ -18,6 +18,11 @@ import org.slf4j.LoggerFactory;
  * characters for transmission. Note that this processing is handled in an
  * independent thread.
  *
+ * Synchronization is used for two purposes here: 1. to prevent concurrent
+ * reading/writing of listeners 2. to prevent concurrent sending of replies
+ * and/or messages. In principle 2 different locks could be used for this, but
+ * for sake of simplicity we lock on this object.
+ * 
  * @author Andre Gruening Copyright (C) 2017: Implementation of Hsi088 relevant
  *         stuff, change of visibilities to more private, commented. All work
  *         based on implementation for sprog by
@@ -36,16 +41,17 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     private Hsi88Listener lastSender = null;
 
     /**
-     * create new traffic controller
+     * create new traffic controller.
      * 
-     * @param systemConnectionMemo
+     * @param systemConnectionMemo information about the connection to the HSI88
+     *            device.
      */
     public Hsi88TrafficController(SystemConnectionMemo systemConnectionMemo) {
         memo = (Hsi88SystemConnectionMemo) systemConnectionMemo;
     }
 
-    /** list of listeners */
-    private Vector<Hsi88Listener> hsi88Listeners = new Vector<Hsi88Listener>();
+    /** list of listeners. Should be protect against concurrent use. */
+    private List<Hsi88Listener> hsi88Listeners = new LinkedList<Hsi88Listener>();
 
     /** Are we connected alright? */
     @Override
@@ -65,7 +71,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
             throw new java.lang.NullPointerException();
         }
         if (!hsi88Listeners.contains(l)) {
-            hsi88Listeners.addElement(l);
+            hsi88Listeners.add(l);
         }
     }
 
@@ -74,22 +80,8 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
      */
     public synchronized void removeHsi88Listener(Hsi88Listener l) {
         if (hsi88Listeners.contains(l)) {
-            hsi88Listeners.removeElement(l);
+            hsi88Listeners.remove(l);
         }
-    }
-
-    /**
-     * return a frozen copy of the listener. Synchronized because we need the
-     * underlying data structure to not change while copying.
-     * 
-     * @todo restrict synchronization on hsiListeners or replace with a
-     *       thread-safe collection.
-     * 
-     * @return frozen list of listeners.
-     */
-    @SuppressWarnings("unchecked")
-    private synchronized Vector<Hsi88Listener> getCopyOfListeners() {
-        return (Vector<Hsi88Listener>) hsi88Listeners.clone();
     }
 
     /**
@@ -104,7 +96,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
      * @param originator original sender of message
      */
     private void notifyMessage(Hsi88Message m, Hsi88Listener originator) {
-        for (Hsi88Listener listener : this.getCopyOfListeners()) {
+        for (Hsi88Listener listener : hsi88Listeners) {
             try {
                 // don't send it back to the originator!
                 if (listener != originator) {
@@ -135,7 +127,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
      * @param r reply received from HSI88 interface.
      */
     private synchronized void notifyReply(Hsi88Reply r) {
-        for (Hsi88Listener listener : this.getCopyOfListeners()) {
+        for (Hsi88Listener listener : hsi88Listeners) {
             try {
                 // if is message don't send it back to the originator!
                 // skip forwarding to the last sender for now, we'll get them
@@ -317,21 +309,20 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
         // we get here if data has been received
         // fill the current reply with any data received
         int i = this.reply.getNumDataElements();
-        
+
         while (!this.endReply(this.reply)) {
             try {
                 if (istream.available() == 0) {
                     return; // nothing waiting to be read
                 }
-            } catch (IOException e1) {
+                byte ch = istream.readByte();
+                this.reply.setElement(i, ch);
+            } catch (Exception e) {
                 log.warn("Exception in DATA_AVAILABLE state: " + e);
                 return;
             }
-            byte ch = istream.readByte();
-            this.reply.setElement(i,ch);
             i++;
         }
-
         // we only reach here if we have reached end of reply. 
         sendreply();
     }

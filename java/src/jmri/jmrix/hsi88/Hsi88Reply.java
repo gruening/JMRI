@@ -15,8 +15,13 @@ import org.slf4j.LoggerFactory;
  */
 public class Hsi88Reply extends AbstractMRReply {
 
-    /** @todo: what is maxSize of hsi88 reply? */
-    static public final int MAXSIZE = 515;
+    /**
+     * Maximal size of a valid Hsi88 reply. This size is reached in ASCII mode
+     * with the "i" reply: fixed size: 4: "i" + 2 digits of total number of
+     * modules + final cr per module size: 6 for each module reports: 2 digits
+     * for module number, 4 for module readings.
+     */
+    static public final int MAXSIZE = 4 + 6 * Hsi88Config.MAXMODULES;
 
     /** create a new one */
     public Hsi88Reply() {
@@ -60,20 +65,27 @@ public class Hsi88Reply extends AbstractMRReply {
     }
 
     /**
-     * Returns a string representation of this hsi88Reply
+     * Returns a string representation of this Hsi88Reply. Deletes a final cr.
+     * (An Hsi88 message may not end with cr if it reaches MAXSIZE.)
      */
     public String toString() {
 
         StringBuffer buf = new StringBuffer();
         for (int i : _dataChars) {
-            buf.append((char) i);
+            buf.append(i & 0xFF); // prevent sign expansion
         }
-        buf.deleteCharAt(_nDataChars-1); // delete terminating cr.
+        // delete final cr if any
+        if (_dataChars[_nDataChars - 1] == '\r') {
+            buf.deleteCharAt(_nDataChars - 1);
+        }
         return buf.toString();
     }
 
     /**
-     * hsi88 replies end with \r.
+     * has the end of a reply reached? Hsi88 replies end with \r or when MAXSIZE
+     * has been reached.
+     * 
+     * @return has the end of the message been reached?
      */
     public boolean endReply() {
 
@@ -81,8 +93,10 @@ public class Hsi88Reply extends AbstractMRReply {
 
         if (num == 0)
             return false;
-
-        return this.getElement(num - 1) == '\r';
+        else if (num == Hsi88Reply.MAXSIZE)
+            return true;
+        
+        return (this.getElement(num - 1) == '\r');
     }
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88Reply.class.getName());

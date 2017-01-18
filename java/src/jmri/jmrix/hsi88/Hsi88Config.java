@@ -9,9 +9,17 @@ package jmri.jmrix.hsi88;
  */
 public class Hsi88Config {
     
+    /** long name of hardware */ 
     public final static String LONGNAME = "Hsi88 Interface";
+    
+    /** short name of hardware */
     public static final String NAME = "Hsi88";
+    
+    /** default prefix of the hardware */
     public static final String PREFIX = "H";
+    
+    /** maximum number of S88 module that can be connected to a HSI88 interface. */
+    public static final int MAXMODULES = 31;
     
 
     private Hsi88Config() {

@@ -3,6 +3,7 @@ package jmri.jmrix.hsi88;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import java.io.DataInputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Vector;
 import jmri.jmrix.AbstractPortController;
@@ -34,8 +35,11 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     /** remember sender of last message */
     private Hsi88Listener lastSender = null;
 
-    /** create new traffic controller 
-     * @param systemConnectionMemo */
+    /**
+     * create new traffic controller
+     * 
+     * @param systemConnectionMemo
+     */
     public Hsi88TrafficController(SystemConnectionMemo systemConnectionMemo) {
         memo = (Hsi88SystemConnectionMemo) systemConnectionMemo;
     }
@@ -78,8 +82,8 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
      * return a frozen copy of the listener. Synchronized because we need the
      * underlying data structure to not change while copying.
      * 
-     * \todo restrict synchronization on hsiListeners or replace with a
-     * thread-safe collection.
+     * @todo restrict synchronization on hsiListeners or replace with a
+     *       thread-safe collection.
      * 
      * @return frozen list of listeners.
      */
@@ -256,7 +260,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     }
 
     void setAdapterMemo(Hsi88SystemConnectionMemo adaptermemo) {
-            memo = adaptermemo;
+        memo = adaptermemo;
     }
     //
     //   public Hsi88SystemConnectionMemo getAdapterMemo() {
@@ -312,23 +316,24 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     void handleOneIncomingReply() {
         // we get here if data has been received
         // fill the current reply with any data received
-        int replyCurrentSize = this.reply.getNumDataElements();
-        for (int i = replyCurrentSize; i < Hsi88Reply.MAXSIZE; i++) {
+        int i = this.reply.getNumDataElements();
+        
+        while (!this.endReply(this.reply)) {
             try {
                 if (istream.available() == 0) {
-                    break; // nothing waiting to be read
+                    return; // nothing waiting to be read
                 }
-                byte char1 = istream.readByte();
-                this.reply.setElement(i, char1);
-
-            } catch (Exception e) {
+            } catch (IOException e1) {
                 log.warn("Exception in DATA_AVAILABLE state: " + e);
+                return;
             }
-            if (endReply(this.reply)) {
-                sendreply();
-                break;
-            }
+            byte ch = istream.readByte();
+            this.reply.setElement(i,ch);
+            i++;
         }
+
+        // we only reach here if we have reached end of reply. 
+        sendreply();
     }
 
     /**

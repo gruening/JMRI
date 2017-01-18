@@ -7,9 +7,14 @@ package jmri.jmrix.hsi88;
  * @author gruening
  *
  */
-public class Hsi88Setup {
+public class Hsi88Config {
+    
+    public final static String LONGNAME = "Hsi88 Interface";
+    public static final String NAME = "Hsi88";
+    public static final String PREFIX = "H";
+    
 
-    private Hsi88Setup() {
+    private Hsi88Config() {
         // no objects ever to be created. All fields and methods static.
     }
 

@@ -4,7 +4,7 @@ import jmri.jmrix.hsi88.Hsi88Menu;
 import jmri.jmrix.hsi88.Hsi88SystemConnectionMemo;
 
 /**
- * Provide access to Swing components for the hsi88 subsystem.
+ * Provide access to Swing components for the Hsi88 subsystem.
  *
  * @author Bob Jacobsen Copyright (C) 2010
  * @author Paul Bender Copyright (C) 2010
@@ -16,7 +16,7 @@ public class Hsi88ComponentFactory extends jmri.jmrix.swing.ComponentFactory {
         this.memo = memo;
     }
 
-    Hsi88SystemConnectionMemo memo;
+    private Hsi88SystemConnectionMemo memo;
 
     /**
      * Provide a menu with all items attached to this system connection

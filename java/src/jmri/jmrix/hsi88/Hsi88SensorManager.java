@@ -2,7 +2,7 @@ package jmri.jmrix.hsi88;
 
 import java.util.HashMap;
 import jmri.Sensor;
-import jmri.jmrix.hsi88.Hsi88Setup.Hsi88Mode;
+import jmri.jmrix.hsi88.Hsi88Config.Hsi88Mode;
 import jmri.managers.AbstractSensorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
 
         // module number of this s88 sensor address. Modules number from 1 and contain 16 sensors each.
         int module = (addr / 16) + 1;
-        if (module > Hsi88Setup.getNumModules()) {
+        if (module > Hsi88Config.getNumModules()) {
             log.info("Sensor address beyond range of currently registered s88 modules: " + addr);
         }
 
@@ -105,11 +105,11 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
 
         switch ((char) r.getElement(1)) {
             case '0':
-                Hsi88Setup.mode = Hsi88Mode.HEX;
+                Hsi88Config.mode = Hsi88Mode.HEX;
                 log.info("Switching terminal mode to HEX");
                 break;
             case '1':
-                Hsi88Setup.mode = Hsi88Mode.ASCII;
+                Hsi88Config.mode = Hsi88Mode.ASCII;
                 log.info("Switching terminal mode to ASCII");
                 break;
             default:
@@ -141,7 +141,7 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
             return;
         }
 
-        if (Hsi88Setup.getNumModules() != i) {
+        if (Hsi88Config.getNumModules() != i) {
             log.warn("Number of reported modules does not agree with number of registered modules: " + i);
         }
 
@@ -159,7 +159,7 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
         // parse and check number of reported modules
         try {
             int nSensors = Integer.parseInt(s.substring(1, 3), 16);
-            if (nSensors != Hsi88Setup.getNumModules()) {
+            if (nSensors != Hsi88Config.getNumModules()) {
                 log.info("Number of reported and registered s88 modules does not agree: " + nSensors);
             }
         } catch (NumberFormatException e1) {

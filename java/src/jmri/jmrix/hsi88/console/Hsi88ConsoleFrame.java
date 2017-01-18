@@ -8,6 +8,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import jmri.jmrix.hsi88.Hsi88Config;
 import jmri.jmrix.hsi88.Hsi88Listener;
 import jmri.jmrix.hsi88.Hsi88Message;
 import jmri.jmrix.hsi88.Hsi88Reply;
@@ -56,7 +57,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
     protected int modeWord;
 
-    // members for handling the hsi88 interface
+    // members for handling the Hsi88 interface
     Hsi88TrafficController tc = null;
     Hsi88Message msg;
     String replyString;
@@ -80,7 +81,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
     @Override
     protected String title() {
-        return "Hsi88 Console";
+        return Hsi88Config.NAME + " Console";
     }
 
     @Override

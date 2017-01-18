@@ -1,6 +1,7 @@
 // ConnectionConfig.java
 package jmri.jmrix.hsi88.serialdriver;
 
+import jmri.jmrix.hsi88.Hsi88Config;
 import jmri.util.SystemType;
 
 /**
@@ -27,13 +28,13 @@ public class ConnectionConfig extends jmri.jmrix.AbstractSerialConnectionConfig 
     }
 
     public String name() {
-        return "HSI88";
+        return Hsi88Config.NAME;
     }
 
     @Override
     protected String[] getPortFriendlyNames() {
         if (SystemType.isWindows()) {
-            return new String[]{"HSI88"};
+            return new String[]{Hsi88Config.NAME};
         }
         return new String[]{};
     }

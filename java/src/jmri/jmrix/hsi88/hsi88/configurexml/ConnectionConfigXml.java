@@ -15,6 +15,8 @@ import jmri.jmrix.hsi88.hsi88.Hsi88SerialDriverAdapter;
  * attribute in the XML.
  *
  * @author Andrew Crosland Copyright: Copyright (c) 2006
+ * 
+ *         Andre Gruening 2017: trivially adapted for use with HSI88
  */
 public class ConnectionConfigXml extends AbstractSerialConnectionConfigXml {
 
@@ -33,7 +35,6 @@ public class ConnectionConfigXml extends AbstractSerialConnectionConfigXml {
     protected void getInstance(Object object) {
         adapter = ((ConnectionConfig) object).getAdapter();
     }
-
 
     @Override
     protected void register() {

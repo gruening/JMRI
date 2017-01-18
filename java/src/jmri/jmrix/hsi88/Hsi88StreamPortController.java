@@ -3,17 +3,18 @@ package jmri.jmrix.hsi88;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import jmri.jmrix.AbstractStreamPortController;
-import jmri.jmrix.hsi88.Hsi88Setup.Hsi88Mode;
+import jmri.jmrix.hsi88.Hsi88Config.Hsi88Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract base for classes representing an Hsi88 Interface
- * communications port.
+ * Abstract base for classes representing an Hsi88 Interface communications
+ * port.
  *
- * @author	Paul Bender Copyright (C) 2014
+ * @author Paul Bender Copyright (C) 2014
  *
- * Andre Gruening 2017 used the sprog version as a template and trivially modified this for use with Hsi88
+ *         Andre Gruening 2017 used the sprog version as a template and
+ *         trivially modified this for use with Hsi88
  */
 public class Hsi88StreamPortController extends AbstractStreamPortController implements Hsi88Interface {
     private Thread rcvNotice = null;
@@ -26,12 +27,10 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
     public void configure() {
         log.debug("configure() called.");
         Hsi88TrafficController control = new Hsi88TrafficController(this.getSystemConnectionMemo());
-        //        Hsi88TrafficController control = new Hsi88TrafficController(this.hsi88Memo());
 
         // connect to the traffic controller
         this.getSystemConnectionMemo().setHsi88TrafficController(control);
         control.setAdapterMemo(this.getSystemConnectionMemo());
-        // this.getSystemConnectionMemo().configureCommandStation();
         this.getSystemConnectionMemo().configureManagers();
         control.connectPort(this);
 
@@ -59,7 +58,7 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
         return (true);
     }
 
-    // hsi88 Interface methods.
+    // Hsi88 Interface methods.
     @Override
     public void addHsi88Listener(Hsi88Listener l) {
         this.getSystemConnectionMemo().getHsi88TrafficController().addHsi88Listener(l);

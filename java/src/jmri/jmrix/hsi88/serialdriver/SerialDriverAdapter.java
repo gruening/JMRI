@@ -7,8 +7,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.util.TooManyListenersException;
+import jmri.jmrix.hsi88.Hsi88Config;
+import jmri.jmrix.hsi88.Hsi88Config.Hsi88Mode;
 import jmri.jmrix.hsi88.Hsi88PortController;
-import jmri.jmrix.hsi88.Hsi88Setup.Hsi88Mode;
 import jmri.jmrix.hsi88.Hsi88SystemConnectionMemo;
 import jmri.jmrix.hsi88.Hsi88TrafficController;
 import org.slf4j.Logger;
@@ -17,8 +18,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Implements SerialPortAdapter for the Hsi88 system.
  * <P>
- * This connects an Hsi88 interface via a serial port. Also used for the
- * USB Hsi88, which appears to the computer as a serial port.
+ * This connects an Hsi88 interface via a serial port. Also used for the USB
+ * Hsi88, which appears to the computer as a serial port.
  * <P>
  * The current implementation only handles the 9,600 baud rate, and does not use
  * any other options at configuration time.
@@ -26,50 +27,40 @@ import org.slf4j.LoggerFactory;
  * Updated January 2010 for gnu io (RXTX) - Andrew Berridge. Comments tagged
  * with "AJB" indicate changes or observations by me
  * 
- * Update 2016 for Hsi88 -- Andre Gruening. Comments/changes tagged by "AG".
+ * Adapted 2017 for Hsi88 and tidied code chaining constructors -- Andre
+ * Gruening.
  *
  * @author Bob Jacobsen Copyright (C) 2001, 2002
  */
 public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmrix.SerialPortAdapter {
 
     public SerialDriverAdapter() {
-        super(new Hsi88SystemConnectionMemo(Hsi88Mode.ASCII));
-        //Set the username to match name, once refactored to handle multiple connections or user setable names/prefixes then this can be removed
-        this.baudRate = 9600;
-        this.getSystemConnectionMemo().setUserName("Hsi88 Interface");
-        // create the traffic controller
-        this.getSystemConnectionMemo()
-                .setHsi88TrafficController(new Hsi88TrafficController(this.getSystemConnectionMemo()));
+        this(Hsi88Mode.ASCII, 9600);
     }
 
     public SerialDriverAdapter(Hsi88Mode sm) {
-        super(new Hsi88SystemConnectionMemo(sm));
-        this.baudRate = 9600;
-        this.getSystemConnectionMemo().setUserName("Hsi88 Interface");
-        // create the traffic controller
-        this.getSystemConnectionMemo()
-                .setHsi88TrafficController(new Hsi88TrafficController(this.getSystemConnectionMemo()));
+        this(sm, 9600);
     }
 
-    public SerialDriverAdapter(Hsi88Mode sm, int baud, Hsi88Mode mode) {
-        super(new Hsi88SystemConnectionMemo(sm, mode));
-        this.baudRate = baud;
-        this.getSystemConnectionMemo().setUserName("Hsi88 Interface");
-        // create the traffic controller
-        this.getSystemConnectionMemo()
-                .setHsi88TrafficController(new Hsi88TrafficController(this.getSystemConnectionMemo()));
-    }
+    /*
+     * delelted public SerialDriverAdapter(Hsi88Mode sm, int baud, Hsi88Mode
+     * mode) { super(new Hsi88SystemConnectionMemo(sm, mode)); this.baudRate =
+     * baud; this.getSystemConnectionMemo().setUserName(Hsi88Config.LONGNAME);
+     * // create the traffic controller this.getSystemConnectionMemo()
+     * .setHsi88TrafficController(new
+     * Hsi88TrafficController(this.getSystemConnectionMemo())); }
+     */
 
     public SerialDriverAdapter(Hsi88Mode sm, int baud) {
         super(new Hsi88SystemConnectionMemo(sm));
         this.baudRate = baud;
-        this.getSystemConnectionMemo().setUserName("Hsi88 Interface");
+        this.getSystemConnectionMemo().setUserName(Hsi88Config.LONGNAME);
         // create the traffic controller
         this.getSystemConnectionMemo()
                 .setHsi88TrafficController(new Hsi88TrafficController(this.getSystemConnectionMemo()));
     }
 
-    SerialPort activeSerialPort = null;
+    private SerialPort activeSerialPort = null;
 
     private int baudRate = -1;
 
@@ -133,7 +124,7 @@ public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmr
                         activeSerialPort.isCD());
             }
 
-            //AJB - add hsi88 Traffic Controller as event listener
+            //AJB - add Hsi88 Traffic Controller as event listener
             try {
                 activeSerialPort.addEventListener(this.getSystemConnectionMemo().getHsi88TrafficController());
             } catch (TooManyListenersException e) {
@@ -166,7 +157,7 @@ public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmr
 
     }
 
-    // base class methods for the hsi88PortController interface
+    // base class methods for the Hsi88PortController interface
     public DataInputStream getInputStream() {
         if (!opened) {
             log.error("getInputStream called before load(), stream not available");
@@ -206,26 +197,24 @@ public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmr
     }
 
     /**
-     * set up all the other objects to operate with a Hsi88 interface
-     * connected to this port
+     * set up all the other objects to operate with a Hsi88 interface connected
+     * to this port
      */
     public void configure() {
         // connect to the traffic controller
         this.getSystemConnectionMemo().getHsi88TrafficController().connectPort(this);
-
-        // this.getSystemConnectionMemo().configureCommandStation();
         this.getSystemConnectionMemo().configureManagers();
 
         jmri.jmrix.hsi88.ActiveFlag.setActive();
-        
-	// @todo shall I read these option from the configuation here?
-        /* if (getOptionState("TrackPowerState") != null && getOptionState("TrackPowerState").equals("Powered On")) {
-            try {
-                this.getSystemConnectionMemo().getPowerManager().setPower(jmri.PowerManager.ON);
-            } catch (jmri.JmriException e) {
-                log.error(e.toString());
-            }
-	*/
+
+        // @todo shall I read these option from the configuation here?
+        /*
+         * if (getOptionState("TrackPowerState") != null &&
+         * getOptionState("TrackPowerState").equals("Powered On")) { try {
+         * this.getSystemConnectionMemo().getPowerManager().setPower(jmri.
+         * PowerManager.ON); } catch (jmri.JmriException e) {
+         * log.error(e.toString()); }
+         */
     }
 
     @Override

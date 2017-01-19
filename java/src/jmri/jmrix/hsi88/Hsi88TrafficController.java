@@ -153,7 +153,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
      * 
      * @param m
      */
-    public void sendHsi88Message(Hsi88Message m) {
+    void sendHsi88Message(Hsi88Message m) {
         // stream to port in single write, as that's needed by serial
         try {
             if (ostream != null) {
@@ -190,6 +190,27 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
         notifyMessage(m, replyTo);
         this.sendHsi88Message(m);
     }
+
+  /* -- send a message and return only if a reply has been received.
+    public void sendHsi88MessageAndWait(Hsi88Message m, Hsi88Listener originator) {
+
+        this.sendHsi88Message(m, originator);
+
+        if (waitingForReply) {
+            try {
+                synchronized (this) {
+                    // double-if idiom
+                    if (waitingForReply)
+                        this.wait(1000);
+                    
+                    
+                    XXXXXS
+                }
+            } catch (InterruptedException e) {
+            }
+        }
+
+    }*/
 
     // methods to connect/disconnect to a source of data in a
     // Hsi88PortController
@@ -268,13 +289,6 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
         return msg.endReply();
     }
 
-    /**
-     * flag whether reply is unsolicited
-     * 
-     * @todo make use of it.
-     */
-    private boolean unsolicited;
-
     private final static Logger log = LoggerFactory.getLogger(Hsi88TrafficController.class.getName());
 
     /**
@@ -331,22 +345,26 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
      * Send the current reply - built using data from serialEvent
      */
     private void sendreply() {
-        // send the reply
-        synchronized (this) {
-            waitingForReply = false;
-            notify();
-        }
+        
         if (log.isDebugEnabled()) {
             log.debug("dispatch reply of length " + this.reply.getNumDataElements());
         }
+
+        if (waitingForReply == false) {
+            this.reply.setUnsolicited();
+            log.debug("Unsolicited Reply");
+        }
+
+        synchronized (this) {
+            waitingForReply = false;
+            notifyAll();
+            // notify();
+        }
+
         {
             final Hsi88Reply thisReply = this.reply;
-            if (unsolicited) { // why is this done here? Could it be done earlier?
-                log.debug("Unsolicited Reply");
-                thisReply.setUnsolicited();
-            }
             final Hsi88TrafficController thisTC = this;
-            // return a notification via the queue to ensure end
+            // return a notification via the queue
             Runnable r = new Runnable() {
                 Hsi88Reply replyForLater = thisReply;
                 Hsi88TrafficController myTC = thisTC;

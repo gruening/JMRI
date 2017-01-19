@@ -9,7 +9,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Bob Jacobsen Copyright (C) 2001
  * @author Andrew Berridge - refactored, cleaned up, Feb 2010
- * @author Andre Gruening Copyright (C) 2017 :HSI88 specific implementation based on sprog implementation
+ * @author Andre Gruening Copyright (C) 2017: HSI88 specific implementation
+ *         based on sprog implementation
  */
 public class Hsi88Reply extends AbstractMRReply {
 
@@ -32,10 +33,11 @@ public class Hsi88Reply extends AbstractMRReply {
     }
 
     /**
-     * Create a new Hsi88Reply as a deep copy of an existing hsi88Reply
+     * Create a new Hsi88Reply as a deep copy of an existing Hsi88Reply
      *
      * @param m the Hsi88Reply to copy
      * @todo rewrite nicer
+     * @todo and where is it used?
      */
     @SuppressWarnings("null")
     public Hsi88Reply(Hsi88Reply m) {
@@ -54,9 +56,11 @@ public class Hsi88Reply extends AbstractMRReply {
     }
 
     /**
-     * Create a Hsi88Reply from a String
+     * Create a Hsi88Reply from a String.
      *
      * @param replyString a String containing the contents of the reply
+     * 
+     * @todo where is this used?
      */
     public Hsi88Reply(String replyString) {
         super(replyString);
@@ -66,11 +70,12 @@ public class Hsi88Reply extends AbstractMRReply {
      * Returns a string representation of this Hsi88Reply. Deletes a final cr.
      * (An Hsi88 message may not end with cr if it reaches MAXSIZE.)
      */
+    @Override
     public String toString() {
 
         StringBuffer buf = new StringBuffer();
-        for (int i : _dataChars) {
-            buf.append(i & 0xFF); // prevent sign expansion
+        for (int i = 0; i < _nDataChars; i++) {
+            buf.append( (char) (_dataChars[i] & 0xFF)); // prevent sign expansion
         }
         // delete final cr if any
         if (_dataChars[_nDataChars - 1] == '\r') {
@@ -93,7 +98,7 @@ public class Hsi88Reply extends AbstractMRReply {
             return false;
         else if (num == Hsi88Reply.MAXSIZE)
             return true;
-        
+
         return (this.getElement(num - 1) == '\r');
     }
 

@@ -15,33 +15,11 @@ import org.slf4j.LoggerFactory;
  */
 public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
 
-    /** opcodes of available HSI88 commands */
-    public static enum Command {
-        /**
-         * toggles terminal and hex modes. HSI88 after power on is in hex mode
-         */
-        Terminal('t', 2, 2),
-        /** sets number of S88 modules on each line */
-        Setup('s', 5, 8),
-        /** requests all sensor states */
-        Query('m', 2, 2),
-        /** requests version information */
-        Version('v', 2, 2);
-
-        private final char _opcode;
-        private final int _hexLength;
-        private final int _terminalLength;
-
-        Command(char opcode, int hexLength, int terminalLength) {
-            _opcode = opcode;
-            _hexLength = hexLength;
-            _terminalLength = terminalLength;
-        }
-
-        /** Length of longest command. */
-        public static final int MAXSIZE_TERMINAL = 8;
-
-    }
+    /**
+     * maximal length of Hsi88 message. This is attained for "s" command in
+     * ASCII mode.
+     */
+    final static public int MAXLEN = 8;
 
     /**
      * create new empty message.
@@ -56,39 +34,13 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
         _dataChars = new int[i];
     }
 
-    /**
-     * Creates a new Hsi88Message containing a byte array to represent a packet
-     * to output
-     *
-     * @param packet The contents of the packet
-     * 
-     * @todo needed only for HexMode.
-     */
-    public Hsi88Message(byte[] packet) {
-        this(1 + (packet.length * 3));
-        int i = 0; // counter of byte in output message
-        int j = 0; // counter of byte in input packet
-
-        this.setElement(i++, 'O'); // "O " starts output packet
-
-        // add each byte of the input message
-        for (j = 0; j < packet.length; j++) {
-            this.setElement(i++, ' ');
-            String s = Integer.toHexString(packet[j] & 0xFF).toUpperCase();
-            if (s.length() == 1) {
-                this.setElement(i++, '0');
-                this.setElement(i++, s.charAt(0));
-            } else {
-                this.setElement(i++, s.charAt(0));
-                this.setElement(i++, s.charAt(1));
-            }
-        }
-
-    }
-
-    /** create a message from a String */
+    /** create a message from a String. String must include terminating cr. */
     public Hsi88Message(String s) {
         _nDataChars = s.length();
+        if (_nDataChars > Hsi88Message.MAXLEN) {
+            _nDataChars = Hsi88Message.MAXLEN;
+            log.info("Truncted message that was longer than MAXLEN.");
+        }
         _dataChars = new int[_nDataChars];
         for (int i = 0; i < _nDataChars; i++) {
             _dataChars[i] = s.charAt(i);
@@ -96,43 +48,12 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
     }
 
     /**
-     * create a message from an opcode
+     * Copy one.
      * 
-     * @param c
-     * @param argv
-     * @param
-     * @param j
-     * @param i
+     * @todo where/why do we need this?
+     * 
+     * @param m
      */
-    public Hsi88Message(Command c, int... argv) {
-        // if c == Setup display error message.
-        _nDataChars = c._terminalLength;
-        _dataChars = new int[_nDataChars];
-        _dataChars[0] = c._opcode;
-        _dataChars[1] = '\r';
-    }
-
-    /** create a message from opcode and arguments */
-    public Hsi88Message(Command c, char[] argv) {
-        // if length are incompatible error message
-        _nDataChars = c._terminalLength;
-        _dataChars = new int[_nDataChars];
-        _dataChars[0] = c._opcode;
-
-        int i = 1;
-        for (char arg : argv) {
-            String str = Integer.toBinaryString(arg);
-            if (arg < 16) {
-                _dataChars[i] = '0';
-                _dataChars[i + 1] = str.charAt(0);
-            } else {
-                _dataChars[i] = str.charAt(0);
-                _dataChars[i + 1] = str.charAt(1);
-            }
-        }
-    }
-
-    // copy one
     @SuppressWarnings("null")
     public Hsi88Message(Hsi88Message m) {
         if (m == null) {
@@ -148,7 +69,8 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
 
     /**
      * Get formatted message for direct output to stream - this is the final
-     * format of the message as a byte array
+     * format of the message as a byte array. Note the terminating cr must be
+     * contained in the message already. It will not be appended here.
      *
      * @return the formatted message as a byte array
      */
@@ -165,5 +87,33 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
     }
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88Message.class.getName());
+
+    public static Hsi88Message cmdVersion() {
+        return new Hsi88Message("v\r");
+    }
+
+    public static Hsi88Message cmdTerminal() {
+        return new Hsi88Message("t\r");
+    }
+
+    public static Hsi88Message cmdQuery() {
+        return new Hsi88Message("m\r");
+    }
+
+    private static String byteTo2Hex(byte i) {
+
+        String str = Integer.toHexString(i);
+        if (str.length() == 2)
+            return str;
+        else
+            return "0" + str;
+    }
+
+    public static Hsi88Message cmdSetup(int left, int middle, int right) {
+
+        Hsi88Message setup = new Hsi88Message(
+                "s" + byteTo2Hex((byte) left) + byteTo2Hex((byte) middle) + byteTo2Hex((byte) right) + '\r');
+        return setup;
+    }
 
 }

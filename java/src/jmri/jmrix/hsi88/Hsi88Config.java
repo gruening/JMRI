@@ -33,16 +33,16 @@ public class Hsi88Config {
         ASCII, HEX
     }
 
-    /** assume HSI88 is in hex mode on start up */
-    static Hsi88Mode mode = Hsi88Mode.HEX;
+    /** assume HSI88 is in hex mode on start up. Set and read on different threads that are waiting for this to change. */
+    static volatile Hsi88Mode mode = Hsi88Mode.HEX;
 
     /**
      * number of moduls (of 16 sensors) each attached to the left middle and
      * right chains
      */
-    static int left = 0;
-    static int middle = 0;
-    static int right = 0;
+    static int left = 2;
+    static int middle = 2;
+    static int right = 2;
 
     static int getNumModules() {
         return left + middle + right;

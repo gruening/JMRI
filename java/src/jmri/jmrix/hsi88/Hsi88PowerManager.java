@@ -35,16 +35,16 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
             waiting = true;
             onReply = PowerManager.ON;
             // enable S88 polling
-            Hsi88Message l = new Hsi88Message(Hsi88Message.Command.Setup, 2, 2, 2);
-            trafficController.sendHsi88Message(l, this);
+            // Hsi88Message l = new Hsi88Message(Hsi88Message.cmd, 2, 2, 2);
+            // trafficController.sendHsi88Message(l, this);
         } else if (v == OFF) {
             // configure to wait for reply
             waiting = true;
             onReply = PowerManager.OFF;
             firePropertyChange("Power", null, null);
             // disable S88 polling
-            Hsi88Message l = new Hsi88Message(Hsi88Message.Command.Setup, 0, 0, 0);
-            trafficController.sendHsi88Message(l, this);
+            // Hsi88Message l = new Hsi88Message(Hsi88Message.Command.Setup, 0, 0, 0);
+            // trafficController.sendHsi88Message(l, this);
 
         }
         firePropertyChange("Power", null, null);

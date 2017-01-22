@@ -8,7 +8,6 @@ import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.util.TooManyListenersException;
 import jmri.jmrix.hsi88.Hsi88Config;
-import jmri.jmrix.hsi88.Hsi88Config.Hsi88Mode;
 import jmri.jmrix.hsi88.Hsi88PortController;
 import jmri.jmrix.hsi88.Hsi88SystemConnectionMemo;
 import jmri.jmrix.hsi88.Hsi88TrafficController;
@@ -35,24 +34,11 @@ import org.slf4j.LoggerFactory;
 public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmrix.SerialPortAdapter {
 
     public SerialDriverAdapter() {
-        this(Hsi88Mode.ASCII, 9600);
+        this(9600);
     }
 
-    public SerialDriverAdapter(Hsi88Mode sm) {
-        this(sm, 9600);
-    }
-
-    /*
-     * delelted public SerialDriverAdapter(Hsi88Mode sm, int baud, Hsi88Mode
-     * mode) { super(new Hsi88SystemConnectionMemo(sm, mode)); this.baudRate =
-     * baud; this.getSystemConnectionMemo().setUserName(Hsi88Config.LONGNAME);
-     * // create the traffic controller this.getSystemConnectionMemo()
-     * .setHsi88TrafficController(new
-     * Hsi88TrafficController(this.getSystemConnectionMemo())); }
-     */
-
-    public SerialDriverAdapter(Hsi88Mode sm, int baud) {
-        super(new Hsi88SystemConnectionMemo(sm));
+    public SerialDriverAdapter(int baud) {
+        super(new Hsi88SystemConnectionMemo());
         this.baudRate = baud;
         this.getSystemConnectionMemo().setUserName(Hsi88Config.LONGNAME);
         // create the traffic controller
@@ -60,7 +46,7 @@ public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmr
                 .setHsi88TrafficController(new Hsi88TrafficController(this.getSystemConnectionMemo()));
     }
 
-    private SerialPort activeSerialPort = null;
+    private SerialPort activeSerialPort;
 
     private int baudRate = -1;
 
@@ -190,6 +176,8 @@ public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmr
     /**
      * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI
      *             multi-system support structure
+     *             
+     *             @return null
      */
     @Deprecated
     static public SerialDriverAdapter instance() {
@@ -200,6 +188,7 @@ public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmr
      * set up all the other objects to operate with a Hsi88 interface connected
      * to this port
      */
+    @Override
     public void configure() {
         // connect to the traffic controller
         this.getSystemConnectionMemo().getHsi88TrafficController().connectPort(this);
@@ -207,7 +196,6 @@ public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmr
 
         jmri.jmrix.hsi88.ActiveFlag.setActive();
 
-        // @todo shall I read these option from the configuation here?
         /*
          * if (getOptionState("TrackPowerState") != null &&
          * getOptionState("TrackPowerState").equals("Powered On")) { try {

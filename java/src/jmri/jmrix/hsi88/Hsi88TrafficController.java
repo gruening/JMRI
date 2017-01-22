@@ -27,7 +27,8 @@ import org.slf4j.LoggerFactory;
  *         stuff, change of visibilities to more private, commented. All work
  *         based on implementation for sprog by
  * @author Bob Jacobsen Copyright (C) 2001:
- * 
+ *
+ * @todo works fine for small number of modules, but throws an excpetion for 0x1F modules: IndexOutofBounds. Check where this happens
  */
 public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventListener {
 
@@ -149,7 +150,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     }
 
     /**
-     * Forward a preformatted message to the interface
+     * Forward a message to the interface
      * 
      * @param m
      */

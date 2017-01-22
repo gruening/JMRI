@@ -3,7 +3,6 @@ package jmri.jmrix.hsi88;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import jmri.jmrix.AbstractStreamPortController;
-import jmri.jmrix.hsi88.Hsi88Config.Hsi88Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +19,7 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
     private Thread rcvNotice = null;
 
     public Hsi88StreamPortController(DataInputStream in, DataOutputStream out, String pname) {
-        super(new Hsi88SystemConnectionMemo(Hsi88Mode.ASCII), in, out, pname);
+        super(new Hsi88SystemConnectionMemo(), in, out, pname);
     }
 
     @Override

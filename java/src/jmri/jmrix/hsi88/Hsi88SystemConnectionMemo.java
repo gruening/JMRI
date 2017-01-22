@@ -19,44 +19,19 @@ import org.slf4j.LoggerFactory;
 public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
 
     public Hsi88SystemConnectionMemo(Hsi88TrafficController st, Hsi88Mode sm) {
-        this(sm);
+        this();
         this.st = st;
     }
 
-    public Hsi88SystemConnectionMemo(Hsi88Mode sm) {
+    public Hsi88SystemConnectionMemo() {
         super(Hsi88Config.PREFIX, Hsi88Config.NAME);
-        hsi88Mode = sm; // static
         register();
         InstanceManager.store(this, Hsi88SystemConnectionMemo.class); // also register as specific type
         InstanceManager.store(cf = new jmri.jmrix.hsi88.swing.Hsi88ComponentFactory(this),
                 jmri.jmrix.swing.ComponentFactory.class);
     }
 
-    public Hsi88SystemConnectionMemo() {
-        this(Hsi88Mode.ASCII);
-    }
-
-    /**
-     * Set the HSI88 mode for this connection
-     * 
-     * @param mode
-     */
-    /*
-     * public void setHsi88Mode(Hsi88Mode mode) { hsi88Mode = mode; }
-     */
-
-    /**
-     * Return the HSI88 mode for this connection
-     * 
-     * @return Hsi88Mode
-     */
-    /*
-     * public Hsi88Mode getHsi88Mode() { return hsi88Mode; }
-     */
-
-    private Hsi88Mode hsi88Mode;
-
-    jmri.jmrix.swing.ComponentFactory cf = null;
+    private jmri.jmrix.swing.ComponentFactory cf = null;
 
     /**
      * Provides access to the TrafficController for this particular connection.
@@ -84,7 +59,6 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         if (type.equals(jmri.SensorManager.class)) {
             return true;
         }
-
         return false; // nothing, by default
     }
 

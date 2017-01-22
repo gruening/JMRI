@@ -20,7 +20,8 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
     private HashMap<Integer, Hsi88Sensor> sensors = new HashMap<Integer, Hsi88Sensor>();
 
     /**
-     * store 16bit state of modules to avoid sending too many updates to sensors
+     * store 16bit state of modules to avoid sending too many updates to Sensor
+     * objects.
      */
     private char[] moduleStates = new char[Hsi88Config.MAXMODULES];
 
@@ -39,7 +40,7 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
         log.info("Hsi88 Sensor Manager starts.");
         tc.sendHsi88Message(Hsi88Message.cmdVersion(), this);
 
-        // switch to ASCII mode: @todo: implement more elgant and rigorous way to wait for a reply to a message.
+        // switch to ASCII mode: @todo: implement more elegant and rigorous way to wait for a reply to a message.
         for (int i = 0; (i < 2) && (Hsi88Config.mode != Hsi88Mode.ASCII); i++) {
             tc.sendHsi88Message(Hsi88Message.cmdTerminal(), this);
             try {
@@ -54,10 +55,11 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
             log.warn(Hsi88Config.LONGNAME +
                     " running in " +
                     Hsi88Config.mode +
-                    " mode. Message parsing in this mode is not implemented.");
+                    " mode. Message parsing in this mode is not implemented. Except loads of errors messages.");
         }
 
-        tc.sendHsi88Message(Hsi88Message.cmdSetup(Hsi88Config.left, Hsi88Config.middle, Hsi88Config.right));
+        //        tc.sendHsi88Message(Hsi88Message.cmdSetup(Hsi88Config.left, Hsi88Config.middle, Hsi88Config.right));
+        tc.sendHsi88Message(Hsi88Message.powerOff());
     }
 
     @Override
@@ -65,12 +67,27 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
         return memo.getSystemPrefix();
     }
 
+    /**
+     * create a new Hsi88Sensor. Its address on the S88 chain will be derived
+     * from systemName.
+     * 
+     * @param systemName stripped of SystemPrefix and "S prefix, is parsed into
+     *            a nonnegative integer to give sensor address on s88 chain.
+     * @param userName merely passed on to ctor of Hsi88Sensor.
+     * 
+     * @return new Sensor with addressed as parsed from systemName if no sensor
+     *         with the same address existed. Otherwise returns existing sensor
+     *         with that address.
+     * 
+     * @todo find cannonical way to get length of "S" prefix (if that is
+     *       changeable.)
+     * 
+     */
     @Override
     protected Sensor createNewSensor(String systemName, String userName) {
 
         // get payload from systemName.
         String addrString = systemName.substring(this.getSystemPrefix().length() + 1);
-        // @todo cannonical way to get length of "S" prefix (if that is changeable?)  
 
         int addr = -1;
         try {
@@ -78,22 +95,34 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
         } catch (NumberFormatException e) {
             log.error("Cannot parse payload of system name into S88 sensor address:" +
                     addrString +
-                    ". Use only numeric payloads that can be parsed to intergers.");
+                    ". Use only numeric payloads that can be parsed into nonnegative integers.");
+            return null;
+        }
+
+        if (addr < 0) {
+            log.error("Sensors cannot have negative address:" + addr);
             return null;
         }
 
         // module number of this s88 sensor address. Modules number from 1 and contain 16 sensors each.
         int module = (addr / 16) + 1;
-        if (module > Hsi88Config.getNumModules()) {
+
+        if (module > Hsi88Config.getSetupModules()) {
             log.info("Sensor address " + addr + " beyond range of registered S88 modules.");
+            if (module > Hsi88Config.MAXMODULES) {
+                log.error("Sensor address beyong addressable range of Hsi88 Interface." +
+                        " If you want this addrress change Hsi88Condig.MAXMODULES in source code");
+                return null;
+            }
         }
 
+        // do we have sensor with same address?
         Hsi88Sensor s = sensors.get(addr);
         if (s == null) {
-            s = new Hsi88Sensor(systemName, userName);
+            s = new Hsi88Sensor(systemName, userName, memo);
             sensors.put(addr, s);
         } else {
-            log.info("Ignore request to create new sensor: returning existing sensor with address: " + addr);
+            log.warn("Ignored request to create new sensor: returning existing sensor with same address: " + addr);
         }
         return s;
     }
@@ -115,7 +144,7 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
                 switchTerminalMode(r);
                 break;
             case 's':
-                checkNumModules(r);
+                checkNumModules(r); // @todo change to use getSetupReplyModules?
                 break;
             case 'v':
                 // Version information.
@@ -166,21 +195,35 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
 
         String sensorStr = r.toString().substring(1, 3);
 
-        int i;
+        int newModules;
         try {
-            i = Integer.parseInt(sensorStr, 16);
-            log.info("Number of modules reported: " + i);
+            newModules = Integer.parseInt(sensorStr, 16);
+            log.info("Changed number of reported modules: " + newModules);
         } catch (NumberFormatException e) {
-            log.warn("Could not parse: " + sensorStr);
+            log.warn("Could not parse to nonnegative number: " + sensorStr);
             return;
         }
 
-        if (Hsi88Config.getNumModules() != i) {
-            log.warn("Number of reported modules " +
-                    i +
-                    " does not agree with number of registered modules: " +
-                    Hsi88Config.getNumModules());
+        if (newModules == 0) {
+            log.info("Hsi88 power off.");
+            return;
         }
+
+        if (newModules > Hsi88Config.MAXMODULES) {
+            log.error("Hsi88 reports more modules than coded in Hsi88Config.MAXMODULES");
+            newModules = Hsi88Config.MAXMODULES;
+        }
+
+        if (Hsi88Config.getSetupModules() != newModules) {
+            log.warn("Number of reported modules " +
+                    newModules +
+                    " does not agree with number of setup modules: " +
+                    Hsi88Config.getSetupModules() +
+                    ". Perhaps change Hsi88 setup in JMRI Preferences?");
+        }
+
+        Hsi88Config.reportedModules = newModules;
+        log.info("Hsi88 power on with " + newModules + " modules.");
     }
 
     /**
@@ -189,80 +232,89 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
      */
     private void processSensorReading(Hsi88Reply r) {
 
-        int len = r.getNumDataElements() - 1; // ignore opcode
-        String s = r.toString();
+        String payload = r.toString();
 
         // parse and check number of reported modules
         try {
-            int nSensors = Integer.parseInt(s.substring(1, 3), 16);
-            if (nSensors != Hsi88Config.getNumModules()) {
-                log.info("Number of reported and registered S88 modules does not agree: " + nSensors);
+            int nModules = Integer.parseInt(payload.substring(1, 3), 16);
+            if (nModules != Hsi88Config.reportedModules) {
+                log.info("Number of modules reported by previous 's' reply " +
+                        Hsi88Config.reportedModules +
+                        " does not agree with module update sent by 'i' reply:" +
+                        nModules);
             }
         } catch (NumberFormatException e1) {
-            log.warn("Could not parse number of S88 modules: " + s);
+            log.warn("Could not parse number of S88 modules: " + payload);
         }
+
+        int len = r.getNumDataElements() - 1; // ignore opcode
 
         // values of s88 module come in chunks of 6 ascii digits:
         int i;
         for (i = 3; i <= len - 6; i += 6) {
 
-            String moduleUpdate = s.substring(i, i + 6);
+            String moduleUpdate = payload.substring(i, i + 6);
 
             try {
                 int v = Integer.parseInt(moduleUpdate, 16);
                 int value = v & 0xFFFF;
                 int module = (v >> 16) & 0xFF;
-                updateModule(module, value);
+                updateModule(module, value, r.getOpCode() == 'm');
             } catch (NumberFormatException e) {
                 log.warn("Ignored malformated part of HSI88 module update: " + moduleUpdate);
             }
         }
 
         if (i != len) {
-            log.warn("Trailing chars of sensor message not parsed: " + s.substring(i));
+            log.warn("Trailing chars of sensor message not parsed: " + payload.substring(i));
         }
     }
 
     /**
-     * process update for an s88 module. Specifically notify all sensor in that
-     * module.
+     * process update for an s88 module. Specifically notify all changed sensors
+     * in that module.
      * 
-     * @param id s88 module number
+     * @param module s88 module number
      * @param value sensor readings of module
+     * @param reportAll 
      */
-    private void updateModule(int id, final int value) {
+    private void updateModule(int module, final int value, boolean reportAll) {
 
-        if ((id > Hsi88Config.getNumModules()) && (id <= 0)) {
+        if ((module > Hsi88Config.reportedModules) && (module <= 0)) {
             log.warn("Update for module " +
-                    id +
-                    " which is beyond number of " +
-                    Hsi88Config.getNumModules() +
-                    " registered modules.");
+                    module +
+                    " beyond number of " +
+                    Hsi88Config.reportedModules +
+                    " reported modules.");
             return;
         }
-        
 
-        // have any bits reported flipped?
-        final char changes = (char) (value ^ moduleStates[id]);
-        // no? => nothing to do
-        if (changes == 0)
+        // index into moduleStates starts at 0 whereas module number starts at 1.
+        module--;
+
+        // any bits flipped?
+        final char changes = (char) (value ^ moduleStates[module]);
+        if (changes == 0) {
+            // no? => nothing to do
             return;
+        }
 
-        // index into moduleState starts at 0 where module number start at 1
-        id--;
         // update module states
-        moduleStates[id] ^= changes;
+        moduleStates[module] ^= changes;
 
         // address of first sensor for this module
-        final int baseAddress = (id - 1) * 16;
+        final int baseAddress = module * 16;
 
         // go through changes bit by bit
         for (int addr = baseAddress, mask = 1; addr < baseAddress + 16; addr++, mask <<= 1) {
             // has sth changed?
-            if ((changes & mask) != 0) {
+            if (((changes & mask) != 0) || reportAll) {
                 Hsi88Sensor sensor = sensors.get(addr);
                 if (sensor != null)
                     sensor.setOwnState((mask & value) != 0 ? Sensor.ACTIVE : Sensor.INACTIVE);
+                else { // no sensor object -- be nice and inform user nevertheless
+                    log.info("Sensor " + addr + ": " + (((mask & value) == 0)? "low." : "high."));
+                }
             }
         }
     }

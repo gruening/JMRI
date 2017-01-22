@@ -24,9 +24,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Frame for Hsi88 Console
  *
- * Updated Jan 2010 by Andrew Berridge - fixed errors caused by trying to send
- * some commands while slot manager is active
- * 
  * Updated April 2016 by Andrew Crosland remove the checks on slot manager
  * status, implement a timeout and look for the correct replies which may be
  * delayed by replies for slot manager.
@@ -58,10 +55,8 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     protected int modeWord;
 
     // members for handling the Hsi88 interface
-    private Hsi88TrafficController tc = null;
-    private Hsi88Message msg;
+    private Hsi88TrafficController tc;
     private String replyString;
-    private String tmpString = null;
 
     public Hsi88ConsoleFrame(Hsi88SystemConnectionMemo memo) {
         super();
@@ -262,7 +257,6 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     // validateCurrent() is called from synchronised code
     public void validateCurrent() {
         String currentRange = "200 - 996";
-        int validLimit = 996;
         try {
             // currentLimit = Integer.parseInt(currentTextField.getText());
         } catch (NumberFormatException e) {
@@ -278,17 +272,16 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
     synchronized public void saveButtonActionPerformed(java.awt.event.ActionEvent e) {
         Hsi88Message saveMsg;
-        int currentLimitForHardware;
         // Send Current Limit if possible
         if (isCurrentLimitPossible()) {
             validateCurrent();
             // Value written is scaled from mA to hardware units
             // currentLimitForHardware = (int) (currentLimit);
             // tmpString = String.valueOf(currentLimitForHardware);
-            saveMsg = new Hsi88Message("I " + tmpString);
+            saveMsg = new Hsi88Message("I ");
         } else {
             // Else send blank message to kick things off
-            saveMsg = new Hsi88Message(" " + tmpString);
+            saveMsg = new Hsi88Message(" ");
         }
         nextLine("cmd: \"" + saveMsg.toString() + "\"\n", "");
         tc.sendHsi88Message(saveMsg, this);
@@ -327,8 +320,6 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
     @Override
     public synchronized void notifyReply(Hsi88Reply l) { // receive a reply message and log it
-        Hsi88Message msg;
-        int currentLimitFromHardware;
         replyString = l.toString();
         nextLine("rep: \"" + replyString + "\"\n", "");
     }
@@ -363,6 +354,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
     /**
      * Internal routine to handle timer starts {@literal &} restarts
+     * @param delay x 
      */
     protected void restartTimer(int delay) {
         if (timer == null) {

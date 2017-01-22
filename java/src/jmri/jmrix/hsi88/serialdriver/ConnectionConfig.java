@@ -1,8 +1,12 @@
 // ConnectionConfig.java
 package jmri.jmrix.hsi88.serialdriver;
 
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 import jmri.jmrix.hsi88.Hsi88Config;
 import jmri.util.SystemType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Definition of objects to handle configuring a layout connection via an HSI88
@@ -18,6 +22,31 @@ public class ConnectionConfig extends jmri.jmrix.AbstractSerialConnectionConfig 
      */
     public ConnectionConfig(jmri.jmrix.SerialPortAdapter p) {
         super(p);
+    }
+    
+    
+
+    @Override
+    protected int addStandardDetails(boolean incAdvanced, int i) {
+    
+        i = super.addStandardDetails(incAdvanced, i);
+
+        log.warn("I am being called.");
+
+        JTextField left = new JTextField();
+        JLabel leftLabel = new JLabel("Left: ");
+        
+        left.setToolTipText("Number of S88 modules on the left chain.");
+        left.setEnabled(true);
+        
+        cR.gridy = i;
+        cL.gridy = i;
+        gbLayout.setConstraints(leftLabel, cL);
+        gbLayout.setConstraints(left, cR);
+        _details.add(leftLabel);
+        _details.add(left);
+        
+        return i++;
     }
 
     /**
@@ -44,4 +73,7 @@ public class ConnectionConfig extends jmri.jmrix.AbstractSerialConnectionConfig 
            adapter = new SerialDriverAdapter();
         }
     }
+    
+    private final static Logger log = LoggerFactory.getLogger(ConnectionConfig.class.getName());
+
 }

@@ -1,7 +1,6 @@
 package jmri.jmrix.hsi88.hsi88;
 
 import jmri.jmrix.hsi88.Hsi88Config;
-import jmri.jmrix.hsi88.Hsi88Config.Hsi88Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,16 +20,27 @@ import org.slf4j.LoggerFactory;
  */
 public class Hsi88SerialDriverAdapter extends jmri.jmrix.hsi88.serialdriver.SerialDriverAdapter {
 
+    private final static String[] makeChainLengths() {
+        String[] lengths = new String[Hsi88Config.MAXMODULES+1];
+        for(int i = 0; i <= Hsi88Config.MAXMODULES; i++) {
+            lengths[i] = Integer.toString(i);
+        }
+        return lengths;
+    }
+    
+    private final String[] lengths = makeChainLengths();
+    
+
     public Hsi88SerialDriverAdapter() {
-        super(Hsi88Mode.ASCII);
-        options.put("PowerState",
-                new Option("Power At StartUp:", new String[]{"Powered Off", "Powered On"}, true));
-        options.put("InitialTerminalMode",
-                new Option("Initial Terminal Mode:", new String[]{Hsi88Mode.ASCII.toString(), Hsi88Mode.HEX.toString()},
-                        false));
-        options.put("NewOption",
-                new Option("New Option:", new String[]{"eins", "zwei"}));
-        //Set the user name to match name, once refactored to handle multiple connections or user setable names/prefixes then this can be removed 
+        super();
+        options.put("LeftChain",
+                new Option("Left Chain: # Modules:", lengths, true));
+        options.put("MiddleChain",
+                new Option("Middle Chain: # Modules:", lengths, true));
+        options.put("RightChain",
+                new Option("Right Chain: # Modules:", lengths, true));
+       
+        // Set the user name to match name, once refactored to handle multiple connections or user setable names/prefixes then this can be removed 
         this.getSystemConnectionMemo().setUserName(Hsi88Config.LONGNAME);
     }
 

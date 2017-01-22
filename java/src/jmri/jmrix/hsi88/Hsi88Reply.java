@@ -20,7 +20,7 @@ public class Hsi88Reply extends AbstractMRReply {
      * modules + final cr per module size: 6 for each module reports: 2 digits
      * for module number, 4 for module readings.
      */
-    static public final int MAXSIZE = 4 + 6 * Hsi88Config.MAXMODULES;
+    static public final int MAXSIZE = "i00".length() + Hsi88Config.MAXMODULES * "112233".length() + "\r".length();
 
     /** create a new empty reply. */
     public Hsi88Reply() {
@@ -28,8 +28,15 @@ public class Hsi88Reply extends AbstractMRReply {
     }
 
     /** no need to do anything */
+    @Override
     protected int skipPrefix(int index) {
         return index;
+    }
+
+    /** @return return maximal size of Hsi88 reply */
+    @Override
+    public int maxSize() {
+        return Math.max(super.maxSize(), Hsi88Reply.MAXSIZE);
     }
 
     /**
@@ -58,12 +65,11 @@ public class Hsi88Reply extends AbstractMRReply {
     /**
      * Create a Hsi88Reply from a String.
      *
-     * @param replyString a String containing the contents of the reply
+     * @param replyString a String containing the contents of the reply.
      * 
-     * @todo where is this used?
      */
     public Hsi88Reply(String replyString) {
-        super(replyString);
+        super(replyString.substring(0, Hsi88Reply.MAXSIZE));
     }
 
     /**
@@ -75,7 +81,7 @@ public class Hsi88Reply extends AbstractMRReply {
 
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < _nDataChars; i++) {
-            buf.append( (char) (_dataChars[i] & 0xFF)); // prevent sign expansion
+            buf.append((char) (_dataChars[i] & 0xFF)); // prevent sign expansion
         }
         // delete final cr if any
         if (_dataChars[_nDataChars - 1] == '\r') {
@@ -90,7 +96,7 @@ public class Hsi88Reply extends AbstractMRReply {
      * 
      * @return has the end of the message been reached?
      */
-    public boolean endReply() {
+    boolean endReply() {
 
         int num = this.getNumDataElements();
 
@@ -100,6 +106,33 @@ public class Hsi88Reply extends AbstractMRReply {
             return true;
 
         return (this.getElement(num - 1) == '\r');
+    }
+
+    /**
+     * checks whether this reply is an 's' reply and, if so, returns the number
+     * of modules reported.
+     * 
+     * @return number of modules reported in the reply, or a negative number if
+     *         it is not a well-formatted 's' reply.
+     * 
+     * @note does not check whether nonnegative reported number of modules is
+     *       outside valid range.
+     */
+    int getSetupReplyModules() {
+
+        if (Character.toLowerCase(this.getOpCode()) != 's' ||
+                this.getNumDataElements() != 4 ||
+                this.getElement(3) != '\r')
+            return -1;
+
+        String payload = this.toString().substring(1, 3);
+
+        try {
+            int modules = Integer.parseInt(payload, 16);
+            return modules;
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88Reply.class.getName());

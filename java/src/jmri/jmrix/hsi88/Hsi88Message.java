@@ -17,9 +17,9 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
 
     /**
      * maximal length of Hsi88 message. This is attained for "s" command in
-     * ASCII mode.
+     * ASCII mode: 
      */
-    final static public int MAXLEN = 8;
+    final static public int MAXLEN = "s112233\r".length();
 
     /**
      * create new empty message.
@@ -27,8 +27,9 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
      * @param i length of message
      */
     public Hsi88Message(int i) {
-        if (i < 1) {
+        if ( (i < 1) || (i > Hsi88Message.MAXLEN)) {
             log.error("invalid length in call to ctor");
+            i = Hsi88Message.MAXLEN;
         }
         _nDataChars = i;
         _dataChars = new int[i];
@@ -100,7 +101,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
         return new Hsi88Message("m\r");
     }
 
-    private static String byteTo2Hex(byte i) {
+    private static String byteToHex(byte i) {
 
         String str = Integer.toHexString(i);
         if (str.length() == 2)
@@ -112,8 +113,16 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
     public static Hsi88Message cmdSetup(int left, int middle, int right) {
 
         Hsi88Message setup = new Hsi88Message(
-                "s" + byteTo2Hex((byte) left) + byteTo2Hex((byte) middle) + byteTo2Hex((byte) right) + '\r');
+                "s" + byteToHex((byte) left) + byteToHex((byte) middle) + byteToHex((byte) right) + '\r');
         return setup;
+    }
+
+    public static Hsi88Message powerOn() {
+        return cmdSetup(Hsi88Config.left, Hsi88Config.middle, Hsi88Config.right);
+    }
+
+    public static Hsi88Message powerOff() {
+        return cmdSetup(0,0,0);
     }
 
 }

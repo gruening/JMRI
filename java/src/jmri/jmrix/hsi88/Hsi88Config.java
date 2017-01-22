@@ -18,10 +18,9 @@ public class Hsi88Config {
     /** default prefix of the hardware */
     public static final String PREFIX = "H";
     
-    /** maximum number of S88 module that can be connected to a HSI88 interface. */
+    /** maximum number of S88 module that can be connected to an HSI88 interface. */
     public static final int MAXMODULES = 31;
     
-
     private Hsi88Config() {
         // no objects ever to be created. All fields and methods static.
     }
@@ -30,21 +29,24 @@ public class Hsi88Config {
      * HSI88 can communucate either via sending ASCII messages or hex message
      **/
     public static enum Hsi88Mode {
-        ASCII, HEX
+        UNKNOWN, ASCII, HEX
     }
 
-    /** assume HSI88 is in hex mode on start up. Set and read on different threads that are waiting for this to change. */
-    static volatile Hsi88Mode mode = Hsi88Mode.HEX;
+    /** we do not know which mode HSI88 is in on start up. */
+    static volatile Hsi88Mode mode = Hsi88Mode.UNKNOWN;
 
     /**
-     * number of moduls (of 16 sensors) each attached to the left middle and
-     * right chains
+     * number of modules (of 16 sensors) each attached to the left middle and
+     * right chains.
      */
     static int left = 2;
     static int middle = 2;
     static int right = 2;
 
-    static int getNumModules() {
+    /** number of module reported in the last s reply (where such number is different from zero) */
+    public static int reportedModules = 0;
+
+    static int getSetupModules() {
         return left + middle + right;
     }
 }

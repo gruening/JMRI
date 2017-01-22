@@ -16,22 +16,18 @@ import jmri.implementation.AbstractSensor;
  */
 public class Hsi88Sensor extends AbstractSensor implements Sensor {
 
-    public Hsi88Sensor(String systemName) {
-        super(systemName);
-    }
+    private Hsi88SystemConnectionMemo memo;
 
-    public Hsi88Sensor(String systemName, String userName) {
+    public Hsi88Sensor(String systemName, String userName, Hsi88SystemConnectionMemo memo) {
         super(systemName, userName);
+        this.memo = memo;
     }
 
     /**
-     * We currently do not request updates from the layout, but we could simply
-     * send the "m" command. (
-     * 
-     * @todo On which thread should we do it -- invoke later?
+     * send the "m" command to layout.
      */
     @Override
     public void requestUpdateFromLayout() {
-        // do nothing
+        memo.getHsi88TrafficController().sendHsi88Message(Hsi88Message.cmdQuery(), null);
     }
 }

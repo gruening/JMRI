@@ -5,10 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Description: Carries a response from the HSI88 interface.
+ * Response from the HSI88 interface.
  *
  * @author Bob Jacobsen Copyright (C) 2001
- * @author Andrew Berridge - refactored, cleaned up, Feb 2010
  * @author Andre Gruening Copyright (C) 2017: HSI88 specific implementation
  *         based on sprog implementation
  */
@@ -46,21 +45,13 @@ public class Hsi88Reply extends AbstractMRReply {
      * @todo rewrite nicer
      * @todo and where is it used?
      */
-    @SuppressWarnings("null")
-    public Hsi88Reply(Hsi88Reply m) {
-        this();
-        if (m == null) {
-            log.error("copy ctor of null message");
-            return;
-        }
-        _nDataChars = m._nDataChars;
-        if (m.isUnsolicited()) {
-            super.setUnsolicited();
-        }
-        for (int i = 0; i < _nDataChars; i++) {
-            _dataChars[i] = m._dataChars[i];
-        }
-    }
+
+    /*
+     * @SuppressWarnings("null") public Hsi88Reply(Hsi88Reply m) { this(); if (m
+     * == null) { log.error("copy ctor of null message"); return; } _nDataChars
+     * = m._nDataChars; if (m.isUnsolicited()) { super.setUnsolicited(); } for
+     * (int i = 0; i < _nDataChars; i++) { _dataChars[i] = m._dataChars[i]; } }
+     */
 
     /**
      * Create a Hsi88Reply from a String.
@@ -68,9 +59,10 @@ public class Hsi88Reply extends AbstractMRReply {
      * @param replyString a String containing the contents of the reply.
      * 
      */
-    public Hsi88Reply(String replyString) {
-        super(replyString.substring(0, Hsi88Reply.MAXSIZE));
-    }
+    /*
+     * public Hsi88Reply(String replyString) { super(replyString.substring(0,
+     * Hsi88Reply.MAXSIZE)); }
+     */
 
     /**
      * Returns a string representation of this Hsi88Reply. Deletes a final cr.
@@ -96,7 +88,7 @@ public class Hsi88Reply extends AbstractMRReply {
      * 
      * @return has the end of the message been reached?
      */
-    boolean endReply() {
+    boolean end() {
 
         int num = this.getNumDataElements();
 
@@ -128,8 +120,7 @@ public class Hsi88Reply extends AbstractMRReply {
         String payload = this.toString().substring(1, 3);
 
         try {
-            int modules = Integer.parseInt(payload, 16);
-            return modules;
+            return Integer.parseInt(payload, 16);
         } catch (NumberFormatException e) {
             return -1;
         }

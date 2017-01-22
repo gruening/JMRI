@@ -2,17 +2,14 @@ package jmri.jmrix.hsi88;
 
 /**
  * Returns a list of valid HSI88 Connection Types
- * <P>
  * 
  * @author Bob Jacobsen Copyright (C) 2010
  * @author Kevin Dickerson Copyright (C) 2010
- * 
- *         Andre Gruenig 2017: trivially adapted from sprog for use with HSI88.
+ * @author Andre Gruening Copyright(C) 2017: adapted from sprog for
+ *         use with HSI88.
  *
  */
 public class Hsi88ConnectionTypeList implements jmri.jmrix.ConnectionTypeList {
-
-    // public static final String HSI88 = Hsi88Config.NAME;
 
     @Override
     public String[] getAvailableProtocolClasses() {

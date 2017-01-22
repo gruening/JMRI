@@ -2,7 +2,7 @@ package jmri.jmrix.hsi88;
 
 import java.util.HashMap;
 import jmri.Sensor;
-import jmri.jmrix.hsi88.Hsi88Config.Hsi88Mode;
+import jmri.jmrix.hsi88.Hsi88Config.Hsi88Protocol;
 import jmri.managers.AbstractSensorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,26 +10,27 @@ import org.slf4j.LoggerFactory;
 /**
  * Manager to deal with the HSI88 interface and convert HSI88 replies to HSI88
  * sensor events.
+ * 
+ * @author Andre Gruening, Copyright (C) 2017.
  */
 public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Listener {
 
     /** keep connection memo */
     private Hsi88SystemConnectionMemo memo;
 
-    /** store sensor addresses and corresponding sensor objects */
+    /** store mapping sensor to corresponding sensor objects */
     private HashMap<Integer, Hsi88Sensor> sensors = new HashMap<Integer, Hsi88Sensor>();
 
-    /**
-     * store 16bit state of modules to avoid sending too many updates to Sensor
-     * objects.
-     */
+    /** store 16bit state of modules. */
     private char[] moduleStates = new char[Hsi88Config.MAXMODULES];
 
     /**
-     * create a new sensor manager for the Hsi88 interface. It connected to the
+     * create a new sensor manager for the Hsi88 interface. It connects to the
      * traffic controller and sets the Hsi88 interface up.
      * 
      * @param memo connection memo
+     * 
+     * @todo implement more elegant and rigorous way to wait for a reply to the "t" message.
      */
     Hsi88SensorManager(Hsi88SystemConnectionMemo memo) {
 
@@ -40,8 +41,8 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
         log.info("Hsi88 Sensor Manager starts.");
         tc.sendHsi88Message(Hsi88Message.cmdVersion(), this);
 
-        // switch to ASCII mode: @todo: implement more elegant and rigorous way to wait for a reply to a message.
-        for (int i = 0; (i < 2) && (Hsi88Config.mode != Hsi88Mode.ASCII); i++) {
+        // switch to ASCII mode: 
+        for (int i = 0; (i < 2) && (Hsi88Config.protocol != Hsi88Protocol.ASCII); i++) {
             tc.sendHsi88Message(Hsi88Message.cmdTerminal(), this);
             try {
                 // wait until reply has most probably come.
@@ -51,15 +52,15 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
             }
         }
 
-        if (Hsi88Config.mode != Hsi88Mode.ASCII) {
+        if (Hsi88Config.protocol != Hsi88Protocol.ASCII) {
             log.warn(Hsi88Config.LONGNAME +
                     " running in " +
-                    Hsi88Config.mode +
-                    " mode. Message parsing in this mode is not implemented. Except loads of errors messages.");
+                    Hsi88Config.protocol +
+                    " mode. Message parsing in this mode is not implemented. Expect loads of errors messages.");
         }
 
-        //        tc.sendHsi88Message(Hsi88Message.cmdSetup(Hsi88Config.left, Hsi88Config.middle, Hsi88Config.right));
-        tc.sendHsi88Message(Hsi88Message.powerOff());
+        // stop Hsi88 if it was running -- you never know.
+        tc.sendHsi88Message(Hsi88Message.powerOff(), this);
     }
 
     @Override
@@ -71,11 +72,11 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
      * create a new Hsi88Sensor. Its address on the S88 chain will be derived
      * from systemName.
      * 
-     * @param systemName stripped of SystemPrefix and "S prefix, is parsed into
+     * @param systemName stripped of SystemPrefix and "S" prefix, is parsed into
      *            a nonnegative integer to give sensor address on s88 chain.
      * @param userName merely passed on to ctor of Hsi88Sensor.
      * 
-     * @return new Sensor with addressed as parsed from systemName if no sensor
+     * @return new Sensor with address as parsed from systemName if no sensor
      *         with the same address existed. Otherwise returns existing sensor
      *         with that address.
      * 
@@ -100,23 +101,23 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
         }
 
         if (addr < 0) {
-            log.error("Sensors cannot have negative address:" + addr);
+            log.error("Hsi88 Sensor cannot have negative address:" + addr);
             return null;
         }
 
-        // module number of this s88 sensor address. Modules number from 1 and contain 16 sensors each.
+        // module number of this s88 sensor address. Modules number run from 1 and contain 16 sensors each.
         int module = (addr / 16) + 1;
 
         if (module > Hsi88Config.getSetupModules()) {
             log.info("Sensor address " + addr + " beyond range of registered S88 modules.");
             if (module > Hsi88Config.MAXMODULES) {
-                log.error("Sensor address beyong addressable range of Hsi88 Interface." +
-                        " If you want this addrress change Hsi88Condig.MAXMODULES in source code");
+                log.error("Sensor address beyond addressable range of Hsi88 Interface. " +
+                        "If you really want this address change Hsi88Condif.MAXMODULES in the source code");
                 return null;
             }
         }
 
-        // do we have sensor with same address?
+        // sensor with same address?
         Hsi88Sensor s = sensors.get(addr);
         if (s == null) {
             s = new Hsi88Sensor(systemName, userName, memo);
@@ -169,11 +170,11 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
 
         switch ((char) r.getElement(1)) {
             case '0':
-                Hsi88Config.mode = Hsi88Mode.HEX;
+                Hsi88Config.protocol = Hsi88Protocol.HEX;
                 log.info("Terminal mode switched to HEX");
                 break;
             case '1':
-                Hsi88Config.mode = Hsi88Mode.ASCII;
+                Hsi88Config.protocol = Hsi88Protocol.ASCII;
                 log.info("Terminal mode switch to ASCII");
                 break;
             default:

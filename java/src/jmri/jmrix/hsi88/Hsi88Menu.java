@@ -7,7 +7,7 @@ import javax.swing.JMenu;
  * Create a "Systems" menu containing the Jmri Hsi88-specific tools
  *
  * @author Bob Jacobsen Copyright 2003
- *         adapted for use with HSI88: Andre Gruening, 2017
+ * @author Andre Gruening, Copyright 2017: adapted for use with HSI88:
  */
 public class Hsi88Menu extends JMenu {
 
@@ -20,6 +20,5 @@ public class Hsi88Menu extends JMenu {
         ResourceBundle rb = ResourceBundle.getBundle("jmri.jmrix.JmrixSystemsBundle");
         setText(memo.getUserName());
         add(new jmri.jmrix.hsi88.console.Hsi88ConsoleAction(rb.getString("MenuItemConsole"), _memo));
-
     }
 }

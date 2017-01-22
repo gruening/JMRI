@@ -3,7 +3,6 @@ package jmri.jmrix.hsi88;
 import java.util.ResourceBundle;
 import jmri.InstanceManager;
 import jmri.SensorManager;
-import jmri.jmrix.hsi88.Hsi88Config.Hsi88Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,13 +14,15 @@ import org.slf4j.LoggerFactory;
  * activate their particular system.
  *
  * @author Bob Jacobsen Copyright (C) 2010
+ * @author Andre Gruening, 2017: trivially adapted from Sprog implementation for
+ *         use with Hsi88
  */
 public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
 
-    public Hsi88SystemConnectionMemo(Hsi88TrafficController st, Hsi88Mode sm) {
-        this();
-        this.st = st;
-    }
+    /*
+     * public Hsi88SystemConnectionMemo(Hsi88TrafficController st, Hsi88Protocol
+     * sm) { this(); this.st = st; }
+     */
 
     public Hsi88SystemConnectionMemo() {
         super(Hsi88Config.PREFIX, Hsi88Config.NAME);
@@ -31,23 +32,33 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
                 jmri.jmrix.swing.ComponentFactory.class);
     }
 
+    /**
+     * keep reference to Component Factory.
+     */
     private jmri.jmrix.swing.ComponentFactory cf = null;
 
     /**
      * Provides access to the TrafficController for this particular connection.
      * 
-     * @return
+     * @return the Traffic controller.
      */
     public Hsi88TrafficController getHsi88TrafficController() {
         return st;
     }
 
+    /**
+     * Set Traffic Controller.
+     * 
+     * @param st
+     */
     public void setHsi88TrafficController(Hsi88TrafficController st) {
         this.st = st;
     }
 
+    /** keep reference to Traffic Controller */
     private Hsi88TrafficController st;
 
+    /** The Hsi88 implementation provides a Sensor Manager and a Power Manager */
     @Override
     public boolean provides(Class<?> type) {
         if (getDisabled()) {
@@ -59,19 +70,22 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         if (type.equals(jmri.SensorManager.class)) {
             return true;
         }
-        return false; // nothing, by default
+        return false;
     }
 
+    /**
+     * @return the manager the Hsi88 implementation provides.
+     */
     @Override
     @SuppressWarnings("unchecked")
     public <T> T get(Class<?> T) {
         if (getDisabled()) {
             return null;
         }
-        if (T.equals(jmri.PowerManager.class)) {
+        else if (T.equals(jmri.PowerManager.class)) {
             return (T) getPowerManager();
         }
-        if (T.equals(jmri.SensorManager.class)) {
+        else if (T.equals(jmri.SensorManager.class)) {
             return (T) getSensorManager();
         }
         return null; // nothing, by default
@@ -79,9 +93,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
 
     /**
      * Configure the common managers for Hsi88 connections. This puts the common
-     * manager config in one place. This method is static so that it can be
-     * referenced from classes that don't inherit, including
-     * hexfile.HexFileFrame and locormi.LnMessageClient
+     * manager config in one place. 
      */
     public void configureManagers() {
 
@@ -92,22 +104,29 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
         jmri.InstanceManager.setSensorManager(sensorManager);
     }
 
+    /** keep reference to Power Manager. */
     private Hsi88PowerManager powerManager;
+    
+    /** keep reference to Sensor Manager. */
     private Hsi88SensorManager sensorManager;
 
+    /** @return the Power Manager */
     public Hsi88PowerManager getPowerManager() {
         return powerManager;
     }
 
+    /** @return the Sensor Manager */
     public SensorManager getSensorManager() {
         return sensorManager;
     }
 
+    @Override
     protected ResourceBundle getActionModelResourceBundle() {
         // No actions that can be loaded at startup
         return null;
     }
 
+    /** free resources */
     public void dispose() {
         st = null;
         InstanceManager.deregister(this, Hsi88SystemConnectionMemo.class);

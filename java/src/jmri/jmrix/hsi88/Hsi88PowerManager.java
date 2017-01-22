@@ -1,5 +1,6 @@
 package jmri.jmrix.hsi88;
 
+
 import jmri.JmriException;
 import jmri.PowerManager;
 
@@ -7,12 +8,12 @@ import jmri.PowerManager;
  * PowerManager implementation for controlling HSI88 layout power.
  *
  * @author Bob Jacobsen Copyright (C) 2001
- * @author Andre Gruening Copyright (C) 2017
+ * @author Andre Gruening Copyright (C) 2017 : Hsi88 specific implementation.
  *
  */
 public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implements PowerManager, Hsi88Listener {
 
-    /** holds traffic controler instance */
+    /** holds traffic controller instance */
     private Hsi88TrafficController trafficController;
 
     /**
@@ -30,9 +31,6 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
     /** current power state of Hsi88 device. */
     private int power = PowerManager.UNKNOWN;
 
-    /** are we waiting for a reply from the layout? */
-    private boolean waiting = false;
-
     /**
      * set power on and off by sending the appropriate messages to the HSI88
      * interface.
@@ -42,22 +40,20 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
         power = PowerManager.UNKNOWN; // while waiting for reply
         checkTC();
         if (v == PowerManager.ON) {
-            // configure to wait for reply
             trafficController.sendHsi88Message(Hsi88Message.powerOn(), this);
         } else if (v == OFF) {
-            // configure to wait for reply
             trafficController.sendHsi88Message(Hsi88Message.powerOff(), this);
         }
         firePropertyChange("Power", null, null);
     }
 
-    /** @return power state of HSi88 interface. */
+    /** @return power state of Hsi88 interface. */
     @Override
     public int getPower() {
         return power;
     }
 
-    /** to free resources when no longer used. */
+    /** free resources when no longer used. */
     @Override
     public void dispose() throws JmriException {
         trafficController.removeHsi88Listener(this);
@@ -71,26 +67,24 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
         }
     }
 
-    /** to listen for status changes from the Hsi88 system */
+    /** listen for status changes from the Hsi88 system */
     @Override
     public void notifyReply(Hsi88Reply m) {
-        
+
         int modules = m.getSetupReplyModules();
-        
-        if(modules == 0) {
+
+        if (modules == 0) {
             this.power = PowerManager.OFF;
             firePropertyChange("Power", null, null);
-        }
-        else if (modules > 0) {
+        } else if (modules > 0) {
             this.power = PowerManager.ON;
             firePropertyChange("Power", null, null);
         }
-        // else not for us or malformatted reply.
+        // else not for us or mal-formatted reply.
     }
 
     @Override
     public void notifyMessage(Hsi88Message m) {
         // nothing to do.
     }
-
 }

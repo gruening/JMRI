@@ -8,7 +8,7 @@ import jmri.implementation.AbstractSensor;
 
 /**
  * Light weight class to represent a sensor connected to an HSI88 interface. The
- * actual processing is done in Hsi88SensorManager as the HSI88 protocal is s88
+ * actual processing is done in Hsi88SensorManager as the HSI88 protocol is s88
  * module oriented, not sensor oriented.
  * 
  * @author Andre Gruening, Copyright (C) 2017

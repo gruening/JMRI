@@ -21,14 +21,12 @@ import org.slf4j.LoggerFactory;
  * Synchronization is used for two purposes here: 1. to prevent concurrent
  * reading/writing of listeners 2. to prevent concurrent sending of replies
  * and/or messages. In principle 2 different locks could be used for this, but
- * for sake of simplicity we lock on this object.
+ * for sake of simplicity we lock on this object only.
  * 
  * @author Andre Gruening Copyright (C) 2017: Implementation of Hsi088 relevant
- *         stuff, change of visibilities to more private, commented. All work
- *         based on implementation for sprog by
+ *         stuff. All work based on implementation for sprog by
  * @author Bob Jacobsen Copyright (C) 2001:
  *
- * @todo works fine for small number of modules, but throws an excpetion for 0x1F modules: IndexOutofBounds. Check where this happens
  */
 public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventListener {
 
@@ -62,10 +60,13 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
 
     /**
      * add a listener that wants to be notified for Hsi88 replies and messages
-     * other listeners send. Is is synchronized because listeners could be added
-     * from different threads at the same but we manipulate an internal data
-     * structure here.
+     * other listeners send. It is synchronized because listeners could be added
+     * from different threads at the same time, however we manipulate an
+     * internal data structure here.
+     * 
+     * @param l listener to add.
      */
+    @Override
     public synchronized void addHsi88Listener(Hsi88Listener l) {
         // add only if not already registered
         if (l == null) {
@@ -77,8 +78,9 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     }
 
     /**
-     * remove a listener.
+     * remove a listener. @param l listener to remove.
      */
+    @Override
     public synchronized void removeHsi88Listener(Hsi88Listener l) {
         if (hsi88Listeners.contains(l)) {
             hsi88Listeners.remove(l);
@@ -88,10 +90,10 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     /**
      * Distribute message to all listener except originator.
      * 
-     * AG changed from protected to private. Method only to be called from
-     * context synchronized on this traffic controller (to ensure that all
-     * listeners always get in only one message at a time, so that they need not
-     * care about multiple threads?)
+     * @note Method only to be called from context synchronized on this traffic
+     *       controller (to ensure that all listeners always get in only one
+     *       message at a time, so that they need not care about multiple
+     *       threads?)
      * 
      * @param m message to distribute
      * @param originator original sender of message
@@ -150,11 +152,11 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     }
 
     /**
-     * Forward a message to the interface
+     * Write a message into to the Hsi88 interface.
      * 
-     * @param m
+     * @param m message to send to Hsi88.
      */
-    void sendHsi88Message(Hsi88Message m) {
+    private void sendHsi88Message(Hsi88Message m) {
         // stream to port in single write, as that's needed by serial
         try {
             if (ostream != null) {
@@ -169,9 +171,10 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     }
 
     /**
-     * Forward a preformatted message to the actual interface (by calling
+     * Forward a message to the actual interface (by calling
      * sendHsi88Message(Hsi88Message) after notifying any listeners.
      */
+    @Override
     public synchronized void sendHsi88Message(Hsi88Message m, Hsi88Listener replyTo) {
 
         if (waitingForReply) {
@@ -192,27 +195,6 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
         this.sendHsi88Message(m);
     }
 
-  /* -- send a message and return only if a reply has been received.
-    public void sendHsi88MessageAndWait(Hsi88Message m, Hsi88Listener originator) {
-
-        this.sendHsi88Message(m, originator);
-
-        if (waitingForReply) {
-            try {
-                synchronized (this) {
-                    // double-if idiom
-                    if (waitingForReply)
-                        this.wait(1000);
-                    
-                    
-                    XXXXXS
-                }
-            } catch (InterruptedException e) {
-            }
-        }
-
-    }*/
-
     // methods to connect/disconnect to a source of data in a
     // Hsi88PortController
 
@@ -222,9 +204,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     /**
      * Make connection to existing PortController object.
      * 
-     * @todo Where is this used? -- Can I delete it? AG
-     * 
-     * @param p
+     * @param p port to connect to
      */
     public void connectPort(AbstractPortController p) {
         istream = p.getInputStream();
@@ -236,20 +216,10 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     }
 
     /**
-     * return the port controller, as an SerialDriverAdapter.
-     * 
-     * @return
-     */
-    /*
-     * private SerialDriverAdapter getController() { return
-     * (SerialDriverAdapter) controller; }
-     */
-
-    /**
      * Break connection to existing Hsi88PortController object. Once broken,
-     * attempts to send via "message" member will fail.
+     * attempts to send will fail.
      * 
-     * @param p
+     * @param p port to disconnect rp
      */
     public void disconnectPort(AbstractPortController p) {
         istream = null;
@@ -273,22 +243,23 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
         return null;
     }
 
+    /**
+     * set adapter memo
+     */
     void setAdapterMemo(Hsi88SystemConnectionMemo adaptermemo) {
         memo = adaptermemo;
     }
-    //
-    //   public Hsi88SystemConnectionMemo getAdapterMemo() {
-    //       return memo;
-    //   }
 
+    /** hold memo */
     private Hsi88SystemConnectionMemo memo = null;
-    // data members to hold the streams
+    /** hold input stream */
     private DataInputStream istream = null;
+    /** hold output stream */
     private OutputStream ostream = null;
 
-    boolean endReply(Hsi88Reply msg) {
-        return msg.endReply();
-    }
+    /*
+     * boolean endReply(Hsi88Reply msg) { return msg.endReply(); }
+     */
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88TrafficController.class.getName());
 
@@ -318,14 +289,15 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     }
 
     /**
-     * Handle an incoming reply.
+     * Handle an incoming reply from the hardware and if the reply is complete
+     * send the reply to listeners.
      */
     void handleOneIncomingReply() {
         // we get here if data has been received
         // fill the current reply with any data received
         int i = this.reply.getNumDataElements();
 
-        while (!this.endReply(this.reply)) {
+        while (!this.reply.end()) {
             try {
                 if (istream.available() == 0) {
                     return; // nothing waiting to be read
@@ -346,7 +318,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
      * Send the current reply - built using data from serialEvent
      */
     private void sendreply() {
-        
+
         if (log.isDebugEnabled()) {
             log.debug("dispatch reply of length " + this.reply.getNumDataElements());
         }
@@ -359,7 +331,6 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
         synchronized (this) {
             waitingForReply = false;
             notifyAll();
-            // notify();
         }
 
         {

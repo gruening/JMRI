@@ -11,6 +11,9 @@ import org.junit.Test;
  * @author Bob Jacobsen Copyright 2012.
  * @author Andre Gruening 2017: adapted for Hsi88 based on previous author's
  *         Sprog implementation.
+ * 
+ * @since 4.6.x
+ * @
  */
 public class Hsi88MessageTest {
 

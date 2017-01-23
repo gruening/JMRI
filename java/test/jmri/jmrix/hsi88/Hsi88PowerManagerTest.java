@@ -12,7 +12,7 @@ import org.junit.Test;
  * 
  * @author Paul Bender Copyright (C) 2016.
  * @author Andre Gruening 2017: trivially adapted for Hsi88 based on previous
- *         author's hsi88 implemetation.
+ *         author's hsi88 implementation.
  * 
  * @since 4.6.x
  * 

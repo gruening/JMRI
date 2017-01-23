@@ -4,20 +4,17 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import jmri.jmrix.sprog.SprogCSStreamPortController;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * SprogCSStreamPortControllerTest.java
- *
- * Description: tests for the jmri.jmrix.sprog.SprogCSStreamPortController class
+ * Tests for the jmri.jmrix.Hsi88.Hsi88CSStreamPortController class
  *
  * @author Paul Bender Copyrght (C) 2014-2016.
  * @author Andre Gruening 2017: trivially adapted for Hsi88 from previous
- *         author's Sprog implementation.
+ *         author's Hsi88 implementation.
  * 
  * @since 4.6.x
  */
@@ -33,7 +30,7 @@ public class Hsi88StreamPortControllerTest {
             tempPipe = new PipedInputStream();
             DataInputStream istream = new DataInputStream(tempPipe);
 
-            SprogCSStreamPortController xspc = new SprogCSStreamPortController(istream, ostream, "Test");
+            Hsi88StreamPortController xspc = new Hsi88StreamPortController(istream, ostream, "Test");
             Assert.assertNotNull("exists", xspc);
         } catch (java.io.IOException ioe) {
             Assert.fail("IOException creating stream");

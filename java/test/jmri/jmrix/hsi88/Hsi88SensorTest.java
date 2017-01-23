@@ -8,12 +8,13 @@ import org.junit.Test;
 
 /**
  * <P>
- * Tests for CSTurnout
+ * Tests for Hsi88Sensor. Hsi88Sensor is very light-weight -- so not many tests
+ * can be run.
  * </P>
  * 
  * @author Paul Bender Copyright (C) 2016.
  * @author Andre Gruening 2017: trivially adapted from previous author's
- *         implementation.
+ *         Sprog implementation.
  * @since 4.6.x
  */
 public class Hsi88SensorTest {

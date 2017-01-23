@@ -52,9 +52,11 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
      *
      * @return true
      */
+    /*
     public boolean okToSend() {
-        return (true);
+        return true;
     }
+    */
 
     // Hsi88 Interface methods.
     @Override

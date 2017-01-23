@@ -1,4 +1,4 @@
-package jmri.jmrix.hsi88.hsi88;
+package jmri.jmrix.hsi88.configurexml;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -6,32 +6,31 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Tests for ConnectionConfig class.
+ * hsi88TurnoutManagerXmlTest.java
+ *
+ * Description: tests for the hsi88TurnoutManagerXml class
  *
  * @author Paul Bender Copyright (C) 2016.
  * @author Andre Gruening 2017: trivially adapted for Hsi88 from previous
- *         author's Sprog test.
+ *         author's Sprog implementation.
  * @since 4.6.x
- **/
-
-public class ConnectionConfigTest {
+ */
+public class Hsi88SensorManagerXmlTest {
 
     @Test
-    public void ConstructorTest() {
-        Assert.assertNotNull("ConnectionConfig constructor", new ConnectionConfig());
+    public void testCtor() {
+        Assert.assertNotNull("Hsi88SensorManagerXml constructor", new Hsi88SensorManagerXml());
     }
 
+    // The minimal setup for log4J
     @Before
     public void setUp() {
         apps.tests.Log4JFixture.setUp();
-        jmri.util.JUnitUtil.resetInstanceManager();
-        jmri.util.JUnitUtil.initDefaultUserMessagePreferences();
     }
 
     @After
     public void tearDown() {
         apps.tests.Log4JFixture.tearDown();
-        jmri.util.JUnitUtil.resetInstanceManager();
     }
 
 }

@@ -3,46 +3,29 @@
  */
 package jmri.jmrix.hsi88;
 
-import static org.junit.Assert.*;
-
+import junit.framework.Assert;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * @author gruening
- *
+ * Tests for Hsi88Config.
+ * 
+ * @author Andre Gruening Copyright (C) 2017.
+ * 
+ * @since 4.6.x
  */
 public class Hsi88ConfigTest {
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
     public void setUp() throws Exception {
+        apps.tests.Log4JFixture.setUp();
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
     public void tearDown() throws Exception {
+        apps.tests.Log4JFixture.tearDown();
+
     }
 
     /**
@@ -50,7 +33,12 @@ public class Hsi88ConfigTest {
      */
     @Test
     public void testGetSetupModules() {
-        fail("Not yet implemented");
+        Hsi88Config.left = 5;
+        Hsi88Config.right = 6;
+        Hsi88Config.middle = 7;
+
+        int chainLength = Hsi88Config.getSetupModules();
+        Assert.assertEquals(chainLength, 18);
     }
 
 }

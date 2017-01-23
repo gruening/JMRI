@@ -14,25 +14,22 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+        Hsi88ConfigTest.class,
         Hsi88SystemConnectionMemoTest.class,
         Hsi88TrafficControllerTest.class,
         Hsi88MessageTest.class,
+        Hsi88ReplyTest.class,
         Hsi88StreamPortControllerTest.class,
         Hsi88PowerManagerTest.class,
         Hsi88SensorManagerTest.class,
         Hsi88SensorTest.class,
         Hsi88ConnectionTypeListTest.class,
-        jmri.jmrix.hsi88.pi.PackageTest.class,
         jmri.jmrix.hsi88.serialdriver.PackageTest.class,
         jmri.jmrix.hsi88.hsi88.PackageTest.class,
-        jmri.jmrix.hsi88.hsi88CS.PackageTest.class,
-        jmri.jmrix.hsi88.hsi88nano.PackageTest.class,
         jmri.jmrix.hsi88.configurexml.PackageTest.class,
         jmri.jmrix.hsi88.swing.PackageTest.class,
-        jmri.jmrix.hsi88.packetgen.PackageTest.class,
         jmri.jmrix.hsi88.console.PackageTest.class,
-        jmri.jmrix.hsi88.hsi88mon.PackageTest.class,
-        jmri.jmrix.hsi88.hsi88slotmon.PackageTest.class,
+        // Hsi88PortControllerTest.class, // abstract class.
         Hsi88MenuTest.class,
 })
 public class PackageTest {

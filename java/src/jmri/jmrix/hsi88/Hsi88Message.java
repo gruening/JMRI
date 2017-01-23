@@ -8,7 +8,8 @@ import org.slf4j.LoggerFactory;
  * the responses from the interface
  * 
  * @author Bob Jacobsen Copyright (C) 2001
- * @author Andre Gruening Copyright (C) 2017: HSI88-specific implementation.
+ * @author Andre Gruening Copyright (C) 2017: HSI88-specific implementation,
+ *         in parts based on previous author's Sprog implementation.
  */
 public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
 

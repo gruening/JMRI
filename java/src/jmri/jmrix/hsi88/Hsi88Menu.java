@@ -7,7 +7,7 @@ import javax.swing.JMenu;
  * Create a "Systems" menu containing the Jmri Hsi88-specific tools
  *
  * @author Bob Jacobsen Copyright 2003
- * @author Andre Gruening, Copyright 2017: adapted for use with HSI88:
+ * @author Andre Gruening, 2017: trivially adapted for use with HSI88:
  */
 public class Hsi88Menu extends JMenu {
 

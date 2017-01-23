@@ -1,14 +1,14 @@
 package jmri.jmrix.hsi88;
 
-
 import jmri.JmriException;
 import jmri.PowerManager;
 
 /**
  * PowerManager implementation for controlling HSI88 layout power.
  *
- * @author Bob Jacobsen Copyright (C) 2001
- * @author Andre Gruening Copyright (C) 2017 : Hsi88 specific implementation.
+ * @author Bob Jacobsen Copyright (C) 2001.
+ * @author Andre Gruening Copyright (C) 2017 : Hsi88 specific implementation, in
+ *         parts based on previous author's Sprog implementation.
  *
  */
 public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implements PowerManager, Hsi88Listener {

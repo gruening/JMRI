@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
  * port.
  *
  * @author Paul Bender Copyright (C) 2014
- * @author Andre Gruening, 2017, used the sprog version as a template and
- *         trivially modified this for use with Hsi88.
+ * @author Andre Gruening, 2017: trivially adapted for Hsi88 based previous
+ *         author's Sprog implementation.
  */
 public class Hsi88StreamPortController extends AbstractStreamPortController implements Hsi88Interface {
     private Thread rcvNotice = null;

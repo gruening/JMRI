@@ -23,9 +23,10 @@ import org.slf4j.LoggerFactory;
  * and/or messages. In principle 2 different locks could be used for this, but
  * for sake of simplicity we lock on this object only.
  * 
- * @author Andre Gruening Copyright (C) 2017: Implementation of Hsi088 relevant
- *         stuff. All work based on implementation for sprog by
  * @author Bob Jacobsen Copyright (C) 2001:
+ * @author Andre Gruening Copyright (C) 2017: adapted for Hsi088 based on
+ *         previous author's Sprog implementation. Tidied synchonization and
+ *         java doc.
  *
  */
 public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventListener {
@@ -88,7 +89,7 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     }
 
     /**
-     * Distribute message to all listener except originator.
+     * Distribute message to all listeners except originator.
      * 
      * @note Method only to be called from context synchronized on this traffic
      *       controller (to ensure that all listeners always get in only one
@@ -256,10 +257,6 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     private DataInputStream istream = null;
     /** hold output stream */
     private OutputStream ostream = null;
-
-    /*
-     * boolean endReply(Hsi88Reply msg) { return msg.endReply(); }
-     */
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88TrafficController.class.getName());
 

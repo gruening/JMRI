@@ -7,9 +7,9 @@ import jmri.util.SystemType;
  * Definition of objects to handle configuring a layout connection via an HSI88
  * SerialDriverAdapter object.
  *
- * @author Andrew Crosland Copyright (C) 2006
- * 
- * Trivially adapted for use with Hsi88 Andre Gruening, 2017
+ * @author Andrew Crosland Copyright (C) 2006.
+ * @author Andre Gruening, 2017: trivially adapted for Hsi88 from previous
+ *         author's Sprog implementation.
  */
 public class ConnectionConfig extends jmri.jmrix.AbstractSerialConnectionConfig {
 

@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
  * Objects of specific subtypes are registered in the instance manager to
  * activate their particular system.
  *
- * @author Bob Jacobsen Copyright (C) 2010
- * @author Andre Gruening, 2017: trivially adapted from Sprog implementation for
- *         use with Hsi88
+ * @author Bob Jacobsen Copyright (C) 2010.
+ * @author Andre Gruening, 2017: trivially adapted for Hsi88 from previous
+ *         author's Sprog implementation.
  */
 public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
 
@@ -58,7 +58,9 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
     /** keep reference to Traffic Controller */
     private Hsi88TrafficController st;
 
-    /** The Hsi88 implementation provides a Sensor Manager and a Power Manager */
+    /**
+     * The Hsi88 implementation provides a Sensor Manager and a Power Manager
+     */
     @Override
     public boolean provides(Class<?> type) {
         if (getDisabled()) {
@@ -81,11 +83,9 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
     public <T> T get(Class<?> T) {
         if (getDisabled()) {
             return null;
-        }
-        else if (T.equals(jmri.PowerManager.class)) {
+        } else if (T.equals(jmri.PowerManager.class)) {
             return (T) getPowerManager();
-        }
-        else if (T.equals(jmri.SensorManager.class)) {
+        } else if (T.equals(jmri.SensorManager.class)) {
             return (T) getSensorManager();
         }
         return null; // nothing, by default
@@ -93,7 +93,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
 
     /**
      * Configure the common managers for Hsi88 connections. This puts the common
-     * manager config in one place. 
+     * manager config in one place.
      */
     public void configureManagers() {
 
@@ -106,7 +106,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
 
     /** keep reference to Power Manager. */
     private Hsi88PowerManager powerManager;
-    
+
     /** keep reference to Sensor Manager. */
     private Hsi88SensorManager sensorManager;
 

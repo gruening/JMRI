@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Response from the HSI88 interface.
  *
- * @author Bob Jacobsen Copyright (C) 2001
- * @author Andre Gruening Copyright (C) 2017: HSI88 specific implementation
- *         based on sprog implementation
+ * @author Bob Jacobsen Copyright (C) 2001.
+ * @author Andre Gruening Copyright (C) 2017: HSI88 specific implementation, in
+ *         parts based previous author's Sprog implementation.
  */
 public class Hsi88Reply extends AbstractMRReply {
 

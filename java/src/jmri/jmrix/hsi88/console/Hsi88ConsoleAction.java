@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Swing action to create and register a Hsi88ConsoleFrame object
  *
- * @author Andrew Crosland Copyright (C) 2008
- * 
- * Andre Gruening adapted for HSI88 2017
+ * @author Andrew Crosland Copyright (C) 2008.
+ * @author Andre Gruening 2017: trivially adapted for Hsi88 from previous
+ *         author's Sprog implementation.
  */
 public class Hsi88ConsoleAction extends AbstractAction {
 
@@ -31,5 +31,6 @@ public class Hsi88ConsoleAction extends AbstractAction {
         }
         f.setVisible(true);
     }
+
     private final static Logger log = LoggerFactory.getLogger(Hsi88ConsoleAction.class.getName());
 }

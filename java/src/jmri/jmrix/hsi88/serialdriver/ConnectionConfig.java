@@ -1,4 +1,3 @@
-// ConnectionConfig.java
 package jmri.jmrix.hsi88.serialdriver;
 
 import javax.swing.JLabel;
@@ -12,20 +11,22 @@ import org.slf4j.LoggerFactory;
  * Definition of objects to handle configuring a layout connection via an HSI88
  * SerialDriverAdapter object.
  *
- * @author Bob Jacobsen Copyright (C) 2001, 2003
+ * @author Bob Jacobsen Copyright (C) 2001, 2003.
+ * @author Andre Gruening 2017: adapted from previous author's Sprog implementation.
+ * 
+ * @todo cut down further.
  */
 public class ConnectionConfig extends jmri.jmrix.AbstractSerialConnectionConfig {
 
     /**
      * Ctor for an object being created during load process; Swing init is
      * deferred.
+     * @param p port adapater to connect to.
      */
     public ConnectionConfig(jmri.jmrix.SerialPortAdapter p) {
         super(p);
     }
     
-    
-
     @Override
     protected int addStandardDetails(boolean incAdvanced, int i) {
     

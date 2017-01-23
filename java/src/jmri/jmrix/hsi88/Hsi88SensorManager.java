@@ -145,7 +145,7 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
                 switchTerminalMode(r);
                 break;
             case 's':
-                checkNumModules(r); // @todo change to use getSetupReplyModules?
+                setupModules(r); // @todo change to use getSetupReplyModules?
                 break;
             case 'v':
                 // Version information.
@@ -187,7 +187,7 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
      * 
      * @param r reply to the "s" command containing the number of modules
      */
-    private void checkNumModules(Hsi88Reply r) {
+    private void setupModules(Hsi88Reply r) {
 
         if (r.getNumDataElements() != 4) { // "sXX\r"
             log.error("Ignored malformatted response to 's' command: " + r);

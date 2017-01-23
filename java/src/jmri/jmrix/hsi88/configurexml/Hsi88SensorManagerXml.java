@@ -11,7 +11,10 @@ import org.slf4j.LoggerFactory;
  * Uses the store method from the abstract base class, but provides a load
  * method here.
  *
- * @author Bob Jacobsen Copyright: Copyright (c) 2002
+ * @author Bob Jacobsen Copyright: Copyright (c) 2002.
+ * @author Andre Gruening 2017: trivally adapted for Hsi88 from previous
+ *         author's Sprog implementation.
+ * 
  */
 public class Hsi88SensorManagerXml extends jmri.managers.configurexml.AbstractSensorManagerConfigXML {
 
@@ -26,17 +29,9 @@ public class Hsi88SensorManagerXml extends jmri.managers.configurexml.AbstractSe
     public void load(Element element, Object o) {
         log.error("Invalid method called");
     }
- 
+
     // initialize logging
     private final static Logger log = LoggerFactory.getLogger(Hsi88SensorManagerXml.class.getName());
-
-    
-    //@Override
-    //public boolean load(Element shared, Element perNode) {
-        // load individual turnouts
-      //  return loadTurnouts(shared, perNode);
-    //}
-    
 
     @Override
     public boolean load(Element sharedSensors, Element perNodeSensors) throws JmriConfigureXmlException {

@@ -23,13 +23,15 @@ import org.slf4j.LoggerFactory;
  * The current implementation only handles the 9,600 baud rate, and does not use
  * any other options at configuration time.
  *
- * Updated January 2010 for gnu io (RXTX) - Andrew Berridge. Comments tagged
- * with "AJB" indicate changes or observations by me
+ * 
  * 
  * Adapted 2017 for Hsi88 and tidied code chaining constructors -- Andre
  * Gruening.
  *
- * @author Bob Jacobsen Copyright (C) 2001, 2002
+ * @author Bob Jacobsen Copyright (C) 2001, 2002.
+ * @author Updated January 2010 for gnu io (RXTX) - Andrew Berridge. Comments tagged
+ * with "AJB" indicate changes or observations by me.
+ * @author Andre Gruening 2017: adapted for Hsi88 from previous authors' Sprog implementation.
  */
 public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmrix.SerialPortAdapter {
 

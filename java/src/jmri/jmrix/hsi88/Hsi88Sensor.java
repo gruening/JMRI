@@ -11,7 +11,7 @@ import jmri.implementation.AbstractSensor;
  * actual processing is done in Hsi88SensorManager as the HSI88 protocol is s88
  * module oriented, not sensor oriented.
  * 
- * @author Andre Gruening, Copyright (C) 2017
+ * @author Andre Gruening, Copyright (C) 2017.
  *
  */
 public class Hsi88Sensor extends AbstractSensor implements Sensor {

@@ -24,13 +24,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Frame for Hsi88 Console
  *
- * Updated April 2016 by Andrew Crosland remove the checks on slot manager
- * status, implement a timeout and look for the correct replies which may be
- * delayed by replies for slot manager.
- *
- * Refactored.
- *
  * @author Andrew Crosland Copyright (C) 2008, 2016
+ * @author Andre Gruening 2017: adapted for Hsi88 from previous author's Sprog
+ *         implementation.
+ * 
+ * @todo finalise adaptation for Hsi88.
  */
 public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hsi88Listener {
 
@@ -266,8 +264,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
             // currentLimit = validLimit;
             return;
         }
- 
-       
+
     }
 
     synchronized public void saveButtonActionPerformed(java.awt.event.ActionEvent e) {
@@ -354,7 +351,8 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
     /**
      * Internal routine to handle timer starts {@literal &} restarts
-     * @param delay x 
+     * 
+     * @param delay x
      */
     protected void restartTimer(int delay) {
         if (timer == null) {

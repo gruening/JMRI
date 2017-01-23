@@ -14,7 +14,8 @@ import jmri.jmrix.hsi88.serialdriver.SerialDriverAdapter;
  * is the one actually registered. Reads are brought here directly via the class
  * attribute in the XML.
  *
- * @author Bob Jacobsen Copyright: Copyright (c) 2003
+ * @author Bob Jacobsen Copyright: Copyright (c) 2003.
+ * @author Andre Gruening: trivially adapted for Hsi88 from previous author's Sprog implementation.
  */
 public class ConnectionConfigXml extends AbstractSerialConnectionConfigXml {
 

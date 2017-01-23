@@ -37,8 +37,9 @@ public class Hsi88SensorManagerTest extends jmri.managers.AbstractSensorMgrTest 
         Sensor s = h.createNewSensor("HS0", null); 
         Assert.assertNotNull("Sensor with lowest address.");
 
-        // 16*31 - 1 = 495.
-        s = h.createNewSensor("HS495", null);
+        int highestAddr = Hsi88Config.MAXMODULES*16 - 1; // 495
+        String systemName = "HS" + highestAddr;
+        s = h.createNewSensor(systemName, null);
         Assert.assertNotNull("Sensor with highest address.");
         
         // address not parseable to nonnegative int:

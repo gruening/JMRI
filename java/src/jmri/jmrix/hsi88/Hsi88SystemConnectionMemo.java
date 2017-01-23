@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
  * @author Bob Jacobsen Copyright (C) 2010.
  * @author Andre Gruening, 2017: trivially adapted for Hsi88 from previous
  *         author's Sprog implementation.
+ * 
+ * @since 4.6.x
  */
 public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
 

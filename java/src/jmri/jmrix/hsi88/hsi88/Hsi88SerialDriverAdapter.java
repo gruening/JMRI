@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
  * @author Andrew Crosland Copyright (C) 2006
  * @author Andre Gruening, 2017: adapted for HSI88 based on previous author's
  *         Sprog implementation.
+ * 
+ * @since 4.6.x
  */
 public class Hsi88SerialDriverAdapter extends jmri.jmrix.hsi88.serialdriver.SerialDriverAdapter {
 

@@ -10,6 +10,8 @@ import jmri.util.SystemType;
  * @author Andrew Crosland Copyright (C) 2006.
  * @author Andre Gruening, 2017: trivially adapted for Hsi88 from previous
  *         author's Sprog implementation.
+ * 
+ * @since 4.6.x
  */
 public class ConnectionConfig extends jmri.jmrix.AbstractSerialConnectionConfig {
 

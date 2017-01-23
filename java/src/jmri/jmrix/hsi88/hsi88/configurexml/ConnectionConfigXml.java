@@ -16,6 +16,8 @@ import jmri.jmrix.hsi88.hsi88.Hsi88SerialDriverAdapter;
  *
  * @author Andrew Crosland Copyright: Copyright (c) 2006.
  * @author Andre Gruening 2017: trivially adapted for use with HSI88 from sprog implementation.
+ * 
+ * @since 4.6.x
  */
 public class ConnectionConfigXml extends AbstractSerialConnectionConfigXml {
 

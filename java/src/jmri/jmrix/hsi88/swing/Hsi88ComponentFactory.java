@@ -10,7 +10,7 @@ import jmri.jmrix.hsi88.Hsi88SystemConnectionMemo;
  * @author Paul Bender Copyright (C) 2010
  * @author Andre Gruening 2017: trivially adapted for Hsi88 from previous
  *         authors' Sprog implementation.
- * @since 3.5.1
+ * @since 4.6.x
  */
 public class Hsi88ComponentFactory extends jmri.jmrix.swing.ComponentFactory {
 

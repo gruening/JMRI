@@ -5,8 +5,10 @@ package jmri.jmrix.hsi88;
  * 
  * @author Bob Jacobsen Copyright (C) 2010
  * @author Kevin Dickerson Copyright (C) 2010
- * @author Andre Gruening 2017: trivially adapted for Hsi88 from
- *         previous authors' Sprog implementation.
+ * @author Andre Gruening 2017: trivially adapted for Hsi88 from previous
+ *         authors' Sprog implementation.
+ * 
+ * @since 4.6.xF
  *
  */
 public class Hsi88ConnectionTypeList implements jmri.jmrix.ConnectionTypeList {

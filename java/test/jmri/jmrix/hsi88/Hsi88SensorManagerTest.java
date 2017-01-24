@@ -35,12 +35,12 @@ public class Hsi88SensorManagerTest extends jmri.managers.AbstractSensorMgrTest 
         Hsi88SensorManager h = (Hsi88SensorManager) l;
         
         Sensor s = h.createNewSensor("HS0", null); 
-        Assert.assertNotNull("Sensor with lowest address.");
+        Assert.assertNotNull("Sensor with lowest address.", s);
 
         int highestAddr = Hsi88Config.MAXMODULES*16 - 1; // 495
         String systemName = "HS" + highestAddr;
         s = h.createNewSensor(systemName, null);
-        Assert.assertNotNull("Sensor with highest address.");
+        Assert.assertNotNull("Sensor with highest address.", s);
         
         // address not parseable to nonnegative int:
         s = h.createNewSensor("HSxxxx", null);
@@ -54,6 +54,7 @@ public class Hsi88SensorManagerTest extends jmri.managers.AbstractSensorMgrTest 
         apps.tests.Log4JFixture.setUp();
         jmri.util.JUnitUtil.resetInstanceManager();
         m = new Hsi88SystemConnectionMemo();
+        m.setHsi88TrafficController(new Hsi88TrafficController(m));
         l = new Hsi88SensorManager(m);
     }
 

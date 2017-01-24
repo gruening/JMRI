@@ -7,12 +7,12 @@ import org.junit.Test;
 
 /**
  * <P>
- * Tests for hsi88PowerManager
+ * Tests for Hsi88PowerManager.
  * </P>
  * 
  * @author Paul Bender Copyright (C) 2016.
  * @author Andre Gruening 2017: trivially adapted for Hsi88 based on previous
- *         author's hsi88 implementation.
+ *         author's Sprog implementation.
  * 
  * @since 4.6.x
  * 
@@ -37,5 +37,4 @@ public class Hsi88PowerManagerTest {
     public void tearDown() {
         apps.tests.Log4JFixture.tearDown();
     }
-
 }

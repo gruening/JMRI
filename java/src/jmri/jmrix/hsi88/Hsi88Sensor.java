@@ -16,8 +16,16 @@ import jmri.implementation.AbstractSensor;
  */
 public class Hsi88Sensor extends AbstractSensor implements Sensor {
 
+    /** hold connection memo. */
     private Hsi88SystemConnectionMemo memo;
 
+    /**
+     * create a new Hsi88 Sensor.
+     * 
+     * @param systemName as passed from the JMRI core
+     * @param userName as passed from the JMRI core
+     * @param memo connection memo to connect to layout
+     */
     public Hsi88Sensor(String systemName, String userName, Hsi88SystemConnectionMemo memo) {
         super(systemName, userName);
         this.memo = memo;

@@ -127,5 +127,4 @@ public class Hsi88Reply extends AbstractMRReply {
     }
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88Reply.class.getName());
-
 }

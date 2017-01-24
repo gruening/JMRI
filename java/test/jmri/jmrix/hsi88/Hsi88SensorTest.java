@@ -1,6 +1,5 @@
 package jmri.jmrix.hsi88;
 
-import jmri.jmrix.SystemConnectionMemo;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -21,8 +20,9 @@ public class Hsi88SensorTest {
 
     @Test
     public void ConstructorTest() {
-        SystemConnectionMemo m = new Hsi88SystemConnectionMemo();
-        Hsi88Sensor t = new Hsi88Sensor("systemName", "userName", null);
+        Hsi88SystemConnectionMemo m = new Hsi88SystemConnectionMemo();
+        m.setHsi88TrafficController(new Hsi88TrafficController(m));
+        Hsi88Sensor t = new Hsi88Sensor("systemName", "userName", m);
         Assert.assertNotNull(t);
     }
 

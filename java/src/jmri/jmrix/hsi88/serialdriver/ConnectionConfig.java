@@ -12,44 +12,46 @@ import org.slf4j.LoggerFactory;
  * SerialDriverAdapter object.
  *
  * @author Bob Jacobsen Copyright (C) 2001, 2003.
- * @author Andre Gruening 2017: adapted from previous author's Sprog implementation.
+ * @author Andre Gruening 2017: adapted from previous author's Sprog
+ *         implementation.
  * 
  * @since 4.6.x
  * 
- * @todo cut down further.
+ *        TODO cut down further.
  */
 public class ConnectionConfig extends jmri.jmrix.AbstractSerialConnectionConfig {
 
     /**
      * Ctor for an object being created during load process; Swing init is
      * deferred.
+     * 
      * @param p port adapater to connect to.
      */
     public ConnectionConfig(jmri.jmrix.SerialPortAdapter p) {
         super(p);
     }
-    
+
     @Override
     protected int addStandardDetails(boolean incAdvanced, int i) {
-    
+
         i = super.addStandardDetails(incAdvanced, i);
 
-        log.warn("I am being called.");
+        log.error("Standard Details added.");
 
         JTextField left = new JTextField();
         JLabel leftLabel = new JLabel("Left: ");
-        
+
         left.setToolTipText("Number of S88 modules on the left chain.");
         left.setEnabled(true);
-        
+
         cR.gridy = i;
         cL.gridy = i;
         gbLayout.setConstraints(leftLabel, cL);
         gbLayout.setConstraints(left, cR);
         _details.add(leftLabel);
         _details.add(left);
-        
-        return i++;
+
+        return ++i;
     }
 
     /**
@@ -72,11 +74,11 @@ public class ConnectionConfig extends jmri.jmrix.AbstractSerialConnectionConfig 
     }
 
     protected void setInstance() {
-        if(adapter == null) {
-           adapter = new SerialDriverAdapter();
+        if (adapter == null) {
+            adapter = new SerialDriverAdapter();
         }
     }
-    
+
     private final static Logger log = LoggerFactory.getLogger(ConnectionConfig.class.getName());
 
 }

@@ -8,7 +8,8 @@ package jmri.jmrix.hsi88;
  * number of unneeded class loadings.
  *
  * @author Bob Jacobsen Copyright (C) 2003
- * @author Andre Gruening 2017: trivially updated for Hsi88 from previous author's Sprog implementation. 
+ * @author Andre Gruening 2017: trivially updated for Hsi88 from previous
+ *         author's Sprog implementation.
  * @deprecated since 4.5.1
  */
 @Deprecated

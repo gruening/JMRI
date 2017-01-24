@@ -27,7 +27,7 @@ public class Hsi88ConnectionTypeListTest {
     @Test
     public void ManfacturerString() {
         Hsi88ConnectionTypeList ct = new Hsi88ConnectionTypeList();
-        Assert.assertEquals("Manufacturers", new String[]{"HSI88"}, ct.getManufacturers());
+        Assert.assertEquals("Manufacturers", new String[]{Hsi88Config.NAME}, ct.getManufacturers());
     }
 
     @Test

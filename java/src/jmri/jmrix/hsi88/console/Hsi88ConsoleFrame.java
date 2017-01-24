@@ -1,14 +1,20 @@
 package jmri.jmrix.hsi88.console;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 import jmri.jmrix.hsi88.Hsi88Config;
+import jmri.jmrix.hsi88.Hsi88Config.Hsi88Protocol;
 import jmri.jmrix.hsi88.Hsi88Listener;
 import jmri.jmrix.hsi88.Hsi88Message;
 import jmri.jmrix.hsi88.Hsi88Reply;
@@ -32,34 +38,28 @@ import org.slf4j.LoggerFactory;
  */
 public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hsi88Listener {
 
+    /** hold the connection memo. */
     private Hsi88SystemConnectionMemo _memo = null;
-    // member declarations
-    protected javax.swing.JLabel cmdLabel = new javax.swing.JLabel();
-    protected javax.swing.JLabel currentLabel = new javax.swing.JLabel();
-    protected javax.swing.JButton sendButton = new javax.swing.JButton();
-    protected javax.swing.JButton saveButton = new javax.swing.JButton();
-    protected javax.swing.JTextField cmdTextField = new javax.swing.JTextField(12);
-    protected javax.swing.JTextField currentTextField = new javax.swing.JTextField(12);
 
-    protected JCheckBox ztcCheckBox = new JCheckBox();
-    protected JCheckBox blueCheckBox = new JCheckBox();
-    protected JCheckBox unlockCheckBox = new JCheckBox();
-
-    protected ButtonGroup speedGroup = new ButtonGroup();
-    protected JRadioButton speed14Button = new JRadioButton("14 step");
-    protected JRadioButton speed28Button = new JRadioButton("28 step");
-    protected JRadioButton speed128Button = new JRadioButton("128 step");
-
+    /** TODO delete? */
     protected int modeWord;
 
-    // members for handling the Hsi88 interface
+    /** hold the traffic controller */
     private Hsi88TrafficController tc;
-    private String replyString;
 
+
+    /**
+     * create new Swing Console Frame.
+     * 
+     * @param memo connection memo
+     */
     public Hsi88ConsoleFrame(Hsi88SystemConnectionMemo memo) {
         super();
         _memo = memo;
+        thisListener = this;
     }
+
+    final Hsi88Listener thisListener;
 
     @Override
     protected String title() {
@@ -79,8 +79,74 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         super.dispose();
     }
 
+    /** creates panel to enter Hsi88 commands */
+    private JPanel createCommandPanel() {
+
+        JPanel cmdPanel = new JPanel();
+        JLabel cmdLabel = new javax.swing.JLabel();
+        JButton cmdButton = new javax.swing.JButton();
+        JTextField cmdTextField = new javax.swing.JTextField(12);
+
+        cmdPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), "Send Command"));
+        cmdPanel.setLayout(new FlowLayout());
+
+        cmdLabel.setText("Command:");
+        cmdLabel.setVisible(true);
+
+        cmdButton.setText("Send");
+        cmdButton.setVisible(true);
+        cmdButton.setToolTipText("Send command to Hsi88 interface.");
+
+        cmdTextField.setText("");
+        cmdTextField.setToolTipText("Enter a Hsi88 command.");
+        cmdTextField.setMaximumSize(
+                new Dimension(cmdTextField.getMaximumSize().width,
+                        cmdTextField.getPreferredSize().height));
+
+        ActionListener cmdButtonListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Hsi88Message m = new Hsi88Message(cmdTextField.getText() + "\r");
+                // Messages sent by us will not be forwarded back so add to display manually
+                nextLine("cmd: \"" + m.toString() + "\"\n", "");
+                tc.sendHsi88Message(m, thisListener);
+            }
+        };
+
+        cmdTextField.addActionListener(cmdButtonListener);
+        cmdButton.addActionListener(cmdButtonListener);
+
+        cmdPanel.add(cmdLabel);
+        cmdPanel.add(cmdTextField);
+        cmdPanel.add(cmdButton);
+
+        return cmdPanel;
+
+    };
+
+    private JPanel createProtocolPanel() {
+
+        JPanel protocolPanel = new JPanel();
+        ButtonGroup protocolGroup = new ButtonGroup();
+        JRadioButton asciiButton = new JRadioButton(Hsi88Protocol.ASCII.toString());
+        JRadioButton hexButton = new JRadioButton(Hsi88Protocol.HEX.toString());
+
+        protocolPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), "Communicaton Protocol for Hsi88 Inteface"));
+        protocolPanel.add(asciiButton);
+        protocolPanel.add(hexButton);
+        protocolGroup.add(asciiButton);
+        protocolGroup.add(hexButton);
+        asciiButton.setToolTipText("Set " + Hsi88Protocol.ASCII + " protocol.");
+        hexButton.setToolTipText("Set " + Hsi88Protocol.HEX + " protocol.");
+
+        return protocolPanel;
+
+    }
+
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC")
-    // Ignore unsynchronized access to state
+    // Ignore unsynchronized access to state. TODO why can we do that?
     @Override
     public void initComponents() throws Exception {
         super.initComponents();
@@ -90,140 +156,78 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
                 BorderFactory.createEtchedBorder(), "Command History"));
 
         // Let user press return to enter message
-        entryField.addActionListener(new java.awt.event.ActionListener() {
+        super.entryField.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 enterButtonActionPerformed(e);
             }
         });
 
-        /*
-         * Command panel
-         */
-        JPanel cmdPane1 = new JPanel();
-        cmdPane1.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Send Command"));
-        cmdPane1.setLayout(new FlowLayout());
+        getContentPane().add(createCommandPanel());
+        getContentPane().add(createProtocolPanel());
+        getContentPane().add(createChainPanel());
 
-        cmdLabel.setText("Command:");
-        cmdLabel.setVisible(true);
-
-        sendButton.setText("Send");
-        sendButton.setVisible(true);
-        sendButton.setToolTipText("Send packet");
-
-        cmdTextField.setText("");
-        cmdTextField.setToolTipText("Enter a Hsi88 command");
-        cmdTextField.setMaximumSize(
-                new Dimension(cmdTextField.getMaximumSize().width,
-                        cmdTextField.getPreferredSize().height));
-
-        cmdTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                sendButtonActionPerformed(e);
-            }
-        });
-
-        sendButton.addActionListener(new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                sendButtonActionPerformed(e);
-            }
-        });
-
-        cmdPane1.add(cmdLabel);
-        cmdPane1.add(cmdTextField);
-        cmdPane1.add(sendButton);
-
-        getContentPane().add(cmdPane1);
-
-        /*
-         * Address Panel
-         */
-        JPanel speedPanel = new JPanel();
-        speedPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Speed Step Mode for hsi88 Throttle"));
-        speedPanel.add(speed14Button);
-        speedPanel.add(speed28Button);
-        speedPanel.add(speed128Button);
-        speedGroup.add(speed14Button);
-        speedGroup.add(speed28Button);
-        speedGroup.add(speed128Button);
-        speed14Button.setToolTipText("Set 14 speed steps for hsi88 throttle");
-        speed28Button.setToolTipText("Set 28 speed steps for hsi88 throttle");
-        speed128Button.setToolTipText("Set 128 speed steps for hsi88 throttle");
-
-        getContentPane().add(speedPanel);
-
-        /*
-         * Configuration panel
-         */
-        JPanel configPanel = new JPanel();
-        configPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Configuration"));
-        configPanel.setLayout(new FlowLayout());
-
-        // *** Which versions support current limit ???
-        currentLabel.setText("Current Limit (mA):");
-        currentLabel.setVisible(true);
-
-        currentTextField.setText("");
-        currentTextField.setEnabled(false);
-        currentTextField.setToolTipText("Enter new current limit in milliAmps (less than 1000)");
-        currentTextField.setMaximumSize(
-                new Dimension(currentTextField.getMaximumSize().width,
-                        currentTextField.getPreferredSize().height));
-
-        ztcCheckBox.setText("Set ZTC mode");
-        ztcCheckBox.setVisible(true);
-        ztcCheckBox.setToolTipText("Use this when programming older ZTC decoders");
-
-        blueCheckBox.setText("Set Blueline mode");
-        blueCheckBox.setVisible(true);
-        blueCheckBox.setEnabled(false);
-        blueCheckBox.setToolTipText("Use this when programming blueline decoders - programming will be slower");
-
-        unlockCheckBox.setText("Unlock firmware");
-        unlockCheckBox.setVisible(true);
-        unlockCheckBox.setEnabled(false);
-        unlockCheckBox.setToolTipText("Use this only if you are about to update the hsi88 firmware");
-
-        configPanel.add(currentLabel);
-        configPanel.add(currentTextField);
-        configPanel.add(ztcCheckBox);
-        configPanel.add(blueCheckBox);
-        configPanel.add(unlockCheckBox);
-
-        getContentPane().add(configPanel);
-
-        /*
-         * Status Panel
-         */
-        JPanel statusPanel = new JPanel();
-        statusPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Save/Load Configuration"));
-        statusPanel.setLayout(new FlowLayout());
-
-        saveButton.setText("Save");
-        saveButton.setVisible(true);
-        saveButton.setToolTipText("Save hsi88 configuration (in the hsi88 EEPROM)");
-
-        saveButton.addActionListener(new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                saveButtonActionPerformed(e);
-            }
-        });
-
-        statusPanel.add(saveButton);
-
-        getContentPane().add(statusPanel);
-
-        // pack for display
         pack();
+    }
 
-        // Now the GUI is all setup we can get the hsi88 version
-        // _memo.getHsi88VersionQuery().requestVersion(this);
+    /**
+     * @return
+     */
+    private Component createChainPanel() {
+
+        JPanel chainPanel = new JPanel();
+        chainPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), "Chain Lengths"));
+        chainPanel.setLayout(new FlowLayout());
+
+        JTextField leftChainTextField = new JTextField(12);
+        JLabel leftChainLabel = new javax.swing.JLabel();
+
+        leftChainLabel.setText("Left chain:");
+        leftChainLabel.setVisible(true);
+
+        leftChainTextField.setText("");
+        leftChainTextField.setEnabled(true);
+        leftChainTextField.setToolTipText("Enter number of s88 modules on left chain.");
+        leftChainTextField.setMaximumSize(
+                new Dimension(leftChainTextField.getMaximumSize().width,
+                        leftChainTextField.getPreferredSize().height));
+
+        JLabel middleChainLabel = new JLabel();
+        middleChainLabel.setText("Middle chain:");
+        middleChainLabel.setVisible(true);
+
+        JTextField middleChainTextField = new JTextField(12);
+        middleChainTextField.setText("");
+        middleChainTextField.setEnabled(true);
+        middleChainTextField.setToolTipText("Enter number of s88 modules on middle chain.");
+        middleChainTextField.setMaximumSize(
+                new Dimension(middleChainTextField.getMaximumSize().width,
+                        middleChainTextField.getPreferredSize().height));
+
+        JLabel rightChainLabel = new JLabel();
+        rightChainLabel.setText("Right chain:");
+        rightChainLabel.setVisible(true);
+
+        JTextField rightChainTextField = new JTextField(12);
+        rightChainTextField.setText("");
+        rightChainTextField.setEnabled(true);
+        rightChainTextField.setToolTipText("Enter number of s88 modules on right chain.");
+        rightChainTextField.setMaximumSize(
+                new Dimension(rightChainTextField.getMaximumSize().width,
+                        rightChainTextField.getPreferredSize().height));
+
+        JButton chainButton = new JButton("Set");
+
+        chainPanel.add(leftChainLabel);
+        chainPanel.add(leftChainTextField);
+        chainPanel.add(middleChainLabel);
+        chainPanel.add(middleChainTextField);
+        chainPanel.add(rightChainLabel);
+        chainPanel.add(rightChainTextField);
+        chainPanel.add(chainButton);
+
+        return chainPanel;
     }
 
     /**
@@ -241,84 +245,32 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     // Override superclass to append return
     @Override
     public void enterButtonActionPerformed(java.awt.event.ActionEvent e) {
-        nextLine(entryField.getText() + "\n", "");
+        super.nextLine(entryField.getText() + "\n", "");
     }
 
-    public void sendButtonActionPerformed(java.awt.event.ActionEvent e) {
-        Hsi88Message m = new Hsi88Message(cmdTextField.getText() + "\r");
-        // Messages sent by us will not be forwarded back so add to display manually
-        nextLine("cmd: \"" + m.toString() + "\"\n", "");
-        tc.sendHsi88Message(m, this);
-    }
-
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC")
-    // validateCurrent() is called from synchronised code
-    public void validateCurrent() {
-        String currentRange = "200 - 996";
-        try {
-            // currentLimit = Integer.parseInt(currentTextField.getText());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null,
-                    "Invalid Current Limit Entered\n" + "Please enter a value in the range " + currentRange,
-                    "hsi88 Console", JOptionPane.ERROR_MESSAGE);
-            // currentLimit = validLimit;
-            return;
-        }
-
-    }
-
-    synchronized public void saveButtonActionPerformed(java.awt.event.ActionEvent e) {
-        Hsi88Message saveMsg;
-        // Send Current Limit if possible
-        if (isCurrentLimitPossible()) {
-            validateCurrent();
-            // Value written is scaled from mA to hardware units
-            // currentLimitForHardware = (int) (currentLimit);
-            // tmpString = String.valueOf(currentLimitForHardware);
-            saveMsg = new Hsi88Message("I ");
-        } else {
-            // Else send blank message to kick things off
-            saveMsg = new Hsi88Message(" ");
-        }
-        nextLine("cmd: \"" + saveMsg.toString() + "\"\n", "");
-        tc.sendHsi88Message(saveMsg, this);
-
-        // Further messages will be sent from state machine
-    }
-
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC")
-    // Called from synchronised code
-    public boolean isCurrentLimitPossible() {
-        return true;
-    }
-
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC")
-    // Called from synchronised code
-    public boolean isBlueLineSupportPossible() {
-        return false;
-    }
-
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC")
-    // Called from synchronised code
-    public boolean isFirmwareUnlockPossible() {
-        return false;
-    }
-
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC")
-    // Called from synchronised code
-    public boolean isZTCModePossible() {
-        return false;
-    }
+    /*
+     * keep this code to see how an Option Pane is generated:
+     * 
+     * @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value =
+     * "IS2_INCONSISTENT_SYNC") // validateCurrent() is called from synchronised
+     * code public void validateCurrent() { String currentRange = "200 - 996";
+     * try { // currentLimit = Integer.parseInt(currentTextField.getText()); }
+     * catch (NumberFormatException e) { JOptionPane.showMessageDialog(null,
+     * "Invalid Current Limit Entered\n" + "Please enter a value in the range "
+     * + currentRange, "hsi88 Console", JOptionPane.ERROR_MESSAGE); //
+     * currentLimit = validLimit; return; }
+     * 
+     * }
+     */
 
     @Override
     public synchronized void notifyMessage(Hsi88Message l) { // receive a message and log it
-        nextLine("cmd: \"" + l.toString() + "\"\n", "");
+        nextLine("cmd: \"" + l + "\"\n", "");
     }
 
     @Override
     public synchronized void notifyReply(Hsi88Reply l) { // receive a reply message and log it
-        replyString = l.toString();
-        nextLine("rep: \"" + replyString + "\"\n", "");
+        nextLine("rep: \"" + l + "\"\n", "");
     }
 
     /**
@@ -370,5 +322,4 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     }
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88ConsoleFrame.class.getName());
-
 }

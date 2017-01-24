@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import jmri.jmrix.AbstractPortController;
 import jmri.jmrix.SystemConnectionMemo;
+import jmri.util.ThreadingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +127,9 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
      * Notify all listeners of an incoming hardware reply.
      * 
      * Synchronized on this traffic controller so that either one message or one
-     * reply can be sent at any one time.
+     * reply can be sent at any one time. Ensures also that listeners do not
+     * need to think about threading as synchronisation here ensures that also
+     * their notifyReply methods are run one at a time.
      * 
      * @param r reply received from HSI88 interface.
      */
@@ -153,7 +156,8 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     }
 
     /**
-     * Write a message into to the Hsi88 interface.
+     * Write a message into to the Hsi88 interface. Called from context
+     * synchronised on this traffic controller.
      * 
      * @param m message to send to Hsi88.
      */
@@ -180,8 +184,9 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
 
         if (waitingForReply) {
             try {
-                wait(100); // Will wait until notify()ed or 100ms timeout
+                wait(100); //wait until notify()ed or 100ms timeout
             } catch (InterruptedException e) {
+                // got reply to previous sent message within 100ms -- that's good.
             }
         }
         waitingForReply = true;
@@ -237,15 +242,17 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
      * @return The registered Hsi88TrafficController instance for general use,
      *         if need be creating one.
      * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI
-     *             multi-system support structure
+     *             multi-system support structure.
      */
-    @Deprecated
-    static public Hsi88TrafficController instance() {
-        return null;
-    }
+    /*
+     * @Deprecated static public Hsi88TrafficController instance() { return
+     * null; }
+     */
 
     /**
      * set adapter memo
+     * 
+     * @param adaptermemo memo to set.
      */
     void setAdapterMemo(Hsi88SystemConnectionMemo adaptermemo) {
         memo = adaptermemo;
@@ -257,8 +264,6 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     private DataInputStream istream = null;
     /** hold output stream */
     private OutputStream ostream = null;
-
-    private final static Logger log = LoggerFactory.getLogger(Hsi88TrafficController.class.getName());
 
     /**
      * serialEvent - respond to an event triggered by RXTX. In this case we are
@@ -312,7 +317,8 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
     }
 
     /**
-     * Send the current reply - built using data from serialEvent
+     * Send the current reply - built using data from serialEvent. notifyReply
+     * of the traffic controllers list
      */
     private void sendreply() {
 
@@ -334,7 +340,8 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
             final Hsi88Reply thisReply = this.reply;
             final Hsi88TrafficController thisTC = this;
             // return a notification via the queue
-            Runnable r = new Runnable() {
+            ThreadingUtil.ThreadAction r = new ThreadingUtil.ThreadAction() {
+
                 Hsi88Reply replyForLater = thisReply;
                 Hsi88TrafficController myTC = thisTC;
 
@@ -343,10 +350,13 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
                     myTC.notifyReply(replyForLater);
                 }
             };
-            javax.swing.SwingUtilities.invokeLater(r);
+            ThreadingUtil.runOnLayoutEventually(r);
         }
 
         // Create a new reply, ready to be filled
         this.reply = new Hsi88Reply();
     }
+
+    private final static Logger log = LoggerFactory.getLogger(Hsi88TrafficController.class.getName());
+
 }

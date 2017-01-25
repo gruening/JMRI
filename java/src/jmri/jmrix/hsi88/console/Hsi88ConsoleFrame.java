@@ -1,17 +1,16 @@
 package jmri.jmrix.hsi88.console;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import jmri.jmrix.hsi88.Hsi88Config;
 import jmri.jmrix.hsi88.Hsi88Config.Hsi88Protocol;
@@ -34,19 +33,15 @@ import org.slf4j.LoggerFactory;
  * @author Andre Gruening 2017: adapted for Hsi88 from previous author's Sprog
  *         implementation.
  * 
- * @todo finalise adaptation for Hsi88.
+ *         TODO finalise adaptation for Hsi88.
  */
 public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hsi88Listener {
 
     /** hold the connection memo. */
     private Hsi88SystemConnectionMemo _memo = null;
 
-    /** TODO delete? */
-    protected int modeWord;
-
     /** hold the traffic controller */
     private Hsi88TrafficController tc;
-
 
     /**
      * create new Swing Console Frame.
@@ -56,10 +51,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     public Hsi88ConsoleFrame(Hsi88SystemConnectionMemo memo) {
         super();
         _memo = memo;
-        thisListener = this;
     }
-
-    final Hsi88Listener thisListener;
 
     @Override
     protected String title() {
@@ -79,25 +71,26 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         super.dispose();
     }
 
-    /** creates panel to enter Hsi88 commands */
+    /**
+     * creates panel to enter Hsi88 commands
+     * 
+     * @return
+     */
     private JPanel createCommandPanel() {
 
         JPanel cmdPanel = new JPanel();
-        JLabel cmdLabel = new javax.swing.JLabel();
-        JButton cmdButton = new javax.swing.JButton();
-        JTextField cmdTextField = new javax.swing.JTextField(12);
-
         cmdPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "Send Command"));
         cmdPanel.setLayout(new FlowLayout());
 
-        cmdLabel.setText("Command:");
-        cmdLabel.setVisible(true);
+        JLabel cmdLabel = new javax.swing.JLabel("Command");
+        //cmdButton.cmdLabel.setVisible(true);
 
-        cmdButton.setText("Send");
-        cmdButton.setVisible(true);
+        JButton cmdButton = new javax.swing.JButton("Send");
+        // cmdButton.setVisible(true);
         cmdButton.setToolTipText("Send command to Hsi88 interface.");
 
+        JTextField cmdTextField = new javax.swing.JTextField(12);
         cmdTextField.setText("");
         cmdTextField.setToolTipText("Enter a Hsi88 command.");
         cmdTextField.setMaximumSize(
@@ -110,7 +103,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
                 Hsi88Message m = new Hsi88Message(cmdTextField.getText() + "\r");
                 // Messages sent by us will not be forwarded back so add to display manually
                 nextLine("cmd: \"" + m.toString() + "\"\n", "");
-                tc.sendHsi88Message(m, thisListener);
+                tc.sendHsi88Message(m, Hsi88ConsoleFrame.this);
             }
         };
 
@@ -125,21 +118,37 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
     };
 
+    private JTextField protocolField = new JTextField(Hsi88Protocol.UNKNOWN.toString());
+
+    /**
+     * @return
+     */
     private JPanel createProtocolPanel() {
 
+        // set up the panel:
         JPanel protocolPanel = new JPanel();
-        ButtonGroup protocolGroup = new ButtonGroup();
-        JRadioButton asciiButton = new JRadioButton(Hsi88Protocol.ASCII.toString());
-        JRadioButton hexButton = new JRadioButton(Hsi88Protocol.HEX.toString());
-
         protocolPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "Communicaton Protocol for Hsi88 Inteface"));
-        protocolPanel.add(asciiButton);
-        protocolPanel.add(hexButton);
-        protocolGroup.add(asciiButton);
-        protocolGroup.add(hexButton);
-        asciiButton.setToolTipText("Set " + Hsi88Protocol.ASCII + " protocol.");
-        hexButton.setToolTipText("Set " + Hsi88Protocol.HEX + " protocol.");
+
+        // set up elements:
+        JLabel protocolLabel = new JLabel("Communication Protocol: ");
+        protocolField.setText(Hsi88Config.getProtocol().toString());
+        protocolField.setDisabledTextColor(Color.MAGENTA);
+        protocolField.setEnabled(false);
+
+        JButton toggleButton = new JButton("Toggle");
+        toggleButton.setToolTipText("Click to set Hsi88 Communication Protocol");
+        toggleButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tc.sendHsi88Message(Hsi88Message.cmdTerminal(), null);
+            }
+        });
+
+        // add to Panel:
+        protocolPanel.add(protocolLabel);
+        protocolPanel.add(protocolField);
+        protocolPanel.add(toggleButton);
 
         return protocolPanel;
 
@@ -170,6 +179,10 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         pack();
     }
 
+    private JTextField leftField = new JTextField(4);
+    private JTextField middleField = new JTextField(4);
+    private JTextField rightField = new JTextField(4);
+
     /**
      * @return
      */
@@ -180,51 +193,69 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
                 BorderFactory.createEtchedBorder(), "Chain Lengths"));
         chainPanel.setLayout(new FlowLayout());
 
-        JTextField leftChainTextField = new JTextField(12);
-        JLabel leftChainLabel = new javax.swing.JLabel();
+        // left chain
+        JLabel leftLabel = new javax.swing.JLabel("Left Chain:");
+        // leftLabel.setVisible(true); // TODO this is always true on creation?
+        leftField.setText("" + Hsi88Config.getLeft());
+        // leftField.setEnabled(true); // TODO this is always true on creation?
+        leftField.setToolTipText("Enter number of s88 modules on left chain.");
+        leftField.setMaximumSize(
+                new Dimension(leftField.getMaximumSize().width,
+                        leftField.getPreferredSize().height));
 
-        leftChainLabel.setText("Left chain:");
-        leftChainLabel.setVisible(true);
+        JLabel middleLabel = new JLabel("Middle Chain:");
+        middleLabel.setVisible(true);
 
-        leftChainTextField.setText("");
-        leftChainTextField.setEnabled(true);
-        leftChainTextField.setToolTipText("Enter number of s88 modules on left chain.");
-        leftChainTextField.setMaximumSize(
-                new Dimension(leftChainTextField.getMaximumSize().width,
-                        leftChainTextField.getPreferredSize().height));
+        // middle chain
+        middleField.setText("" + Hsi88Config.getMiddle());
+        // middleField.setEnabled(true);
+        middleField.setToolTipText("Enter number of s88 modules on middle chain.");
+        middleField.setMaximumSize(
+                new Dimension(middleField.getMaximumSize().width,
+                        middleField.getPreferredSize().height));
 
-        JLabel middleChainLabel = new JLabel();
-        middleChainLabel.setText("Middle chain:");
-        middleChainLabel.setVisible(true);
+        // right chaun
+        JLabel rightLabel = new JLabel("Right chain:");
+        rightLabel.setVisible(true);
 
-        JTextField middleChainTextField = new JTextField(12);
-        middleChainTextField.setText("");
-        middleChainTextField.setEnabled(true);
-        middleChainTextField.setToolTipText("Enter number of s88 modules on middle chain.");
-        middleChainTextField.setMaximumSize(
-                new Dimension(middleChainTextField.getMaximumSize().width,
-                        middleChainTextField.getPreferredSize().height));
-
-        JLabel rightChainLabel = new JLabel();
-        rightChainLabel.setText("Right chain:");
-        rightChainLabel.setVisible(true);
-
-        JTextField rightChainTextField = new JTextField(12);
-        rightChainTextField.setText("");
-        rightChainTextField.setEnabled(true);
-        rightChainTextField.setToolTipText("Enter number of s88 modules on right chain.");
-        rightChainTextField.setMaximumSize(
-                new Dimension(rightChainTextField.getMaximumSize().width,
-                        rightChainTextField.getPreferredSize().height));
+        rightField.setText("" + Hsi88Config.getRight());
+        //rightField.setEnabled(true);
+        rightField.setToolTipText("Enter number of s88 modules on right chain.");
+        rightField.setMaximumSize(
+                new Dimension(rightField.getMaximumSize().width,
+                        rightField.getPreferredSize().height));
 
         JButton chainButton = new JButton("Set");
+        chainButton.addActionListener(new ActionListener() {
 
-        chainPanel.add(leftChainLabel);
-        chainPanel.add(leftChainTextField);
-        chainPanel.add(middleChainLabel);
-        chainPanel.add(middleChainTextField);
-        chainPanel.add(rightChainLabel);
-        chainPanel.add(rightChainTextField);
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                try {
+                    Hsi88Config.setLeft(Integer.parseInt(leftField.getText()));
+                    Hsi88Config.setMiddle(Integer.parseInt(middleField.getText()));
+                    Hsi88Config.setRight(Integer.parseInt(rightField.getText()));
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null,
+                            "Invalid chain length entered.\nPlease enter an integer value in the range 0 to " +
+                                    Hsi88Config.MAXMODULES +
+                                    ".",
+                            Hsi88Config.NAME + " Console", JOptionPane.ERROR_MESSAGE);
+                    return;
+
+                }
+
+                tc.sendHsi88Message(Hsi88Message.cmdSetup(Hsi88Config.getLeft(), Hsi88Config.getMiddle(), Hsi88Config.getRight()),
+                        null);
+
+            }
+        });
+
+        chainPanel.add(leftLabel);
+        chainPanel.add(leftField);
+        chainPanel.add(middleLabel);
+        chainPanel.add(middleField);
+        chainPanel.add(rightLabel);
+        chainPanel.add(rightField);
         chainPanel.add(chainButton);
 
         return chainPanel;
@@ -248,78 +279,90 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         super.nextLine(entryField.getText() + "\n", "");
     }
 
-    /*
-     * keep this code to see how an Option Pane is generated:
+    /**
      * 
-     * @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value =
-     * "IS2_INCONSISTENT_SYNC") // validateCurrent() is called from synchronised
-     * code public void validateCurrent() { String currentRange = "200 - 996";
-     * try { // currentLimit = Integer.parseInt(currentTextField.getText()); }
-     * catch (NumberFormatException e) { JOptionPane.showMessageDialog(null,
-     * "Invalid Current Limit Entered\n" + "Please enter a value in the range "
-     * + currentRange, "hsi88 Console", JOptionPane.ERROR_MESSAGE); //
-     * currentLimit = validLimit; return; }
+     * @note AG removed synchronisation here as from Hsi88TrafficController
+     *       notifyMessage and notifyReply are synchronized (on the traffic
+     *       controller instance) and in super.nextLine the critical parts of
+     *       parts are synchronzied on the super (and hence this) instance.
      * 
-     * }
+     * @note secondly, we need to ensure that GUI manipulations run on the GUI
+     *       thread. As the Hsi88Traffic controller calls this method from the
+     *       layout thread now we need to take precautions to manipulate the GUI
+     *       on the gui thread. super.nextLine takes care of that for itself,
+     *       but the other GUI elements have to be explicitly submitted to the
+     *       GUI thread.
+     *
      */
-
     @Override
-    public synchronized void notifyMessage(Hsi88Message l) { // receive a message and log it
+    public void notifyMessage(Hsi88Message l) { // receive a message and log it
         nextLine("cmd: \"" + l + "\"\n", "");
     }
 
-    @Override
-    public synchronized void notifyReply(Hsi88Reply l) { // receive a reply message and log it
-        nextLine("rep: \"" + l + "\"\n", "");
-    }
-
     /**
-     * Internal routine to handle a timeout
-     */
-    synchronized protected void timeout() {
-        JOptionPane.showMessageDialog(null, "Timeout talking to Hsi88",
-                "Timeout", JOptionPane.ERROR_MESSAGE);
-    }
-
-    protected int TIMEOUT = 1000;
-
-    javax.swing.Timer timer = null;
-
-    /**
-     * Internal routine to start timer to protect the mode-change.
-     */
-    protected void startTimer() {
-        restartTimer(TIMEOUT);
-    }
-
-    /**
-     * Internal routine to stop timer, as all is well
-     */
-    protected void stopTimer() {
-        if (timer != null) {
-            timer.stop();
-        }
-    }
-
-    /**
-     * Internal routine to handle timer starts {@literal &} restarts
+     * Please see the note for @see notifyMessage. (non-Javadoc)
      * 
-     * @param delay x
+     * @see jmri.jmrix.hsi88.Hsi88Listener#notifyReply(jmri.jmrix.hsi88.Hsi88Reply)
      */
-    protected void restartTimer(int delay) {
-        if (timer == null) {
-            timer = new javax.swing.Timer(delay, new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    timeout();
-                }
-            });
+    @Override
+    public void notifyReply(Hsi88Reply l) {
+
+        // log reply message
+        nextLine("rep: \"" + l + "\"\n", "");
+
+        switch (l.getOpCode()) {
+            case 's':
+                updateChainPanel();
+            case 't':
+                updateProtocolPanel();
         }
-        timer.stop();
-        timer.setInitialDelay(delay);
-        timer.setRepeats(false);
-        timer.start();
+
     }
+
+    /**
+     * TODO: how to ensure that the protocol has been updated before it is being
+     * displayed here if we ourselves were the sender?
+     */
+    private void updateProtocolPanel() {
+
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                Hsi88ConsoleFrame.this.protocolField.setText(Hsi88Config.getProtocol().toString());
+            }
+        });
+    }
+
+    /**
+     * TODO: same potential problem as @see updateProtocolPanel .
+     */
+    private void updateChainPanel() {
+
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                Hsi88ConsoleFrame.this.leftField.setText("" + Hsi88Config.getLeft());
+                Hsi88ConsoleFrame.this.middleField.setText("" + Hsi88Config.getMiddle());
+                Hsi88ConsoleFrame.this.rightField.setText("" + Hsi88Config.getRight());
+            }
+        });
+
+    }
+
+    /*
+     * keep to see how a timer can be used: private javax.swing.Timer timer =
+     * null;
+     * 
+     * protected void restartTimer(int delay) { if (timer == null) { timer = new
+     * javax.swing.Timer(delay, new java.awt.event.ActionListener() {
+     * 
+     * @Override public void actionPerformed(java.awt.event.ActionEvent e) {
+     * JOptionPane.showMessageDialog(null, "Timeout talking to Hsi88",
+     * "Timeout", JOptionPane.ERROR_MESSAGE); } }); } timer.stop();
+     * timer.setInitialDelay(delay); timer.setRepeats(false); timer.start(); }
+     */
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88ConsoleFrame.class.getName());
 }

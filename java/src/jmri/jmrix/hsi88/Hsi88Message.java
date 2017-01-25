@@ -25,7 +25,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
      * @param s String that forms message, must include terminating cr.
      */
     public Hsi88Message(String s) {
-        
+
         _nDataChars = s.length();
         if (_nDataChars > Hsi88Message.MAXLEN) {
             _nDataChars = Hsi88Message.MAXLEN;
@@ -123,7 +123,7 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
      * @return setup command with chain length according to JMRI preferences.
      */
     public static Hsi88Message powerOn() {
-        return cmdSetup(Hsi88Config.left, Hsi88Config.middle, Hsi88Config.right);
+        return cmdSetup(Hsi88Config.getLeft(), Hsi88Config.getMiddle(), Hsi88Config.getRight());
     }
 
     /**
@@ -135,8 +135,6 @@ public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
     public static Hsi88Message powerOff() {
         return cmdSetup(0, 0, 0);
     }
-    
-    private final static Logger log = LoggerFactory.getLogger(Hsi88Reply.class.getName());
 
-    
+    private final static Logger log = LoggerFactory.getLogger(Hsi88Reply.class.getName());
 }

@@ -34,24 +34,94 @@ public class Hsi88Config {
     }
     
     /** we do not know which mode HSI88 is in on start up. */
-    static volatile Hsi88Protocol protocol = Hsi88Protocol.UNKNOWN;
+    private static Hsi88Protocol protocol = Hsi88Protocol.UNKNOWN;
 
     /**
      * number of modules (of 16 sensors each) attached to the left, middle and
      * right chains.
      */
-    static int left = 2;
-    static int middle = 2;
-    static int right = 2;
+    private static int left = 2;
+    private static int middle = 2;
+    private static int right = 2;
 
     /**
      * number of modules reported in the last s reply (where such number is
      * different from zero)
      */
-    public static int reportedModules = 0;
+    private static int reportedModules = 0;
 
     /** @return the number of setup modules */
     static int getSetupModules() {
-        return left + middle + right;
+        return getLeft() + getMiddle() + getRight();
+    }
+
+    /**
+     * @return the protocol
+     */
+    public static Hsi88Protocol getProtocol() {
+        return protocol;
+    }
+
+    /**
+     * @param protocol the protocol to set
+     */
+    public static void setProtocol(Hsi88Protocol protocol) {
+        Hsi88Config.protocol = protocol;
+    }
+
+    /**
+     * @return the left
+     */
+    public static int getLeft() {
+        return left;
+    }
+
+    /**
+     * @param left the left to set
+     */
+    public static void setLeft(int left) {
+        Hsi88Config.left = left;
+    }
+
+    /**
+     * @return the middle
+     */
+    public static int getMiddle() {
+        return middle;
+    }
+
+    /**
+     * @param middle the middle to set
+     */
+    public static void setMiddle(int middle) {
+        Hsi88Config.middle = middle;
+    }
+
+    /**
+     * @return the right
+     */
+    public static int getRight() {
+        return right;
+    }
+
+    /**
+     * @param right the right to set
+     */
+    public static void setRight(int right) {
+        Hsi88Config.right = right;
+    }
+
+    /**
+     * @return the reportedModules
+     */
+    public static int getReportedModules() {
+        return reportedModules;
+    }
+
+    /**
+     * @param reportedModules the reportedModules to set
+     */
+    public static void setReportedModules(int reportedModules) {
+        Hsi88Config.reportedModules = reportedModules;
     }
 }

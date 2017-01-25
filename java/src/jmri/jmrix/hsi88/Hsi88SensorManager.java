@@ -43,7 +43,7 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
         tc.sendHsi88Message(Hsi88Message.cmdVersion(), this);
 
         // switch to ASCII mode: 
-        for (int i = 0; (i < 2) && (Hsi88Config.protocol != Hsi88Protocol.ASCII); i++) {
+        for (int i = 0; (i < 2) && (Hsi88Config.getProtocol() != Hsi88Protocol.ASCII); i++) {
             tc.sendHsi88Message(Hsi88Message.cmdTerminal(), this);
             try {
                 // wait until reply has most probably come.
@@ -53,10 +53,10 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
             }
         }
 
-        if (Hsi88Config.protocol != Hsi88Protocol.ASCII) {
+        if (Hsi88Config.getProtocol() != Hsi88Protocol.ASCII) {
             log.warn(Hsi88Config.LONGNAME +
                     " running in " +
-                    Hsi88Config.protocol +
+                    Hsi88Config.getProtocol() +
                     " mode. Message parsing in this mode is not implemented. Expect loads of errors messages.");
         }
 
@@ -153,7 +153,7 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
                 log.info(r.toString());
                 break;
             default:
-                log.warn("Unknown opcode of message: [-{}=]", r);
+                log.warn("Unknown opcode of message: <{}>", r);
         }
     }
 
@@ -171,11 +171,11 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
 
         switch ((char) r.getElement(1)) {
             case '0':
-                Hsi88Config.protocol = Hsi88Protocol.HEX;
+                Hsi88Config.setProtocol(Hsi88Protocol.HEX);
                 log.info("Terminal mode switched to HEX.");
                 break;
             case '1':
-                Hsi88Config.protocol = Hsi88Protocol.ASCII;
+                Hsi88Config.setProtocol(Hsi88Protocol.ASCII);
                 log.info("Terminal mode switched to ASCII.");
                 break;
             default:
@@ -227,7 +227,7 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
                     Hsi88Config.getSetupModules());
         }
 
-        Hsi88Config.reportedModules = newModules;
+        Hsi88Config.setReportedModules(newModules);
         log.info("s88 operation started with {} modules.", newModules);
     }
 
@@ -247,10 +247,10 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
         // parse and check number of reported modules
         try {
             int nModules = Integer.parseInt(payload.substring(1, 3), 16);
-            if (nModules != Hsi88Config.reportedModules) {
+            if (nModules != Hsi88Config.getReportedModules()) {
                 log.warn("Number of modules reported by previous 's' reply  {} " +
                         "does not agree with 'i' reply: {}.",
-                        Hsi88Config.reportedModules,
+                        Hsi88Config.getReportedModules(),
                         nModules);
             }
         } catch (NumberFormatException e1) {
@@ -289,9 +289,9 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
      */
     private void updateModule(int module, final int value, boolean reportAll) {
 
-        if ((module > Hsi88Config.reportedModules) && (module <= 0)) {
+        if ((module > Hsi88Config.getReportedModules()) && (module <= 0)) {
             log.error("Update for module {} beyond number of {} reported modules.",
-                    module, Hsi88Config.reportedModules);
+                    module, Hsi88Config.getReportedModules());
             return;
         }
 

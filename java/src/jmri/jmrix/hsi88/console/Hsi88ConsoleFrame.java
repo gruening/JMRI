@@ -12,11 +12,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import jmri.Sensor;
 import jmri.jmrix.hsi88.Hsi88Config;
 import jmri.jmrix.hsi88.Hsi88Config.Hsi88Protocol;
 import jmri.jmrix.hsi88.Hsi88Listener;
 import jmri.jmrix.hsi88.Hsi88Message;
 import jmri.jmrix.hsi88.Hsi88Reply;
+import jmri.jmrix.hsi88.Hsi88SensorManager;
 // import jmri.jmrix.hsi88.update.Hsi88Type;
 // import jmri.jmrix.hsi88.update.hsi88Version;
 // import jmri.jmrix.hsi88.update.hsi88VersionListener;
@@ -43,6 +45,14 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     /** hold the traffic controller */
     private Hsi88TrafficController tc;
 
+    private Hsi88SensorManager.Listener consoleListener = new Hsi88SensorManager.Listener() {
+
+        @Override
+        public void updateSensor(int addr, int state) {
+            Hsi88ConsoleFrame.super.nextLine("Sensor " + addr + ": " + (state == Sensor.ACTIVE ? "on\n" : "off\n"), "");
+        }
+    };
+
     /**
      * create new Swing Console Frame.
      * 
@@ -51,7 +61,10 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     public Hsi88ConsoleFrame(Hsi88SystemConnectionMemo memo) {
         super();
         _memo = memo;
+        _memo.getSensorManager().addSensorListener(consoleListener);
     }
+    
+    
 
     @Override
     protected String title() {
@@ -67,6 +80,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
     @Override
     public void dispose() {
+        _memo.getSensorManager().removeSensorListener(consoleListener);
         tc.removeHsi88Listener(this);
         super.dispose();
     }
@@ -244,7 +258,8 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
                 }
 
-                tc.sendHsi88Message(Hsi88Message.cmdSetup(Hsi88Config.getLeft(), Hsi88Config.getMiddle(), Hsi88Config.getRight()),
+                tc.sendHsi88Message(
+                        Hsi88Message.cmdSetup(Hsi88Config.getLeft(), Hsi88Config.getMiddle(), Hsi88Config.getRight()),
                         null);
 
             }

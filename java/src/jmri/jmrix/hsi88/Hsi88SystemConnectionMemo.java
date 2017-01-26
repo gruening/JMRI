@@ -2,7 +2,6 @@ package jmri.jmrix.hsi88;
 
 import java.util.ResourceBundle;
 import jmri.InstanceManager;
-import jmri.SensorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,7 +117,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
     }
 
     /** @return the Sensor Manager */
-    public SensorManager getSensorManager() {
+    public Hsi88SensorManager getSensorManager() {
         return sensorManager;
     }
 

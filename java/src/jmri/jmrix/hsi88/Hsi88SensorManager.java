@@ -1,6 +1,8 @@
 package jmri.jmrix.hsi88;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import jmri.Sensor;
 import jmri.jmrix.hsi88.Hsi88Config.Hsi88Protocol;
 import jmri.managers.AbstractSensorManager;
@@ -15,6 +17,14 @@ import org.slf4j.LoggerFactory;
  */
 public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Listener {
 
+    /**
+     * @author gruening
+     *
+     */
+    public interface Listener {
+        void updateSensor(int addr, int state);
+    }
+
     /** keep connection memo */
     private Hsi88SystemConnectionMemo memo;
 
@@ -23,6 +33,22 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
 
     /** store 16bit state of modules. */
     private char[] moduleStates = new char[Hsi88Config.MAXMODULES];
+
+    /**
+     * list of listener for sensor updates:
+     */
+    private List<Listener> listeners = new ArrayList<Listener>();
+
+    private Listener standardListener = new Listener() {
+
+        @Override
+        public void updateSensor(int addr, int state) {
+            Hsi88Sensor sensor = sensors.get(addr);
+            if (sensor != null) {
+                sensor.setOwnState(state);
+            }
+        }
+    };
 
     /**
      * create a new sensor manager for the Hsi88 interface. It connects to the
@@ -34,10 +60,12 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
      *            reply to the "t" message.
      */
     Hsi88SensorManager(Hsi88SystemConnectionMemo memo) {
-
+        
         this.memo = memo;
         Hsi88TrafficController tc = memo.getHsi88TrafficController();
         tc.addHsi88Listener(this);
+        
+        this.addSensorListener(standardListener);
 
         log.info("Hsi88 Sensor Manager starts.");
         tc.sendHsi88Message(Hsi88Message.cmdVersion(), this);
@@ -64,6 +92,27 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
         tc.sendHsi88Message(Hsi88Message.powerOff(), this);
     }
 
+    /**
+     * add @param listener for sensor updates
+     * 
+     * @return
+     */
+    public synchronized void addSensorListener(Listener l) {
+        if (!listeners.contains(l))
+            listeners.add(l);
+    }
+
+    public synchronized void removeSensorListener(Listener l) {
+        if (listeners.contains(l))
+            listeners.remove(l);
+    }
+
+    private synchronized void notifyListeners(int addr, int state) {
+        for (Listener l : listeners) {
+            l.updateSensor(addr, state);
+        }
+    }
+
     @Override
     public String getSystemPrefix() {
         return memo.getSystemPrefix();
@@ -74,7 +123,8 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
      * from systemName.
      * 
      * @param systemName stripped of SystemPrefix and "S" prefix, is parsed into
-     *            a nonnegative integer to give sensor address on s88 chain.     * @param userName merely passed on to ctor of Hsi88Sensor.
+     *            a nonnegative integer to give sensor address on s88 chain.
+     *            * @param userName merely passed on to ctor of Hsi88Sensor.
      * 
      * @return new Sensor with address as parsed from systemName if no sensor
      *         with the same address existed. Otherwise returns existing sensor
@@ -131,8 +181,8 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
     }
 
     /**
-     * parses messages and acts as appropriate. In particular update sensors
-     * and Hsi88 state.
+     * parses messages and acts as appropriate. In particular update sensors and
+     * Hsi88 state.
      */
     @Override
     public void notifyReply(Hsi88Reply r) {
@@ -186,8 +236,8 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
     /**
      * parses and acts on the reply to an "s" command.
      * 
-     * TODO: issue debug message instead of info.
-     * TODO: implement sensor viewer in the console.
+     * TODO: issue debug message instead of info. TODO: implement sensor viewer
+     * in the console.
      * 
      * @param r reply to the "s" command containing the number of modules
      */
@@ -315,14 +365,16 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Li
         for (int addr = baseAddress, mask = 1; addr < baseAddress + 16; addr++, mask <<= 1) {
             // has sth changed?
             if (((changes & mask) != 0) || reportAll) {
-                Hsi88Sensor sensor = sensors.get(addr);
-                if (sensor != null)
-                    sensor.setOwnState((mask & value) != 0 ? Sensor.ACTIVE : Sensor.INACTIVE);
-                else { // no sensor object -- be nice and inform user nevertheless
-                    log.info("Sensor {}: {}.", addr, (mask & value) == 0 ? "low" : "high");
-                }
+                int state = (mask & value) != 0 ? Sensor.ACTIVE : Sensor.INACTIVE;
+                this.notifyListeners(addr, state);
             }
         }
+    }
+    
+    @Override
+    public void dispose() {
+        this.removeSensorListener(standardListener);
+        super.dispose();
     }
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88SensorManager.class.getName());

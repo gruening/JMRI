@@ -46,7 +46,7 @@ public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmr
         this.getSystemConnectionMemo().setUserName(Hsi88Config.LONGNAME);
         // create the traffic controller
         this.getSystemConnectionMemo()
-                .setHsi88TrafficController(new Hsi88TrafficController(this.getSystemConnectionMemo()));
+                .setTrafficController(new Hsi88TrafficController(this.getSystemConnectionMemo()));
     }
 
     private SerialPort activeSerialPort;
@@ -115,7 +115,7 @@ public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmr
 
             //AJB - add Hsi88 Traffic Controller as event listener
             try {
-                activeSerialPort.addEventListener(this.getSystemConnectionMemo().getHsi88TrafficController());
+                activeSerialPort.addEventListener(this.getSystemConnectionMemo().getTrafficController());
             } catch (TooManyListenersException e) {
             }
 
@@ -194,7 +194,7 @@ public class SerialDriverAdapter extends Hsi88PortController implements jmri.jmr
     @Override
     public void configure() {
         // connect to the traffic controller
-        this.getSystemConnectionMemo().getHsi88TrafficController().connectPort(this);
+        this.getSystemConnectionMemo().getTrafficController().connectPort(this);
         this.getSystemConnectionMemo().configureManagers();
 
         jmri.jmrix.hsi88.ActiveFlag.setActive();

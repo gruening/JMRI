@@ -27,7 +27,7 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
         Hsi88TrafficController control = new Hsi88TrafficController(this.getSystemConnectionMemo());
 
         // connect to the traffic controller
-        this.getSystemConnectionMemo().setHsi88TrafficController(control);
+        this.getSystemConnectionMemo().setTrafficController(control);
         control.setAdapterMemo(this.getSystemConnectionMemo());
         this.getSystemConnectionMemo().configureManagers();
         control.connectPort(this);
@@ -61,17 +61,17 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
     // Hsi88 Interface methods.
     @Override
     public void addHsi88Listener(Hsi88Listener l) {
-        this.getSystemConnectionMemo().getHsi88TrafficController().addHsi88Listener(l);
+        this.getSystemConnectionMemo().getTrafficController().addHsi88Listener(l);
     }
 
     @Override
     public void removeHsi88Listener(Hsi88Listener l) {
-        this.getSystemConnectionMemo().getHsi88TrafficController().removeHsi88Listener(l);
+        this.getSystemConnectionMemo().getTrafficController().removeHsi88Listener(l);
     }
 
     @Override
     public void sendHsi88Message(Hsi88Message m, Hsi88Listener l) {
-        this.getSystemConnectionMemo().getHsi88TrafficController().sendHsi88Message(m, l);
+        this.getSystemConnectionMemo().getTrafficController().sendHsi88Message(m, l);
     }
 
     @Override

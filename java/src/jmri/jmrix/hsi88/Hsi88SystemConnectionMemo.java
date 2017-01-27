@@ -43,7 +43,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
      * 
      * @return the Traffic controller.
      */
-    public Hsi88TrafficController getHsi88TrafficController() {
+    public Hsi88TrafficController getTrafficController() {
         return st;
     }
 
@@ -52,7 +52,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
      * 
      * @param st
      */
-    public void setHsi88TrafficController(Hsi88TrafficController st) {
+    public void setTrafficController(Hsi88TrafficController st) {
         this.st = st;
     }
 
@@ -106,7 +106,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
 
         sensorManager = new jmri.jmrix.hsi88.Hsi88SensorManager(this);
         jmri.InstanceManager.setSensorManager(sensorManager);
-        
+
     }
 
     /** keep reference to Power Manager. */
@@ -114,7 +114,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
 
     /** keep reference to Sensor Manager. */
     private Hsi88SensorManager sensorManager;
-    
+
     /** keep reference to Reply Manager */
     private Hsi88ReplyManager replyManager;
 
@@ -127,12 +127,11 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
     public Hsi88SensorManager getSensorManager() {
         return sensorManager;
     }
-    
+
     /** @return the Reply Manager */
     public Hsi88ReplyManager getReplyManager() {
         return replyManager;
     }
-    
 
     @Override
     protected ResourceBundle getActionModelResourceBundle() {

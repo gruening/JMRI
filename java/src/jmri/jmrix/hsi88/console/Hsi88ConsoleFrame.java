@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -46,11 +47,15 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     /** hold the traffic controller */
     private Hsi88TrafficController tc;
 
+    private boolean showLowLevel = true;
+    private boolean showHighLevel = true;
+
     private Hsi88ReplyListener consoleListener = new Hsi88ReplyListener() {
 
         @Override
         public void notifyReply(int reply, int payload) {
-            if (reply >= 0) {
+
+            if (showHighLevel && reply >= 0) {
                 Hsi88ConsoleFrame.super.nextLine(
                         "Sensor " + reply + ": " + (payload == Sensor.ACTIVE ? "on\n" : "off\n"),
                         "");
@@ -83,7 +88,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     @Override
     protected void init() {
         // connect to TrafficController
-        tc = _memo.getHsi88TrafficController();
+        tc = _memo.getTrafficController();
         tc.addHsi88Listener(this);
         // connect to ReplyControoler
         _memo.getReplyManager().addSensorListener(consoleListener);
@@ -128,7 +133,8 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
             public void actionPerformed(ActionEvent e) {
                 Hsi88Message m = new Hsi88Message(cmdTextField.getText() + "\r");
                 // Messages sent by us will not be forwarded back so add to display manually
-                nextLine("cmd: \"" + m.toString() + "\"\n", "");
+                if (showLowLevel)
+                    nextLine("cmd: \"" + m.toString() + "\"\n", "");
                 tc.sendHsi88Message(m, Hsi88ConsoleFrame.this);
             }
         };
@@ -197,6 +203,27 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
                 enterButtonActionPerformed(e);
             }
         });
+
+        JCheckBox lowBox = new JCheckBox("Show low level messages");
+        lowBox.setSelected(showLowLevel);
+        lowBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                showLowLevel = ((JCheckBox) arg0.getSource()).isSelected();
+            }
+        });
+        
+        JCheckBox highBox = new JCheckBox("Show high level messages");
+        highBox.setSelected(showLowLevel);
+        highBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                showHighLevel = ((JCheckBox) arg0.getSource()).isSelected();
+            }
+        });
+        
+        
+        getContentPane().add(lowBox);
 
         getContentPane().add(createCommandPanel());
         getContentPane().add(createProtocolPanel());
@@ -323,7 +350,8 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
      */
     @Override
     public void notifyMessage(Hsi88Message l) { // receive a message and log it
-        nextLine("cmd: \"" + l + "\"\n", "");
+        if (showLowLevel)
+            nextLine("cmd: \"" + l + "\"\n", "");
     }
 
     /**
@@ -335,7 +363,8 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     public void notifyReply(Hsi88Reply l) {
 
         // log reply message
-        nextLine("rep: \"" + l + "\"\n", "");
+        if (showLowLevel)
+            nextLine("rep: \"" + l + "\"\n", "");
     }
 
     /**

@@ -54,7 +54,7 @@ public class Hsi88SensorManagerTest extends jmri.managers.AbstractSensorMgrTest 
         apps.tests.Log4JFixture.setUp();
         jmri.util.JUnitUtil.resetInstanceManager();
         m = new Hsi88SystemConnectionMemo();
-        m.setHsi88TrafficController(new Hsi88TrafficController(m));
+        m.setTrafficController(new Hsi88TrafficController(m));
         l = new Hsi88SensorManager(m);
     }
 

@@ -36,6 +36,6 @@ public class Hsi88Sensor extends AbstractSensor implements Sensor {
      */
     @Override
     public void requestUpdateFromLayout() {
-        memo.getHsi88TrafficController().sendHsi88Message(Hsi88Message.cmdQuery(), null);
+        memo.getTrafficController().sendHsi88Message(Hsi88Message.cmdQuery(), null);
     }
 }

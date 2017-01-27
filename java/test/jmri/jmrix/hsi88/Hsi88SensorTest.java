@@ -21,7 +21,7 @@ public class Hsi88SensorTest {
     @Test
     public void ConstructorTest() {
         Hsi88SystemConnectionMemo m = new Hsi88SystemConnectionMemo();
-        m.setHsi88TrafficController(new Hsi88TrafficController(m));
+        m.setTrafficController(new Hsi88TrafficController(m));
         Hsi88Sensor t = new Hsi88Sensor("systemName", "userName", m);
         Assert.assertNotNull(t);
     }

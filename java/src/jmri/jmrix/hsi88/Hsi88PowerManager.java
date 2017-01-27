@@ -14,7 +14,7 @@ import jmri.PowerManager;
 public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implements PowerManager, Hsi88ReplyListener {
 
     /** holds traffic controller instance */
-    private Hsi88TrafficController trafficController;
+    private Hsi88TrafficController tc;
     /** holds Hsi88 Manager */
     private Hsi88ReplyManager rm;
 
@@ -25,8 +25,7 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
      */
     public Hsi88PowerManager(Hsi88SystemConnectionMemo memo) {
         super(memo);
-        // connect to the Traffic Controller
-        trafficController = memo.getHsi88TrafficController();
+        tc = memo.getTrafficController();
         rm = memo.getReplyManager();
     }
 
@@ -42,9 +41,9 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
         power = PowerManager.UNKNOWN; // while waiting for reply
         checkTC();
         if (v == PowerManager.ON) {
-            trafficController.sendHsi88Message(Hsi88Message.powerOn(), null);
+            tc.sendHsi88Message(Hsi88Message.powerOn(), null);
         } else if (v == OFF) {
-            trafficController.sendHsi88Message(Hsi88Message.powerOff(), null);
+            tc.sendHsi88Message(Hsi88Message.powerOff(), null);
         }
         firePropertyChange("Power", null, null);
     }
@@ -59,13 +58,12 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
     @Override
     public void dispose() throws JmriException {
         rm.removeSensorListener(this);
-        rm = null;
-        trafficController = null;
+        tc = null;
     }
 
     /** check whether traffic controller is attached. */
     private void checkTC() throws JmriException {
-        if (trafficController == null) {
+        if (tc == null) {
             throw new JmriException("attempt to use Hsi88PowerManager after dispose");
         }
     }

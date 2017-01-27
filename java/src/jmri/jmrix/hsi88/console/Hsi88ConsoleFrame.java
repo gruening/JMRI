@@ -18,7 +18,8 @@ import jmri.jmrix.hsi88.Hsi88Config.Hsi88Protocol;
 import jmri.jmrix.hsi88.Hsi88Listener;
 import jmri.jmrix.hsi88.Hsi88Message;
 import jmri.jmrix.hsi88.Hsi88Reply;
-import jmri.jmrix.hsi88.Hsi88SensorManager;
+import jmri.jmrix.hsi88.Hsi88ReplyListener;
+import jmri.jmrix.hsi88.Hsi88ReplyManager.ResponseType;
 // import jmri.jmrix.hsi88.update.Hsi88Type;
 // import jmri.jmrix.hsi88.update.hsi88Version;
 // import jmri.jmrix.hsi88.update.hsi88VersionListener;
@@ -45,11 +46,22 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     /** hold the traffic controller */
     private Hsi88TrafficController tc;
 
-    private Hsi88SensorManager.Listener consoleListener = new Hsi88SensorManager.Listener() {
+    private Hsi88ReplyListener consoleListener = new Hsi88ReplyListener() {
 
         @Override
-        public void updateSensor(int addr, int state) {
-            Hsi88ConsoleFrame.super.nextLine("Sensor " + addr + ": " + (state == Sensor.ACTIVE ? "on\n" : "off\n"), "");
+        public void notifyReply(int reply, int payload) {
+            if (reply >= 0) {
+                Hsi88ConsoleFrame.super.nextLine(
+                        "Sensor " + reply + ": " + (payload == Sensor.ACTIVE ? "on\n" : "off\n"),
+                        "");
+            }
+            switch (reply) {
+                case ResponseType.SETUP:
+                    updateChainPanel();
+                    break;
+                case ResponseType.TERMINAL:
+                    updateProtocolPanel();
+            }
         }
     };
 
@@ -61,10 +73,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     public Hsi88ConsoleFrame(Hsi88SystemConnectionMemo memo) {
         super();
         _memo = memo;
-        _memo.getSensorManager().addSensorListener(consoleListener);
     }
-    
-    
 
     @Override
     protected String title() {
@@ -76,11 +85,14 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         // connect to TrafficController
         tc = _memo.getHsi88TrafficController();
         tc.addHsi88Listener(this);
+        // connect to ReplyControoler
+        _memo.getReplyManager().addSensorListener(consoleListener);
+
     }
 
     @Override
     public void dispose() {
-        _memo.getSensorManager().removeSensorListener(consoleListener);
+        _memo.getReplyManager().removeSensorListener(consoleListener);
         tc.removeHsi88Listener(this);
         super.dispose();
     }
@@ -228,7 +240,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
                 new Dimension(middleField.getMaximumSize().width,
                         middleField.getPreferredSize().height));
 
-        // right chaun
+        // right chain
         JLabel rightLabel = new JLabel("Right chain:");
         rightLabel.setVisible(true);
 
@@ -324,14 +336,6 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
         // log reply message
         nextLine("rep: \"" + l + "\"\n", "");
-
-        switch (l.getOpCode()) {
-            case 's':
-                updateChainPanel();
-            case 't':
-                updateProtocolPanel();
-        }
-
     }
 
     /**

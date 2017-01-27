@@ -11,10 +11,12 @@ import jmri.PowerManager;
  *         parts based on previous author's Sprog implementation.
  *
  */
-public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implements PowerManager, Hsi88Listener {
+public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implements PowerManager, Hsi88ReplyListener {
 
     /** holds traffic controller instance */
     private Hsi88TrafficController trafficController;
+    /** holds Hsi88 Manager */
+    private Hsi88ReplyManager rm;
 
     /**
      * create new power manager
@@ -25,7 +27,7 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
         super(memo);
         // connect to the Traffic Controller
         trafficController = memo.getHsi88TrafficController();
-        trafficController.addHsi88Listener(this);
+        rm = memo.getReplyManager();
     }
 
     /** current power state of Hsi88 device. */
@@ -40,9 +42,9 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
         power = PowerManager.UNKNOWN; // while waiting for reply
         checkTC();
         if (v == PowerManager.ON) {
-            trafficController.sendHsi88Message(Hsi88Message.powerOn(), this);
+            trafficController.sendHsi88Message(Hsi88Message.powerOn(), null);
         } else if (v == OFF) {
-            trafficController.sendHsi88Message(Hsi88Message.powerOff(), this);
+            trafficController.sendHsi88Message(Hsi88Message.powerOff(), null);
         }
         firePropertyChange("Power", null, null);
     }
@@ -56,7 +58,8 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
     /** free resources when no longer used. */
     @Override
     public void dispose() throws JmriException {
-        trafficController.removeHsi88Listener(this);
+        rm.removeSensorListener(this);
+        rm = null;
         trafficController = null;
     }
 
@@ -69,22 +72,17 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
 
     /** listen for status changes from the Hsi88 system */
     @Override
-    public void notifyReply(Hsi88Reply m) {
+    public void notifyReply(int reply, int modules) {
 
-        int modules = m.getSetupReplyModules();
+        if (reply == Hsi88ReplyManager.ResponseType.SETUP) {
 
-        if (modules == 0) {
-            this.power = PowerManager.OFF;
-            firePropertyChange("Power", null, null);
-        } else if (modules > 0) {
-            this.power = PowerManager.ON;
+            if (modules <= 0) {
+                this.power = PowerManager.OFF;
+            } else if (modules > 0) {
+                this.power = PowerManager.ON;
+            }
             firePropertyChange("Power", null, null);
         }
-        // else not for us or mal-formatted reply.
-    }
-
-    @Override
-    public void notifyMessage(Hsi88Message m) {
-        // nothing to do.
+        // else not for us
     }
 }

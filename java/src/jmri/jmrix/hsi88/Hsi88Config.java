@@ -30,7 +30,7 @@ public class Hsi88Config {
      * HSI88 can communicate either via sending ASCII messages or HEX message.
      **/
     public static enum Hsi88Protocol {
-        UNKNOWN, ASCII, HEX
+        HEX, ASCII, UNKNOWN;
     }
     
     /** we do not know which mode HSI88 is in on start up. */

@@ -1,276 +1,130 @@
 package jmri.jmrix.hsi88;
 
 import jmri.jmrix.AbstractMRReply;
-import jmri.jmrix.hsi88.Hsi88Constants.Hsi88State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * hsi88Reply.java
+ * Response from the HSI88 interface.
  *
- * Description:	Carries the reply to a hsi88Message
- *
- * @author	Bob Jacobsen Copyright (C) 2001
- * @author	Andrew Berridge - refactored, cleaned up, Feb 2010
-  */
+ * @author Bob Jacobsen Copyright (C) 2001.
+ * @author Andre Gruening Copyright (C) 2017: HSI88 specific implementation, in
+ *         parts based previous author's Sprog implementation.
+ */
 public class Hsi88Reply extends AbstractMRReply {
 
-    // Longest boot reply is 256bytes each preceded by DLE + 2xSTX + ETX
-    static public final int maxSize = 515;
-    private boolean _isBoot = false;
+    /**
+     * Maximal size of a valid Hsi88 reply. This size is reached in ASCII mode
+     * with the "i" reply: fixed size: 4: "i" + 2 digits of total number of
+     * modules + final cr per module size: 6 for each module reports: 2 digits
+     * for module number, 4 for module readings.
+     */
+    static public final int MAXSIZE = "i00".length() + Hsi88Config.MAXMODULES * "112233".length() + "\r".length();
 
-    // create a new one
+    /** create a new empty reply. */
     public Hsi88Reply() {
         super();
     }
 
-    // no need to do anything
+    /** no need to do anything */
+    @Override
     protected int skipPrefix(int index) {
         return index;
     }
 
+    /** @return return maximal size of Hsi88 reply */
+    @Override
+    public int maxSize() {
+        return Math.max(super.maxSize(), Hsi88Reply.MAXSIZE);
+    }
+
     /**
-     * Create a new hsi88Reply as a deep copy of an existing hsi88Reply
+     * Create a new Hsi88Reply as a deep copy of an existing Hsi88Reply
      *
-     * @param m the hsi88Reply to copy
+     * @param m the Hsi88Reply to copy
+     * @todo rewrite nicer
+     * @todo and where is it used?
      */
-    @SuppressWarnings("null")
-    public Hsi88Reply(Hsi88Reply m) {
-        this();
-        if (m == null) {
-            log.error("copy ctor of null message");
-            return;
-        }
-        _nDataChars = m._nDataChars;
-        _isBoot = m._isBoot;
-        if (m.isUnsolicited()) {
-            super.setUnsolicited();
-        }
-        for (int i = 0; i < _nDataChars; i++) {
-            _dataChars[i] = m._dataChars[i];
-        }
-    }
+
+    /*
+     * @SuppressWarnings("null") public Hsi88Reply(Hsi88Reply m) { this(); if (m
+     * == null) { log.error("copy ctor of null message"); return; } _nDataChars
+     * = m._nDataChars; if (m.isUnsolicited()) { super.setUnsolicited(); } for
+     * (int i = 0; i < _nDataChars; i++) { _dataChars[i] = m._dataChars[i]; } }
+     */
 
     /**
-     * Create a hsi88Reply from a String
+     * Create a Hsi88Reply from a String.
      *
-     * @param replyString a String containing the contents of the reply
-     * @param isBoot a boolean indicating if this is a boot reply
+     * @param replyString a String containing the contents of the reply.
+     * 
      */
-    public Hsi88Reply(String replyString, boolean isBoot) {
-        this(replyString);
-        _isBoot = isBoot;
-    }
-
-    public Hsi88Reply(String replyString) {
-        super(replyString);
-    }
+    /*
+     * public Hsi88Reply(String replyString) { super(replyString.substring(0,
+     * Hsi88Reply.MAXSIZE)); }
+     */
 
     /**
-     * Is this reply indicating that an overload condition was detected?
+     * Returns a string representation of this Hsi88Reply. Deletes a final cr.
+     * (An Hsi88 message may not end with cr if it reaches MAXSIZE.)
      */
-    public boolean isOverload() {
-        return (this.toString().indexOf("!O") >= 0);
-    }
-
-    /**
-     * Is this reply indicating that a general error has occurred?
-     */
-    public boolean isError() {
-        return (this.toString().indexOf("!E") >= 0);
-    }
-
-    // Check and strip framing characters and DLE from a hsi88 bootloader reply
-    public boolean strip() {
-        char tmp[] = new char[_nDataChars];
-        int j = 0;
-        _isBoot = true; // definitely a boot message
-        // Check framing characters
-        if (_dataChars[0] != Hsi88Message.STX) {
-            return false;
-        }
-        if (_dataChars[1] != Hsi88Message.STX) {
-            return false;
-        }
-        if (_dataChars[_nDataChars - 1] != Hsi88Message.ETX) {
-            return false;
-        }
-
-        // Ignore framing characters and strip DLEs
-        for (int i = 2; i < _nDataChars - 1; i++) {
-            if (_dataChars[i] == Hsi88Message.DLE) {
-                i++;
-            }
-            tmp[j++] = (char) _dataChars[i];
-        }
-
-        // Copy back to original hsi88Reply
-        for (int i = 0; i < j; i++) {
-            _dataChars[i] = tmp[i];
-        }
-        _nDataChars = j;
-        return true;
-    }
-
-    // Check and strip checksum from a hsi88 bootloader reply
-    // Assumes framing and DLE chars have been stripped
-    public boolean getChecksum() {
-        int checksum = 0;
-        for (int i = 0; i < _nDataChars; i++) {
-            checksum += _dataChars[i] & 0xff;
-        }
-        _nDataChars--;
-        return ((checksum & 0xff) == 0);
-    }
-
-    /**
-     * Returns a string representation of this hsi88Reply
-     */
+    @Override
     public String toString() {
-        //String s = "";
+
         StringBuffer buf = new StringBuffer();
-        if (_isBoot || (_dataChars[0] == Hsi88Message.STX)) {
-            for (int i = 0; i < _nDataChars; i++) {
-                //s+="<"+(((char)_dataChars[i]) & 0xff)+">";
-                buf.append("<");
-                buf.append(_dataChars[i]);
-                buf.append(">");
-            }
-        } else {
-            for (int i = 0; i < _nDataChars; i++) {
-                //s+=;
-                buf.append((char) _dataChars[i]);
-            }
+        for (int i = 0; i < _nDataChars; i++) {
+            buf.append((char) (_dataChars[i] & 0xFF)); // prevent sign expansion
+        }
+        // delete final cr if any
+        if (_dataChars[_nDataChars - 1] == '\r') {
+            buf.deleteCharAt(_nDataChars - 1);
         }
         return buf.toString();
     }
 
     /**
-     * Extracts Read-CV returned value from a message. Returns -1 if message
-     * can't be parsed.
-     *
-     * hsi88 is assumed to not be echoing commands. A reply to a command may
-     * include the prompt that was printed after the previous command Reply to a
-     * CV read is of the form " = hvv" where vv is the CV value in hex
+     * has the end of a reply reached? Hsi88 replies end with \r or when MAXSIZE
+     * has been reached.
+     * 
+     * @return has the end of the message been reached?
      */
-    public int value() {
-        int index = 0;
-        index = skipWhiteSpace(index);
-        index = skipEqual(index);
-        index = skipWhiteSpace(index);
-        String s1 = "" + (char) getElement(index);
-        String s2 = "" + (char) getElement(index + 1);
-        int val = -1;
-        try {
-            int sum = Integer.valueOf(s2, 16).intValue();
-            sum += 16 * Integer.valueOf(s1, 16).intValue();
-            val = sum;  // don't do this assign until now in case the conversion throws
-        } catch (Exception e) {
-            log.error("Unable to get number from reply: \"" + s1 + s2 + "\" index: " + index
-                    + " message: \"" + toString() + "\"");
-        }
-        return val;
+    boolean end() {
+
+        int num = this.getNumDataElements();
+
+        if (num == 0)
+            return false;
+        else if (num == Hsi88Reply.MAXSIZE)
+            return true;
+
+        return (this.getElement(num - 1) == '\r');
     }
 
     /**
-     * Returns the index of String s in the reply
+     * checks whether this reply is an 's' reply and, if so, returns the number
+     * of modules reported.
+     * 
+     * @return number of modules reported in the reply, or a negative number if
+     *         it is not a well-formatted 's' reply.
+     * 
+     * @note does not check whether nonnegative reported number of modules is
+     *       outside valid range.
      */
-    public int match(String s) {
-        // find a specific string in the reply
-        String rep = new String(_dataChars, 0, _nDataChars);
-        return rep.indexOf(s);
-    }
+    int getSetupReplyModules() {
 
-    private int skipEqual(int index) {
-        // start at index, skip over the equals and hex prefix
-        int len = "= h".length();
-        if (getNumDataElements() >= index + len - 1
-                && '=' == (char) getElement(index)
-                && ' ' == (char) getElement(index + 1)
-                && 'h' == (char) getElement(index + 2)) {
-            index += len;
-        }
-        return index;
-    }
+        if (Character.toLowerCase(this.getOpCode()) != 's' ||
+                this.getNumDataElements() != 4 ||
+                this.getElement(3) != '\r')
+            return -1;
 
-    /*
-     * Normal hsi88 replies will end with the prompt for the next command
-     * Bootloader will end with ETX with no preceding DLE
-     * hsi88 v4 bootloader replies "L>" on entry and replies "." at other
-     * times
-     */
-    public boolean endNormalReply() {
-        // Detect that the reply buffer ends with "P> " or "R> " (note ending space)
-        int num = this.getNumDataElements();
-        if (num >= 3) {
-            // ptr is offset of last element in hsi88Reply
-            int ptr = num - 1;
-            if (this.getElement(ptr) != ' ') {
-                return false;
-            }
-            if (this.getElement(ptr - 1) != '>') {
-                return false;
-            }
-            if ((this.getElement(ptr - 2) != 'P') && (this.getElement(ptr - 2) != 'R')) {
-                return false;
-            }
-            // Now see if it's unsolicited !O for overload
-            if (num >= 5) {
-                for (int i = 0; i < num - 1; i++) {
-                    if ((this.getElement(i) == '!')) {
-                        super.setUnsolicited();
-                    }
-                }
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
+        String payload = this.toString().substring(1, 3);
 
-    public boolean endBootReply() {
-        // Detect that the reply buffer ends with ETX with no preceding DLE
-        // This is the end of a hsi88 II bootloader reply or the end of
-        // a hsi88 v4 echoing the botloader version request
-        int num = this.getNumDataElements();
-        if (num >= 2) {
-            // ptr is offset of last element in hsi88Reply
-            int ptr = num - 1;
-            if ((this.getElement(ptr) & 0xff) != Hsi88Message.ETX) {
-                return false;
-            }
-            if ((this.getElement(ptr - 1) & 0xff) == Hsi88Message.DLE) {
-                return false;
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean endBootloaderReply(Hsi88State hsi88State) {
-        // Detect that the reply buffer ends with "L>" or "." from a hsi88 v4
-        // bootloader
-        int num = this.getNumDataElements();
-        int ptr = num - 1;
-        if ((hsi88State == hsi88State.V4BOOTMODE) && ((this.getElement(ptr) == '.')
-                || (this.getElement(ptr) == 'S'))) {
-            return true;
-        }
-        if (num >= 2) {
-            // ptr is offset of last element in hsi88Reply
-            if (this.getElement(ptr) != '>') {
-                return false;
-            }
-            if (this.getElement(ptr - 1) != 'L') {
-                return false;
-            }
-            return true;
-        } else {
-            return false;
+        try {
+            return Integer.parseInt(payload, 16);
+        } catch (NumberFormatException e) {
+            return -1;
         }
     }
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88Reply.class.getName());
-
 }

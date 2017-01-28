@@ -1,542 +1,140 @@
 package jmri.jmrix.hsi88;
 
-import jmri.ProgrammingMode;
-import jmri.jmrix.hsi88.Hsi88Constants.Hsi88State;
-import jmri.managers.DefaultProgrammerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Encodes a message to an HSI88 command station.
- * <P>
- * The {@link Hsi88Reply} class handles the response from the command station.
- *
+ * Encodes a message to an Hsi88 interface. The {@link Hsi88Reply} class handles
+ * the responses from the interface
+ * 
  * @author Bob Jacobsen Copyright (C) 2001
+ * @author Andre Gruening Copyright (C) 2017: HSI88-specific implementation, in
+ *         parts based on previous author's Sprog implementation.
  */
 public class Hsi88Message extends jmri.jmrix.AbstractMRMessage {
 
-    // Special characters (NOTE: microchip bootloader does not use standard ASCII)
-    public static final int STX = 15;
-    public static final int DLE = 5;
-    public static final int ETX = 4;
-    public static final int CR = 0x0d;
-    public static final int LF = 0x0a;
-
-    // bootloader commands
-    public static final int RD_VER = 0;
-    public static final int WT_FLASH = 2;
-    public static final int ER_FLASH = 3;
-    public static final int WT_EEDATA = 5;
-
-    // Longest boot message is 256bytes each preceded by DLE + 2xSTX + ETX
-    public static final int MAXSIZE = 515;
-
-    // create a new one
-    public Hsi88Message(int i) {
-        if (i < 1) {
-            log.error("invalid length in call to ctor");
-        }
-        _nDataChars = i;
-        _dataChars = new int[i];
-    }
+    /**
+     * maximal length of Hsi88 message. This is attained for "s" command in
+     * ASCII mode.
+     */
+    final static public int MAXLEN = "s112233\r".length();
 
     /**
-     * Creates a new Hsi88Message containing a byte array to represent a packet
-     * to output
-     *
-     * @param packet The contents of the packet
+     * create a message from a String.
+     * 
+     * @param s String that forms message, must include terminating cr.
      */
-    public Hsi88Message(byte[] packet) {
-        this(1 + (packet.length * 3));
-        int i = 0; // counter of byte in output message
-        int j = 0; // counter of byte in input packet
-
-        this.setElement(i++, 'O'); // "O " starts output packet
-
-        // add each byte of the input message
-        for (j = 0; j < packet.length; j++) {
-            this.setElement(i++, ' ');
-            String s = Integer.toHexString(packet[j] & 0xFF).toUpperCase();
-            if (s.length() == 1) {
-                this.setElement(i++, '0');
-                this.setElement(i++, s.charAt(0));
-            } else {
-                this.setElement(i++, s.charAt(0));
-                this.setElement(i++, s.charAt(1));
-            }
-        }
-
-    }
-
-    // from String
     public Hsi88Message(String s) {
+
         _nDataChars = s.length();
+        if (_nDataChars > Hsi88Message.MAXLEN) {
+            _nDataChars = Hsi88Message.MAXLEN;
+            log.warn("Message longer than MAXLEN: truncated.");
+        }
         _dataChars = new int[_nDataChars];
         for (int i = 0; i < _nDataChars; i++) {
             _dataChars[i] = s.charAt(i);
         }
     }
 
-    // copy one
-    @SuppressWarnings("null")
-    public Hsi88Message(Hsi88Message m) {
-        if (m == null) {
-            log.error("copy ctor of null message");
-            return;
-        }
-        _nDataChars = m._nDataChars;
-        _dataChars = new int[_nDataChars];
-        for (int i = 0; i < _nDataChars; i++) {
-            _dataChars[i] = m._dataChars[i];
-        }
-    }
-
-    public void setElement(int n, int v) {
-        _dataChars[n] = v;
-    }
-
-    private void setLength(int i) {
-        _dataChars[1] = i;
-    }
-
-    private void setV4Length(int i) {
-        _dataChars[0] = hexDigit((i & 0xf0) >> 4);
-        _dataChars[1] = hexDigit(i & 0xf);
-    }
-
-    private void setAddress(int i) {
-        _dataChars[2] = i & 0xff;
-        _dataChars[3] = (i >> 8) & 0xff;
-        _dataChars[4] = i >> 16;
-    }
-
-    private void setV4Address(int i) {
-        _dataChars[2] = hexDigit((i & 0xf000) >> 12);
-        _dataChars[3] = hexDigit((i & 0xf00) >> 8);
-        _dataChars[4] = hexDigit((i & 0xf0) >> 4);
-        _dataChars[5] = hexDigit(i & 0xf);
-    }
-
-    private void setV4RecType(int i) {
-        _dataChars[6] = hexDigit((i & 0xf0) >> 4);
-        _dataChars[7] = hexDigit(i & 0xf);
-    }
-
-    private void setData(int[] d) {
-        for (int i = 0; i < d.length; i++) {
-            _dataChars[5 + i] = d[i];
-        }
-    }
-
-    private void setV4Data(int[] d) {
-        int j = 8;
-        for (int i = 0; i < d.length; i++) {
-            _dataChars[j++] = hexDigit((d[i] & 0xf0) >> 4);
-            _dataChars[j++] = hexDigit(d[i] & 0xf);
-        }
-    }
-
-    private void setChecksum() {
-        int checksum = 0;
-        for (int i = 0; i < _nDataChars - 1; i++) {
-            checksum += _dataChars[i];
-        }
-        checksum = checksum & 0xff;
-        if (checksum > 0) {
-            checksum = 256 - checksum;
-        }
-        _dataChars[_nDataChars - 1] = checksum;
-    }
-
-    private void setV4Checksum(int length, int addr, int type, int[] data) {
-        int checksum = length + ((addr & 0xff00) >> 8) + (addr & 0xff) + type;
-        for (int i = 0; i < data.length; i++) {
-            checksum += data[i];
-        }
-        checksum = checksum & 0xff;
-        if (checksum > 0) {
-            checksum = 256 - checksum;
-        }
-        _dataChars[_nDataChars - 2] = hexDigit((checksum & 0xf0) >> 4);
-        _dataChars[_nDataChars - 1] = hexDigit(checksum & 0x0f);
-    }
-
-    private int hexDigit(int b) {
-        if (b > 9) {
-            return (b - 9 + 0x40);
-        } else {
-            return (b + 0x30);
-        }
-    }
-
-    private Hsi88Message frame() {
-        int j = 2;
-        // Create new message to hold the framed one
-        Hsi88Message f = new Hsi88Message(MAXSIZE);
-        f.setElement(0, STX);
-        f.setElement(1, STX);
-        // copy existing message adding DLE
-        for (int i = 0; i < _nDataChars; i++) {
-            if (_dataChars[i] == STX || _dataChars[i] == ETX || _dataChars[i] == DLE) {
-                f.setElement(j++, DLE);
-            }
-            f.setElement(j++, _dataChars[i]);
-        }
-        f.setElement(j++, ETX);
-        f._nDataChars = j;
-        // return new message
-        return f;
-    }
-
-    private Hsi88Message v4frame() {
-        int i = 0;
-        // Create new message to hold the framed one
-        Hsi88Message f = new Hsi88Message(MAXSIZE);
-        f.setElement(0, ':');
-        // copy existing message adding CRLF
-        for (i = 1; i <= _nDataChars; i++) {
-            f.setElement(i, _dataChars[i - 1]);
-        }
-        f.setElement(i++, CR);
-        f.setElement(i++, LF);
-        f._nDataChars = i;
-        // return new message
-        return f;
-    }
-
-    // display format
-    public String ToString() {
-        // default to not SIIBootMode being false.
-        return this.toString(false);
-    }
-
-    public String toString(boolean isSIIBootMode) {
-        StringBuffer buf = new StringBuffer();
-        if (isSIIBootMode) {
-            for (int i = 0; i < _nDataChars; i++) {
-                buf.append((char) _dataChars[i]);
-            }
-        } else {
-            for (int i = 0; i < _nDataChars; i++) {
-                //s+="<"+_dataChars[i]+">";
-                buf.append("<");
-                buf.append(_dataChars[i]);
-                buf.append(">");
-            }
-        }
-        return buf.toString();
-    }
-
     /**
      * Get formatted message for direct output to stream - this is the final
-     * format of the message as a byte array
+     * format of the message as a byte array. Note the terminating cr must be
+     * contained in the message already. It will not be appended here.
      *
-     * @param hsi88State a Hsi88State variable representing the current state of
-     *            the Hsi88
-     * @return the formatted message as a byte array
+     * @return the formatted message as a byte array.
      */
-    public byte[] getFormattedMessage(Hsi88State hsi88State) {
+    public byte[] getFormattedMessage() {
         int len = this.getNumDataElements();
 
-        // space for carriage return if required
-        int cr = 0;
-        if (hsi88State != Hsi88State.SIIBOOTMODE) {
-            cr = 1;
-        }
-
-        byte msg[] = new byte[len + cr];
+        byte msg[] = new byte[len];
 
         for (int i = 0; i < len; i++) {
-            if (hsi88State != Hsi88State.SIIBOOTMODE) {
-                msg[i] = (byte) (this.getElement(i) & 0x7f);
-            }
+            msg[i] = (byte) this.getElement(i);
         }
-        if (hsi88State != Hsi88State.SIIBOOTMODE) {
-            msg[len] = 0x0d;
-        }
+
         return msg;
     }
 
-    // diagnose format
-    public boolean isKillMain() {
-        return getOpCode() == '-';
-    }
-
-    public boolean isEnableMain() {
-        return getOpCode() == '+';
-    }
-
-    // static methods to return a formatted message
-    static public Hsi88Message getEnableMain() {
-        Hsi88Message m = new Hsi88Message(1);
-        m.setOpCode('+');
-        return m;
-    }
-
-    static public Hsi88Message getKillMain() {
-        Hsi88Message m = new Hsi88Message(1);
-        m.setOpCode('-');
-        return m;
-    }
-
-    static public Hsi88Message getProgMode() {
-        Hsi88Message m = new Hsi88Message(1);
-        m.setOpCode('P');
-        return m;
-    }
-
-    // [AC] 11/09/2002 Leave HSI88 in programmer mode. Don't want to go
-    // to booster mode as this would power up the track.
-    static public Hsi88Message getExitProgMode() {
-        Hsi88Message m = new Hsi88Message(1);
-        m.setOpCode(' ');
-        return m;
-    }
-
-    static public Hsi88Message getStatus() {
-        Hsi88Message m = new Hsi88Message(1);
-        m.setOpCode('S');
-        return m;
-    }
-
-    /*
-     * HSI88 uses same commands for reading and writing, with the number of
-     * parameters determining the action. Currently supports page mode and bit
-     * direct modes. A single parameter is taken as the CV address to read. Two
-     * parametes are taken as the CV address and data to be written.
+    /**
+     * create command to request version information.
+     * 
+     * @return version command
      */
-    static public Hsi88Message getReadCV(int cv, ProgrammingMode mode) {
-        Hsi88Message m = new Hsi88Message(6);
-        if (mode == DefaultProgrammerManager.PAGEMODE) {
-            m.setOpCode('V');
-        } else { // Bit direct mode
-            m.setOpCode('C');
-        }
-        addSpace(m, 1);
-        addIntAsFour(cv, m, 2);
-        return m;
-    }
-
-    static public Hsi88Message getWriteCV(int cv, int val, ProgrammingMode mode) {
-        Hsi88Message m = new Hsi88Message(10);
-        if (mode == DefaultProgrammerManager.PAGEMODE) {
-            m.setOpCode('V');
-        } else { // Bit direct mode
-            m.setOpCode('C');
-        }
-        addSpace(m, 1);
-        addIntAsFour(cv, m, 2);
-        addSpace(m, 6);
-        addIntAsThree(val, m, 7);
-        return m;
-    }
-
-    // [AC] 11/09/2002 HSI88 doesn't currently support registered mode
-    static public Hsi88Message getReadRegister(int reg) { //Vx
-        //        if (reg>8) log.error("register number too large: "+reg);
-        //        Hsi88Message m = new Hsi88Message(2);
-        //        m.setOpCode('V');
-        //        String s = ""+reg;
-        //        m.setElement(1, s.charAt(s.length()-1));
-        //        return m;
-        Hsi88Message m = new Hsi88Message(1);
-        m.setOpCode(' ');
-        return m;
-    }
-
-    static public Hsi88Message getWriteRegister(int reg, int val) { //Sx xx
-        //        if (reg>8) log.error("register number too large: "+reg);
-        //        Hsi88Message m = new Hsi88Message(4);
-        //        m.setOpCode('S');
-        //        String s = ""+reg;
-        //        m.setElement(1, s.charAt(s.length()-1));
-        //        addIntAsTwoHex(val, m, 2);
-        //        return m;
-        Hsi88Message m = new Hsi88Message(1);
-        m.setOpCode(' ');
-        return m;
+    public static Hsi88Message cmdVersion() {
+        return new Hsi88Message("v\r");
     }
 
     /**
-     * Get a message containing a DCC packet
-     *
-     * @param bytes byte[]
-     * @return Hsi88Message
+     * create command to toggle terminal mode between ASCII and HEX
+     * 
+     * @return terminal toggle command.
      */
-    static public Hsi88Message getPacketMessage(byte[] bytes) {
-        Hsi88Message m = new Hsi88Message(1 + 3 * bytes.length);
-        int i = 0; // counter to make it easier to format the message
-
-        m.setElement(i++, 'O'); // "O" Output DCC packet command
-        for (int j = 0; j < bytes.length; j++) {
-            m.setElement(i++, ' ');
-            m.addIntAsTwoHex(bytes[j] & 0xFF, i);
-            i = i + 2;
-        }
-        return m;
+    public static Hsi88Message cmdTerminal() {
+        return new Hsi88Message("t\r");
     }
 
-    // Bootloader messages are initially created long enough for
-    // the message and checksum. The message is then framed with control
-    // characters before being returned
-    static public Hsi88Message getReadBootVersion() {
-        Hsi88Message m = new Hsi88Message(3);
-        m.setOpCode(RD_VER);
-        m.setLength(2);
-        m.setChecksum();
-        return m.frame();
+    /**
+     * create command to request update from all sensors.
+     * 
+     * @return update command
+     */
+    public static Hsi88Message cmdQuery() {
+        return new Hsi88Message("m\r");
     }
 
-    static public Hsi88Message getWriteFlash(int addr, int[] data, int blockLen) {
-        int l = data.length;
-        int offset;
-        // Writes are rounded up to multiples of blockLen
-        if (l % blockLen != 0) {
-            l = l + (blockLen - l % blockLen);
-        }
-        // and data padded with erased condition
-        int padded[] = new int[l];
-        for (int i = 0; i < l; i++) {
-            padded[i] = 0xff;
-        }
-        // Address is masked to start on blockLen boundary
-        if (blockLen == 16) {
-            offset = addr & 0xF;
-            addr = addr & 0xFFFFFFF0;
-        } else {
-            offset = addr & 0x7;
-            addr = addr & 0xFFFFFFF8;
-        }
-        // Copy data into padded array at address offset
-        for (int i = 0; i < data.length; i++) {
-            padded[i + offset] = data[i];
-        }
-        Hsi88Message m = new Hsi88Message(6 + l);
-        m.setOpCode(WT_FLASH);
-        // length is number of blockLen blocks
-        m.setLength(l / blockLen);
-        m.setAddress(addr);
-        m.setData(padded);
-        m.setChecksum();
-        return m.frame();
+    /**
+     * convert byte into 2-digit hex representation
+     * 
+     * @param i value to convert
+     * @return string of 2-digit hex presenation of i
+     * 
+     * @todo is there a util method i JMRI that does this already?
+     */
+    private static String byteToHex(byte i) {
+
+        String str = Integer.toHexString(i);
+        if (str.length() == 2)
+            return str;
+        else
+            return "0" + str;
     }
 
-    static public Hsi88Message getV4WriteFlash(int addr, int[] data, int type) {
-        // Create a v4 bootloader message which is same format as a record
-        // in the hex file
-        int l = (data.length + 5) * 2;
-        Hsi88Message m = new Hsi88Message(l);
-        m.setV4Length(data.length);
-        m.setV4Address(addr);
-        m.setV4RecType(type);
-        m.setV4Data(data);
-        m.setV4Checksum(data.length, addr, type, data);
-        return m.v4frame();
+    /**
+     * create command to set up Hsi88 chain lengths. Providing 0 for all chains
+     * switches the s88 chain sweeping off.
+     * 
+     * @param left number of modules on left chain.
+     * @param middle number of modules on middle chain.
+     * @param right number of modules on right chain
+     * @return command to setup chain length.
+     */
+    public static Hsi88Message cmdSetup(int left, int middle, int right) {
+
+        Hsi88Message setup = new Hsi88Message(
+                "s" + byteToHex((byte) left) + byteToHex((byte) middle) + byteToHex((byte) right) + '\r');
+        return setup;
     }
 
-    static public Hsi88Message getV4EndOfFile() {
-        // Create a v4 bootloader end of file message
-        int l = 10;
-        Hsi88Message m = new Hsi88Message(l);
-        m.setV4Length(0);
-        m.setV4Address(0);
-        m.setV4RecType(1);
-        m.setV4Checksum(0, 0, 1, new int[0]);
-        return m.v4frame();
+    /**
+     * create command to setup Hsi88 with chain lengths as specifies in the JMRI
+     * preferences panel. Can be regarded as the powerOn command.
+     * 
+     * @return setup command with chain length according to JMRI preferences.
+     */
+    public static Hsi88Message powerOn() {
+        return cmdSetup(Hsi88Config.getLeft(), Hsi88Config.getMiddle(), Hsi88Config.getRight());
     }
 
-    static public Hsi88Message getv4ExtAddr() {
-        // Create a v4 bootloader extended address message
-        int l = 14;
-        int[] data = {0, 0};
-        Hsi88Message m = new Hsi88Message(l);
-        m.setV4Length(2);
-        m.setV4Address(0);
-        m.setV4RecType(4);
-        m.setV4Data(data);
-        m.setV4Checksum(0, 0, 4, data);
-        return m.v4frame();
+    /**
+     * create command to switch off S88 chain sweeping. Can be recarded as a
+     * powerOff command.
+     * 
+     * @return command to end s88 chain sweeping.
+     */
+    public static Hsi88Message powerOff() {
+        return cmdSetup(0, 0, 0);
     }
 
-    static public Hsi88Message getEraseFlash(int addr, int rows) {
-        Hsi88Message m = new Hsi88Message(6);
-        m.setOpCode(ER_FLASH);
-        // Erase a number of 64 byte rows
-        m.setLength(rows);
-        m.setAddress(addr);
-        m.setChecksum();
-        return m.frame();
-    }
-
-    static public Hsi88Message getWriteEE(int addr, int[] data) {
-        Hsi88Message m = new Hsi88Message(6 + data.length);
-        m.setOpCode(WT_EEDATA);
-        m.setLength(data.length);
-        m.setAddress(addr & 0xff);
-        m.setData(data);
-        m.setChecksum();
-        return m.frame();
-    }
-
-    static public Hsi88Message getReset() {
-        Hsi88Message m = new Hsi88Message(3);
-        m.setOpCode(0);
-        m.setLength(0);
-        m.setChecksum();
-        return m.frame();
-    }
-
-    // [AC] 11/09/2002
-    private static String addSpace(Hsi88Message m, int offset) {
-        String s = " ";
-        m.setElement(offset, ' ');
-        return s;
-    }
-
-    // [AC] 11/09/2002
-    @SuppressWarnings("unused")
-    private static String addIntAsTwo(int val, Hsi88Message m, int offset) {
-        String s = "" + val;
-        if (s.length() != 2) {
-            s = "0" + s; // handle <10
-        }
-        m.setElement(offset, s.charAt(0));
-        m.setElement(offset + 1, s.charAt(1));
-        return s;
-    }
-
-    private static String addIntAsThree(int val, Hsi88Message m, int offset) {
-        String s = "" + val;
-        if (s.length() != 3) {
-            s = "0" + s; // handle <10
-        }
-        if (s.length() != 3) {
-            s = "0" + s; // handle <100
-        }
-        m.setElement(offset, s.charAt(0));
-        m.setElement(offset + 1, s.charAt(1));
-        m.setElement(offset + 2, s.charAt(2));
-        return s;
-    }
-
-    private static String addIntAsFour(int val, Hsi88Message m, int offset) {
-        String s = "" + val;
-        if (s.length() != 4) {
-            s = "0" + s; // handle <10
-        }
-        if (s.length() != 4) {
-            s = "0" + s; // handle <100
-        }
-        if (s.length() != 4) {
-            s = "0" + s; // handle <1000
-        }
-        m.setElement(offset, s.charAt(0));
-        m.setElement(offset + 1, s.charAt(1));
-        m.setElement(offset + 2, s.charAt(2));
-        m.setElement(offset + 3, s.charAt(3));
-        return s;
-    }
-
-    private final static Logger log = LoggerFactory.getLogger(Hsi88Message.class.getName());
-
+    private final static Logger log = LoggerFactory.getLogger(Hsi88Reply.class.getName());
 }

@@ -1,8 +1,9 @@
-package jmri.jmrix.marklin.swing.packetgen;
+package jmri.jmrix.marklin.swing.paketgen;
 
 import apps.tests.Log4JFixture;
+import java.awt.GraphicsEnvironment;
+import jmri.jmrix.marklin.swing.packetgen.PacketGenPanel;
 import jmri.util.JUnitUtil;
-import jmri.InstanceManager;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

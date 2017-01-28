@@ -7,31 +7,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract base for classes representing an hsi88 Command Station
- * communications port
- * <p>
- * NOTE: This currently only supports the hsi88 Command Station interfaces.
- * <p>
+ * Abstract base for classes representing an Hsi88 Interface communications
+ * port.
  *
- * @author	Paul Bender Copyright (C) 2014
+ * @author Paul Bender Copyright (C) 2014
+ * @author Andre Gruening, 2017: trivially adapted for Hsi88 based previous
+ *         author's Sprog implementation.
  */
 public class Hsi88StreamPortController extends AbstractStreamPortController implements Hsi88Interface {
     private Thread rcvNotice = null;
 
     public Hsi88StreamPortController(DataInputStream in, DataOutputStream out, String pname) {
-        super(new Hsi88SystemConnectionMemo(Hsi88Constants.Hsi88Mode.OPS), in, out, pname);
+        super(new Hsi88SystemConnectionMemo(), in, out, pname);
     }
 
     @Override
     public void configure() {
         log.debug("configure() called.");
         Hsi88TrafficController control = new Hsi88TrafficController(this.getSystemConnectionMemo());
-        //        Hsi88TrafficController control = new Hsi88TrafficController(this.hsi88Memo());
 
         // connect to the traffic controller
         this.getSystemConnectionMemo().setHsi88TrafficController(control);
         control.setAdapterMemo(this.getSystemConnectionMemo());
-        this.getSystemConnectionMemo().configureCommandStation();
         this.getSystemConnectionMemo().configureManagers();
         control.connectPort(this);
 
@@ -55,11 +52,13 @@ public class Hsi88StreamPortController extends AbstractStreamPortController impl
      *
      * @return true
      */
+    /*
     public boolean okToSend() {
-        return (true);
+        return true;
     }
+    */
 
-    // hsi88 Interface methods.
+    // Hsi88 Interface methods.
     @Override
     public void addHsi88Listener(Hsi88Listener l) {
         this.getSystemConnectionMemo().getHsi88TrafficController().addHsi88Listener(l);

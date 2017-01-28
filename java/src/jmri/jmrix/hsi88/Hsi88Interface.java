@@ -5,7 +5,8 @@ package jmri.jmrix.hsi88;
  * station.
  *
  * @author Bob Jacobsen Copyright (C) 2001
- * @author Andre Gruening Copyright (C) 2016: adapted for HSI88
+ * @author Andre Gruening Copyright (C) 2017: trivially adapted for HSI88 from
+ *         previous author's Sprog implementation.
  */
 public interface Hsi88Interface {
 
@@ -13,12 +14,12 @@ public interface Hsi88Interface {
 
     public void removeHsi88Listener(Hsi88Listener l);
 
-	/**
-	 * Test operational status of interface.
-	 *
-	 * @return true if interface implementation is operational.
-	 */
-	boolean status();
+    /**
+     * Test operational status of interface.
+     *
+     * @return true if interface implementation is operational.
+     */
+    boolean status();
 
     /**
      * Send a message through the interface.
@@ -28,4 +29,3 @@ public interface Hsi88Interface {
      */
     void sendHsi88Message(Hsi88Message m, Hsi88Listener l);
 }
-

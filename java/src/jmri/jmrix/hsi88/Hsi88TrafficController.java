@@ -1,350 +1,362 @@
 package jmri.jmrix.hsi88;
 
-import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import java.io.DataInputStream;
 import java.io.OutputStream;
-import java.util.Vector;
+import java.util.LinkedList;
+import java.util.List;
 import jmri.jmrix.AbstractPortController;
 import jmri.jmrix.SystemConnectionMemo;
-import jmri.jmrix.hsi88.Hsi88Constants.Hsi88State;
-import jmri.jmrix.hsi88.serialdriver.SerialDriverAdapter;
+import jmri.util.ThreadingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Converts Stream-based I/O to/from Hsi88 messages. The "Hsi88Interface" side
- * sends/receives message objects. The connection to a Hsi88PortController is
- * via a pair of *Streams, which then carry sequences of characters for
- * transmission. Note that this processing is handled in an independent thread.
+ * Converts Stream-based I/O to/from Hsi88 replies/messages. The
+ * "Hsi88Interface" side sends/receives message objects. The connection to a
+ * Hsi88PortController is via a pair of *Streams, which then carry sequences of
+ * characters for transmission. Note that this processing is handled in an
+ * independent thread.
  *
- * Based on implementation of sprog by	
- * @author Bob Jacobsen Copyright (C) 2001
- * Implementation of HSI relevant stuff
- * @author Andre Gruening Copyright (C) 2016
+ * Synchronization is used for two purposes here: 1. to prevent concurrent
+ * reading/writing of listeners 2. to prevent concurrent sending of replies
+ * and/or messages. In principle 2 different locks could be used for this, but
+ * for sake of simplicity we lock on this object only.
+ * 
+ * @author Bob Jacobsen Copyright (C) 2001:
+ * @author Andre Gruening Copyright (C) 2017: adapted for Hsi088 based on
+ *         previous author's Sprog implementation. Tidied synchonization and
+ *         java doc.
+ *
  */
 public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventListener {
 
-	private Hsi88Reply reply = new Hsi88Reply();
+    /** reply being constructed from input to the interface */
+    private Hsi88Reply reply = new Hsi88Reply();
 
-	private boolean waitingForReply = false;
-	Hsi88Listener lastSender = null;
+    /** are we waiting for a reply to the previously sent message? */
+    private boolean waitingForReply = false;
 
-	private Hsi88State hsi88State = Hsi88State.NORMAL;
+    /** remember sender of last message */
+    private Hsi88Listener lastSender = null;
 
-	public Hsi88TrafficController(SystemConnectionMemo systemConnectionMemo) {
-		memo = (Hsi88SystemConnectionMemo) systemConnectionMemo;
-	}
+    /**
+     * create new traffic controller.
+     * 
+     * @param systemConnectionMemo information about the connection to the HSI88
+     *            device.
+     */
+    public Hsi88TrafficController(SystemConnectionMemo systemConnectionMemo) {
+        memo = (Hsi88SystemConnectionMemo) systemConnectionMemo;
+    }
 
-	// The methods to implement the Hsi88Interface
-	protected Vector<Hsi88Listener> cmdListeners = new Vector<Hsi88Listener>();
+    /** list of listeners. Should be protect against concurrent use. */
+    private List<Hsi88Listener> hsi88Listeners = new LinkedList<Hsi88Listener>();
 
-	public boolean status() {
-		return (ostream != null && istream != null);
-	}
+    /** Are we connected alright? */
+    @Override
+    public boolean status() {
+        return (ostream != null && istream != null);
+    }
 
-	public synchronized void addHsi88Listener(Hsi88Listener l) {
-		// add only if not already registered
-		if (l == null) {
-			throw new java.lang.NullPointerException();
-		}
-		if (!cmdListeners.contains(l)) {
-			cmdListeners.addElement(l);
-		}
-	}
+    /**
+     * add a listener that wants to be notified for Hsi88 replies and messages
+     * other listeners send. It is synchronized because listeners could be added
+     * from different threads at the same time, however we manipulate an
+     * internal data structure here.
+     * 
+     * @param l listener to add.
+     */
+    @Override
+    public synchronized void addHsi88Listener(Hsi88Listener l) {
+        // add only if not already registered
+        if (l == null) {
+            throw new java.lang.NullPointerException();
+        }
+        if (!hsi88Listeners.contains(l)) {
+            hsi88Listeners.add(l);
+        }
+    }
 
-	public synchronized void removeHsi88Listener(Hsi88Listener l) {
-		if (cmdListeners.contains(l)) {
-			cmdListeners.removeElement(l);
-		}
-	}
+    /**
+     * remove a listener. @param l listener to remove.
+     */
+    @Override
+    public synchronized void removeHsi88Listener(Hsi88Listener l) {
+        if (hsi88Listeners.contains(l)) {
+            hsi88Listeners.remove(l);
+        }
+    }
 
-	public Hsi88State getHsi88State() {
-		return hsi88State;
-	}
+    /**
+     * Distribute message to all listeners except originator.
+     * 
+     * @note Method only to be called from context synchronized on this traffic
+     *       controller (to ensure that all listeners always get in only one
+     *       message at a time, so that they need not care about multiple
+     *       threads?)
+     * 
+     * @param m message to distribute
+     * @param originator original sender of message
+     */
+    private void notifyMessage(Hsi88Message m, Hsi88Listener originator) {
+        for (Hsi88Listener listener : hsi88Listeners) {
+            try {
+                // don't send it back to the originator!
+                if (listener != originator) {
+                    // skip forwarding to the last sender for now, we'll get
+                    // them later
+                    if (lastSender != listener) {
+                        listener.notifyMessage(m);
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("notify: During dispatch to " + listener + "\nException " + e);
+            }
+        }
+        // forward to the last listener who sent a message
+        // this is done _second_ so monitoring can have already stored the reply
+        // before a response is sent
+        if (lastSender != null && lastSender != originator) {
+            lastSender.notifyMessage(m);
+        }
+    }
 
-	public void setHsi88State(Hsi88State s) {
-		this.hsi88State = s;
-		if (s == Hsi88State.V4BOOTMODE) {
-			// enable flow control - required for hsi88 v4 bootloader
-			getController().setHandshake(SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT);
+    /**
+     * Notify all listeners of an incoming hardware reply.
+     * 
+     * Synchronized on this traffic controller so that either one message or one
+     * reply can be sent at any one time. Ensures also that listeners do not
+     * need to think about threading as synchronisation here ensures that also
+     * their notifyReply methods are run one at a time.
+     * 
+     * @param r reply received from HSI88 interface.
+     */
+    private synchronized void notifyReply(Hsi88Reply r) {
+        for (Hsi88Listener listener : hsi88Listeners) {
+            try {
+                // if is message don't send it back to the originator!
+                // skip forwarding to the last sender for now, we'll get them
+                // later
+                if (lastSender != listener) {
+                    listener.notifyReply(r);
+                }
 
-		} else {
-			// disable flow control
-			// AJB - removed Jan 2010 - this stops HSI88 from sending. Could
-			// cause problems with
-			// serial Hsi88s, but I have no way of testing:
-			// getController().setHandshake(0);
-		}
-		if (log.isDebugEnabled()) {
-			log.debug("Setting hsi88State " + s);
-		}
-	}
+            } catch (Exception e) {
+                log.warn("notify: During dispatch to " + listener + "\nException " + e);
+            }
+        }
+        // forward to the last listener who sent a message
+        // this is done _second_ so monitoring can have already stored the reply
+        // before a response is sent
+        if (lastSender != null) {
+            lastSender.notifyReply(r);
+        }
+    }
 
-	public boolean isNormalMode() {
-		return hsi88State == Hsi88State.NORMAL;
-	}
+    /**
+     * Write a message into to the Hsi88 interface. Called from context
+     * synchronised on this traffic controller.
+     * 
+     * @param m message to send to Hsi88.
+     */
+    private void sendHsi88Message(Hsi88Message m) {
+        // stream to port in single write, as that's needed by serial
+        try {
+            if (ostream != null) {
+                ostream.write(m.getFormattedMessage());
+            } else {
+                // no stream connected
+                log.warn("sendMessage: no connection established");
+            }
+        } catch (Exception e) {
+            log.warn("sendMessage: Exception: " + e.toString());
+        }
+    }
 
-	public boolean isSIIBootMode() {
-		return hsi88State == Hsi88State.SIIBOOTMODE;
-	}
+    /**
+     * Forward a message to the actual interface (by calling
+     * sendHsi88Message(Hsi88Message) after notifying any listeners.
+     */
+    @Override
+    public synchronized void sendHsi88Message(Hsi88Message m, Hsi88Listener replyTo) {
 
-	public boolean isV4BootMode() {
-		return hsi88State == Hsi88State.V4BOOTMODE;
-	}
+        if (waitingForReply) {
+            try {
+                wait(100); //wait until notify()ed or 100ms timeout
+            } catch (InterruptedException e) {
+                // got reply to previous sent message within 100ms -- that's good.
+            }
+        }
+        waitingForReply = true;
 
-	@SuppressWarnings("unchecked")
-	private synchronized Vector<Hsi88Listener> getCopyOfListeners() {
-		return (Vector<Hsi88Listener>) cmdListeners.clone();
+        if (log.isDebugEnabled()) {
+            log.debug("sendHsi88Message message: [" + m + "]");
+        }
+        // remember who sent this
+        lastSender = replyTo;
+        // notify all _other_ listeners
+        notifyMessage(m, replyTo);
+        this.sendHsi88Message(m);
+    }
 
-	}
+    // methods to connect/disconnect to a source of data in a
+    // Hsi88PortController
 
-	protected void notifyMessage(Hsi88Message m, Hsi88Listener originator) {
-		for (Hsi88Listener listener : this.getCopyOfListeners()) {
-			try {
-				// don't send it back to the originator!
-				if (listener != originator) {
-					// skip forwarding to the last sender for now, we'll get
-					// them later
-					if (lastSender != listener) {
-						listener.notifyMessage(m);
-					}
-				}
-			} catch (Exception e) {
-				log.warn("notify: During dispatch to " + listener + "\nException " + e);
-			}
-		}
-		// forward to the last listener who sent a message
-		// this is done _second_ so monitoring can have already stored the reply
-		// before a response is sent
-		if (lastSender != null && lastSender != originator) {
-			lastSender.notifyMessage(m);
-		}
-	}
+    /** holds port controller */
+    private AbstractPortController controller = null;
 
-	protected synchronized void notifyReply(Hsi88Reply r) {
-		for (Hsi88Listener listener : this.getCopyOfListeners()) {
-			try {
-				// if is message don't send it back to the originator!
-				// skip forwarding to the last sender for now, we'll get them
-				// later
-				if (lastSender != listener) {
-					listener.notifyReply(r);
-				}
+    /**
+     * Make connection to existing PortController object.
+     * 
+     * @param p port to connect to
+     */
+    public void connectPort(AbstractPortController p) {
+        istream = p.getInputStream();
+        ostream = p.getOutputStream();
+        if (controller != null) {
+            log.warn("connectPort: connect called while connected");
+        }
+        controller = p;
+    }
 
-			} catch (Exception e) {
-				log.warn("notify: During dispatch to " + listener + "\nException " + e);
-			}
-		}
-		// forward to the last listener who sent a message
-		// this is done _second_ so monitoring can have already stored the reply
-		// before a response is sent
-		if (lastSender != null) {
-			lastSender.notifyReply(r);
-		}
-	}
+    /**
+     * Break connection to existing Hsi88PortController object. Once broken,
+     * attempts to send will fail.
+     * 
+     * @param p port to disconnect rp
+     */
+    public void disconnectPort(AbstractPortController p) {
+        istream = null;
+        ostream = null;
+        if (controller != p) {
+            log.warn("disconnectPort: disconnect called from non-connected Hsi88PortController");
+        }
+        controller = null;
+    }
 
-	/**
-	 * Forward a preformatted message to the interface
-	 *
-	 */
-	public void sendHsi88Message(Hsi88Message m) {
-		// stream to port in single write, as that's needed by serial
-		try {
-			if (ostream != null) {
-				ostream.write(m.getFormattedMessage(hsi88State));
-			} else {
-				// no stream connected
-				log.warn("sendMessage: no connection established");
-			}
-		} catch (Exception e) {
-			log.warn("sendMessage: Exception: " + e.toString());
-		}
-	}
+    /**
+     * static function returning the Hsi88TrafficController instance to use.
+     *
+     * @return The registered Hsi88TrafficController instance for general use,
+     *         if need be creating one.
+     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI
+     *             multi-system support structure.
+     */
+    /*
+     * @Deprecated static public Hsi88TrafficController instance() { return
+     * null; }
+     */
 
-	/**
-	 * Forward a preformatted message to the actual interface (by calling
-	 * SendHsi88Message(Hsi88Message) after notifying any listeners Notifies
-	 * listeners
-	 */
-	public synchronized void sendHsi88Message(Hsi88Message m, Hsi88Listener replyTo) {
+    /**
+     * set adapter memo
+     * 
+     * @param adaptermemo memo to set.
+     */
+    void setAdapterMemo(Hsi88SystemConnectionMemo adaptermemo) {
+        memo = adaptermemo;
+    }
 
-		if (waitingForReply) {
-			try {
-				wait(100); // Will wait until notify()ed or 100ms timeout
-			} catch (InterruptedException e) {
-			}
-		}
-		waitingForReply = true;
+    /** hold memo */
+    private Hsi88SystemConnectionMemo memo = null;
+    /** hold input stream */
+    private DataInputStream istream = null;
+    /** hold output stream */
+    private OutputStream ostream = null;
 
-		if (log.isDebugEnabled()) {
-			log.debug("sendHsi88Message message: [" + m + "]");
-		}
-		// remember who sent this
-		lastSender = replyTo;
-		// notify all _other_ listeners
-		notifyMessage(m, replyTo);
-		this.sendHsi88Message(m);
+    /**
+     * serialEvent - respond to an event triggered by RXTX. In this case we are
+     * only dealing with DATA_AVAILABLE but the other events are left here for
+     * reference. AJB Jan 2010
+     */
+    @Override
+    public void serialEvent(SerialPortEvent event) {
+        switch (event.getEventType()) {
+            case SerialPortEvent.BI:
+            case SerialPortEvent.OE:
+            case SerialPortEvent.FE:
+            case SerialPortEvent.PE:
+            case SerialPortEvent.CD:
+            case SerialPortEvent.CTS:
+            case SerialPortEvent.DSR:
+            case SerialPortEvent.RI:
+            case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
+                break;
+            case SerialPortEvent.DATA_AVAILABLE:
+                log.debug("Data Available");
+                handleOneIncomingReply();
+                break;
+        }
+    }
 
-	}
+    /**
+     * Handle an incoming reply from the hardware and if the reply is complete
+     * send the reply to listeners.
+     */
+    void handleOneIncomingReply() {
+        // we get here if data has been received
+        // fill the current reply with any data received
+        int i = this.reply.getNumDataElements();
 
-	// methods to connect/disconnect to a source of data in a
-	// Hsi88PortController
-	private AbstractPortController controller = null;
+        while (!this.reply.end()) {
+            try {
+                if (istream.available() == 0) {
+                    return; // nothing waiting to be read
+                }
+                byte ch = istream.readByte();
+                this.reply.setElement(i, ch);
+            } catch (Exception e) {
+                log.warn("Exception in DATA_AVAILABLE state: " + e);
+                return;
+            }
+            i++;
+        }
+        // we only reach here if we have reached end of reply. 
+        sendreply();
+    }
 
-	/**
-	 * Make connection to existing PortController object.
-	 */
-	public void connectPort(AbstractPortController p) {
-		istream = p.getInputStream();
-		ostream = p.getOutputStream();
-		if (controller != null) {
-			log.warn("connectPort: connect called while connected");
-		}
-		controller = p;
-	}
+    /**
+     * Send the current reply - built using data from serialEvent. notifyReply
+     * of the traffic controllers list
+     */
+    private void sendreply() {
 
-	/**
-	 * return the port controller, as an SerialDriverAdapter.
-	 */
-	protected SerialDriverAdapter getController() {
-		return (SerialDriverAdapter) controller;
-	}
+        if (log.isDebugEnabled()) {
+            log.debug("dispatch reply of length " + this.reply.getNumDataElements());
+        }
 
-	/**
-	 * Break connection to existing Hsi88PortController object. Once broken,
-	 * attempts to send via "message" member will fail.
-	 */
-	public void disconnectPort(AbstractPortController p) {
-		istream = null;
-		ostream = null;
-		if (controller != p) {
-			log.warn("disconnectPort: disconnect called from non-connected Hsi88PortController");
-		}
-		controller = null;
-	}
+        if (waitingForReply == false) {
+            this.reply.setUnsolicited();
+            log.debug("Unsolicited Reply");
+        }
 
-	/**
-	 * static function returning the Hsi88TrafficController instance to use.
-	 *
-	 * @return The registered Hsi88TrafficController instance for general use,
-	 *         if need be creating one.
-	 * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI
-	 *             multi-system support structure
-	 */
-	@Deprecated
-	static public Hsi88TrafficController instance() {
-		return null;
-	}
+        synchronized (this) {
+            waitingForReply = false;
+            notifyAll();
+        }
 
-	static volatile protected Hsi88TrafficController self = null;
+        {
+            final Hsi88Reply thisReply = this.reply;
+            final Hsi88TrafficController thisTC = this;
+            // return a notification via the queue
+            ThreadingUtil.ThreadAction r = new ThreadingUtil.ThreadAction() {
 
-	public void setAdapterMemo(Hsi88SystemConnectionMemo adaptermemo) {
-		memo = adaptermemo;
-	}
+                Hsi88Reply replyForLater = thisReply;
+                Hsi88TrafficController myTC = thisTC;
 
-	public Hsi88SystemConnectionMemo getAdapterMemo() {
-		return memo;
-	}
+                public void run() {
+                    log.debug("Delayed notify starts");
+                    myTC.notifyReply(replyForLater);
+                }
+            };
+            ThreadingUtil.runOnLayoutEventually(r);
+        }
 
-	private Hsi88SystemConnectionMemo memo = null;
-	// data members to hold the streams
-	DataInputStream istream = null;
-	OutputStream ostream = null;
+        // Create a new reply, ready to be filled
+        this.reply = new Hsi88Reply();
+    }
 
-	boolean endReply(Hsi88Reply msg) {
-		return msg.endNormalReply() || msg.endBootReply() || msg.endBootloaderReply(this.getHsi88State());
-	}
+    private final static Logger log = LoggerFactory.getLogger(Hsi88TrafficController.class.getName());
 
-	private boolean unsolicited;
-
-	private final static Logger log = LoggerFactory.getLogger(Hsi88TrafficController.class.getName());
-
-	/**
-	 * serialEvent - respond to an event triggered by RXTX. In this case we are
-	 * only dealing with DATA_AVAILABLE but the other events are left here for
-	 * reference. AJB Jan 2010
-	 */
-	public void serialEvent(SerialPortEvent event) {
-		switch (event.getEventType()) {
-		case SerialPortEvent.BI:
-		case SerialPortEvent.OE:
-		case SerialPortEvent.FE:
-		case SerialPortEvent.PE:
-		case SerialPortEvent.CD:
-		case SerialPortEvent.CTS:
-		case SerialPortEvent.DSR:
-		case SerialPortEvent.RI:
-		case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
-			break;
-		case SerialPortEvent.DATA_AVAILABLE:
-			log.debug("Data Available");
-			handleOneIncomingReply();
-			break;
-		}
-	}
-
-	/**
-	 * Handle an incoming reply
-	 */
-	void handleOneIncomingReply() {
-		// we get here if data has been received
-		// fill the current reply with any data received
-		int replyCurrentSize = this.reply.getNumDataElements();
-		int i;
-		for (i = replyCurrentSize; i < Hsi88Reply.maxSize - replyCurrentSize; i++) {
-			try {
-				if (istream.available() == 0) {
-					break; // nothing waiting to be read
-				}
-				byte char1 = istream.readByte();
-				this.reply.setElement(i, char1);
-
-			} catch (Exception e) {
-				log.warn("Exception in DATA_AVAILABLE state: " + e);
-			}
-			if (endReply(this.reply)) {
-				sendreply();
-				break;
-			}
-		}
-	}
-
-	/**
-	 * Send the current reply - built using data from serialEvent
-	 */
-	private void sendreply() {
-		// send the reply
-		synchronized (this) {
-			waitingForReply = false;
-			notify();
-		}
-		if (log.isDebugEnabled()) {
-			log.debug("dispatch reply of length " + this.reply.getNumDataElements());
-		}
-		{
-			final Hsi88Reply thisReply = this.reply;
-			if (unsolicited) {
-				log.debug("Unsolicited Reply");
-				thisReply.setUnsolicited();
-			}
-			final Hsi88TrafficController thisTC = this;
-			// return a notification via the queue to ensure end
-			Runnable r = new Runnable() {
-				Hsi88Reply replyForLater = thisReply;
-				Hsi88TrafficController myTC = thisTC;
-
-				public void run() {
-					log.debug("Delayed notify starts");
-					myTC.notifyReply(replyForLater);
-				}
-			};
-			javax.swing.SwingUtilities.invokeLater(r);
-		}
-
-		// Create a new reply, ready to be filled
-		this.reply = new Hsi88Reply();
-
-	}
 }

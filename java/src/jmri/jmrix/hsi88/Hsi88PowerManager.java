@@ -2,108 +2,87 @@ package jmri.jmrix.hsi88;
 
 import jmri.JmriException;
 import jmri.PowerManager;
-import jmri.jmrix.AbstractMessage;
 
 /**
  * PowerManager implementation for controlling HSI88 layout power.
  *
- * @author	Bob Jacobsen Copyright (C) 2001
+ * @author Bob Jacobsen Copyright (C) 2001.
+ * @author Andre Gruening Copyright (C) 2017 : Hsi88 specific implementation, in
+ *         parts based on previous author's Sprog implementation.
  *
  */
-public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager
-        implements PowerManager, Hsi88Listener {
+public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implements PowerManager, Hsi88ReplyListener {
 
-    Hsi88TrafficController trafficController = null;
+    /** holds traffic controller instance */
+    private Hsi88TrafficController trafficController;
+    /** holds Hsi88 Manager */
+    private Hsi88ReplyManager rm;
 
+    /**
+     * create new power manager
+     * 
+     * @param memo connection memo
+     */
     public Hsi88PowerManager(Hsi88SystemConnectionMemo memo) {
         super(memo);
-        // connect to the TrafficManager
+        // connect to the Traffic Controller
         trafficController = memo.getHsi88TrafficController();
-        trafficController.addHsi88Listener(this);
+        rm = memo.getReplyManager();
     }
 
-    int power = UNKNOWN;
+    /** current power state of Hsi88 device. */
+    private int power = PowerManager.UNKNOWN;
 
-    boolean waiting = false;
-    int onReply = UNKNOWN;
-
+    /**
+     * set power on and off by sending the appropriate messages to the HSI88
+     * interface.
+     */
+    @Override
     public void setPower(int v) throws JmriException {
-        power = UNKNOWN; // while waiting for reply
+        power = PowerManager.UNKNOWN; // while waiting for reply
         checkTC();
-        if (v == ON) {
-            // configure to wait for reply
-            waiting = true;
-            onReply = PowerManager.ON;
-            // send "Enable main track"
-            Hsi88Message l = Hsi88Message.getEnableMain();
-            trafficController.sendHsi88Message(l, this);
+        if (v == PowerManager.ON) {
+            trafficController.sendHsi88Message(Hsi88Message.powerOn(), null);
         } else if (v == OFF) {
-            // configure to wait for reply
-            waiting = true;
-            onReply = PowerManager.OFF;
-            firePropertyChange("Power", null, null);
-            // send "Kill main track"
-            Hsi88Message l = Hsi88Message.getKillMain();
-            for (int i = 0; i < 3; i++) {
-                trafficController.sendHsi88Message(l, this);
-            }
+            trafficController.sendHsi88Message(Hsi88Message.powerOff(), null);
         }
         firePropertyChange("Power", null, null);
     }
 
-    /*
-     * Used to update power state after service mode programming operation
-     * without sending a message to the SPROG
-     */
-    public void notePowerState(int v) {
-        power = v;
-        firePropertyChange("Power", null, null);
-    }
-
+    /** @return power state of Hsi88 interface. */
+    @Override
     public int getPower() {
         return power;
     }
 
-    // to free resources when no longer used
+    /** free resources when no longer used. */
+    @Override
     public void dispose() throws JmriException {
-        trafficController.removeHsi88Listener(this);
+        rm.removeSensorListener(this);
+        rm = null;
         trafficController = null;
     }
 
+    /** check whether traffic controller is attached. */
     private void checkTC() throws JmriException {
         if (trafficController == null) {
             throw new JmriException("attempt to use Hsi88PowerManager after dispose");
         }
     }
 
-    // to listen for status changes from Hsi88 system
-    public void notifyReply(Hsi88Reply m) {
-        if (waiting) {
-            power = onReply;
+    /** listen for status changes from the Hsi88 system */
+    @Override
+    public void notifyReply(int reply, int modules) {
+
+        if (reply == Hsi88ReplyManager.ResponseType.SETUP) {
+
+            if (modules <= 0) {
+                this.power = PowerManager.OFF;
+            } else if (modules > 0) {
+                this.power = PowerManager.ON;
+            }
             firePropertyChange("Power", null, null);
         }
-        waiting = false;
+        // else not for us
     }
-
-    public void notifyMessage(Hsi88Message m) {
-        if (m.isKillMain()) {
-            // configure to wait for reply
-            waiting = true;
-            onReply = PowerManager.OFF;
-        } else if (m.isEnableMain()) {
-            // configure to wait for reply
-            waiting = true;
-            onReply = PowerManager.ON;
-        }
-    }
-
-    public void notify(AbstractMessage m) {
-        if (m instanceof Hsi88Message) {
-            this.notifyMessage((Hsi88Message) m);
-        } else {
-            this.notifyReply((Hsi88Reply) m);
-        }
-
-    }
-
 }

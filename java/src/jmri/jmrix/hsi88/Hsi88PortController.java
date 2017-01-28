@@ -1,8 +1,12 @@
 package jmri.jmrix.hsi88;
 
-/*
- * Identifying class representing a ECOS communications port
- * @author			Bob Jacobsen    Copyright (C) 2001, 2008
+/**
+ * Identifying class representing a Hsi88 communications port
+ * 
+ * @author Bob Jacobsen Copyright (C) 2001, 2008.
+ * @author Andre Gruening 2017: trivially adapted for HSI88 from previous
+ *         author's Sprog implementation.
+ * 
  */
 public abstract class Hsi88PortController extends jmri.jmrix.AbstractSerialPortController {
 
@@ -17,4 +21,3 @@ public abstract class Hsi88PortController extends jmri.jmrix.AbstractSerialPortC
         return (Hsi88SystemConnectionMemo) super.getSystemConnectionMemo();
     }
 }
-

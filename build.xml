@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Ant build.xml file for JMRI development                                -->
-<!-- Bob Jacobsen, Copyright 2002-2016                                      -->
+<!-- Bob Jacobsen, Copyright 2002-2017                                      -->
 
 <!-- This file is part of JMRI.                                             -->
 <!--                                                                        -->
@@ -24,7 +24,7 @@
     Provides build services for JMRI libraries and applications
     </description>
 
-    <property name="jmri.copyright.year" value="1997-2016"/>
+    <property name="jmri.copyright.year" value="1997-2017"/>
 
     <property environment="env"/>
 
@@ -239,8 +239,7 @@
         <pathelement location="${libdir}/javassist-3.20.0-GA.jar"/>
         <pathelement location="${libdir}/objenesis-2.2.jar"/>
         <pathelement location="${libdir}/byte-buddy-1.2.1.jar"/>
-         
-
+        <pathelement location="${libdir}/jemmy-2.2.7.5.jar"/>
     </path>
 
     <!-- path to run regular executables -->
@@ -606,7 +605,7 @@
     <target depends="-pre-single-test" unless="test.isTest" name="-test-single-src">
         <property name="test.test" value="${test.includes}Test"/>
     </target>
-    <target depends="-test-single-src,-test-single-test,tests" description="Run single unit test." name="test-single">
+    <target depends="-test-single-src,-test-single-test,tests,runtime-library-selection" description="Run single unit test." name="test-single">
         <junit haltonerror="false" haltonfailure="false" printsummary="yes" fork="yes" dir="." errorProperty="test.failed" failureProperty="test.failed">
             <sysproperty key="java.security.policy" value="${libdir}/security.policy"/>
             <sysproperty key="apple.laf.useScreenMenuBar" value="true"/>
@@ -1113,22 +1112,14 @@
     </target>
 
     <!-- check for bad line ends, e.g. not ready to go into Git -->
-    <!-- May not (probably will not) work on Windows -->
 
     <target name="checklineends" description="check text files for proper LF line ends (Linux, Mac only)">
-      <exec executable="sh" outputproperty="checklineeds.files">
-        <arg value="-c" />
-        <arg value="find xml help java/src java/test jython -not -type d -exec file '{}' ';' | grep CRLF" />
-      </exec>
-
-      <fail message="${checklineeds.files}">
-        <condition>
-          <length string="${checklineeds.files}" when="greater" length="0" />
-        </condition>
-      </fail>
+        <property name="test.includes" value="jmri.util.FileLineEndingsTest" />
+        <antcall target="test-single" />
     </target>
 
     <!-- end of file-checking targets -->
+    <!-- should match list in jmri.util.FileEncodingsTest -->
 
     <target name="fixlineends" description="convert specific files to LF line ends">
         <fixcrlf eol="unix" srcdir="." encoding="UTF-8" includes="
@@ -1250,6 +1241,9 @@
                   <limit counter="LINE" value="COVEREDRATIO" minimum="0.28"/>
                   <limit counter="CLASS" value="COVEREDRATIO" minimum="0.50"/>
               </rule>
+              <rule element="PACKAGE">
+                 <limit counter="CLASS" value="COVEREDCOUNT" minimum="1"/>
+              </rule>
           </check>
        </jacoco:report>
     </target>
@@ -1261,7 +1255,6 @@
             <sysproperty key="log4j.ignoreTCL" path="true/"/>
             <sysproperty key="java.library.path" path=".:${libdir}:${arch.lib.path}"/>
             <sysproperty key="jmri.prefsdir" path="${tempdir}"/>
-            <sysproperty key="jinput.plugins" path="net.bobis.jinput.hidraw.HidRawEnvironmentPlugin"/>
 
             <classpath refid="test.class.path"/>
 
@@ -1277,13 +1270,13 @@
     </target>
 
     <target name="ci-test-travis" depends="tests, runtime-library-selection" description="run ci-test using Travis-CI">
+        <jacoco:coverage destfile="jacoco.exec" excludes="org.slf4j.*">
         <junit haltonerror="false" haltonfailure="false" printsummary="yes" fork="yes" dir="." errorProperty="test.failed" failureProperty="test.failed">
             <sysproperty key="java.security.policy" value="${libdir}/security.policy"/>
             <sysproperty key="apple.laf.useScreenMenuBar" value="true"/>
             <sysproperty key="log4j.ignoreTCL" path="true/"/>
             <sysproperty key="java.library.path" path=".:${libdir}:${arch.lib.path}"/>
             <sysproperty key="jmri.prefsdir" path="${tempdir}"/>
-            <sysproperty key="jinput.plugins" path="net.bobis.jinput.hidraw.HidRawEnvironmentPlugin"/>
 
             <classpath refid="test.class.path"/>
 
@@ -1294,6 +1287,7 @@
                 <formatter usefile="no" type="brief"/>
             </test>
         </junit>
+        </jacoco:coverage>
         <fail>
             <condition>
                 <istrue value="${test.failed}" />
@@ -1309,11 +1303,8 @@
             <sysproperty key="log4j.ignoreTCL" path="true/"/>
             <sysproperty key="java.library.path" path=".:${libdir}:${arch.lib.path}"/>
             <sysproperty key="jmri.prefsdir" path="${tempdir}"/>
-            <sysproperty key="jinput.plugins" path="net.bobis.jinput.hidraw.HidRawEnvironmentPlugin"/>
 
             <classpath refid="test.class.path"/>
-
-            <sysproperty key="jmri.skipschematests" value="true"/>  <!-- skip schema checks to improve speed -->
 
             <test name="apps.tests.AllTest" outfile="junit-results">
                 <formatter type="xml"/>
@@ -1407,6 +1398,35 @@
               <rule> 
                   <limit counter="LINE" value="COVEREDRATIO" minimum="0.28"/>
                   <limit counter="CLASS" value="COVEREDRATIO" minimum="0.50"/>
+              </rule>
+              <rule element="PACKAGE">
+                 <limit counter="CLASS" value="COVEREDCOUNT" minimum="1"/>
+              </rule>
+          </check>
+       </jacoco:report>
+    </target>
+
+    <target name="ci-test-travis-coveragecheck" depends="ci-test-travis" description="Test Coverage check from logalltest">
+    <!-- Generate Code Coverage report
+    See: http://www.eclemma.org/jacoco/trunk/doc/ant.html -->
+       <jacoco:report>
+          <executiondata>
+              <file file="jacoco.exec" />
+          </executiondata>
+
+          <structure name="AntTestReporting">
+              <classfiles>
+                 <fileset refid="jacocofileset"/>
+              </classfiles>
+          </structure>
+
+          <check>
+              <rule> 
+                  <limit counter="LINE" value="COVEREDRATIO" minimum="0.28"/>
+                  <limit counter="CLASS" value="COVEREDRATIO" minimum="0.50"/>
+              </rule>
+              <rule element="PACKAGE">
+                 <limit counter="CLASS" value="COVEREDCOUNT" minimum="1"/>
               </rule>
           </check>
        </jacoco:report>
@@ -1530,7 +1550,7 @@
             </packageset>
             <arg value="-Xdoclint:all,-missing"/><!-- remove -missing to get warnings about missing javadoc tags -->
             <arg value="-Xmaxwarns"/>
-            <arg value="4866"/><!-- change from default 100 warnings -->
+            <arg value="4150"/><!-- change from default 100 warnings -->
             <!-- disable output of custom @navassoc tag - used for UML image generation -->
             <tag name="navassoc" enabled="false"/>
 
@@ -1911,11 +1931,26 @@
               failonerror="true">
             <!-- ORDER MATTERS HERE -->
             <arg value="${release.version-string}"/>
-            <arg path="${dist.release}/JMRI.${release.version-string}.dmg"/>
+            <arg path="${dist.release}/JMRI.${release.version-string}-unsigned.dmg"/>
             <arg path="${dist.macosx}"/>
         </exec>
     </target>
 
+    <target name="sign-macosx"
+            description="sign the macOS distribution DMG file; assumes package-macosx"
+            depends="get-version-string">
+        <chmod perm="ugo+rwx" dir="${dist.release}"/>
+        <!-- invoke signing server -->
+        <exec executable="wget"
+              osFamily="unix"
+              failonerror="true">
+            <arg value="-t 1200"/>
+            <arg value="-O signing-wget.log"/>
+            <arg value="http://${env.signinghost}/selfsign.php?get=${dist.release}/JMRI.${release.version-string}-unsigned.dmg&amp;rel=${release.version-string}&amp;put=${dist.release}/JMRI.${release.version-string}.dmg"/>
+        </exec>
+        <chmod perm="go-w" dir="${dist.release}"/>
+    </target>
+            
     <target name="package-linux"
             description="create a Linux release package"
             depends="get-version-string, jar, startup-scripts-linux">
@@ -2117,18 +2152,28 @@
     <!-- CI Test runners -->
     <target name="travis-ci" description="Parallel execution of CI tasks on Travis CI">
         <parallel threadCount="4"> <!-- allow up to four tasks at once -->
+            <antcall target="checknonascii" />
+            <sequential>
+                <antcall target="compile-generated-source" />
+                <antcall target="javadoc" />
+                <antcall target="ci-test-travis" />
+            </sequential>
+        </parallel>
+    </target>
+
+    <target name="travis-ci-coverage" description="Parallel execution of CI tasks on Travis CI">
+        <parallel threadCount="4"> <!-- allow up to four tasks at once -->
             <antcall target="checklineends" />
             <antcall target="checknonascii" />
             <sequential>
                 <antcall target="compile-generated-source" />
-                <parallel>
-                    <antcall target="javadoc" />
-                    <antcall target="ci-test-travis" />
-                </parallel>
+                <antcall target="javadoc" />
+                <antcall target="ci-test-travis-coveragecheck" />
             </sequential>
         </parallel>
     </target>
-    
+
+	
     <target name="appveyor" description="Parallel execution of CI tasks on Appveyor">
         <parallel threadCount="4"> <!-- allow up to four tasks at once -->
             <antcall target="checkPropertiesFiles" />

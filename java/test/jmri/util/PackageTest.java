@@ -47,10 +47,11 @@ public class PackageTest extends TestCase {
         suite.addTest(jmri.util.WaitHandlerTest.suite());
         suite.addTest(jmri.util.zeroconf.PackageTest.suite());
         suite.addTest(jmri.util.DateUtilTest.suite());
-        suite.addTest(jmri.util.prefs.PackageTest.suite());
+        suite.addTest(new junit.framework.JUnit4TestAdapter(jmri.util.prefs.PackageTest.class));
         suite.addTest(new junit.framework.JUnit4TestAdapter(jmri.util.javamail.PackageTest.class));
         suite.addTest(new junit.framework.JUnit4TestAdapter(jmri.util.davidflanagan.PackageTest.class));
         suite.addTest(new junit.framework.JUnit4TestAdapter(jmri.util.datatransfer.PackageTest.class));
+        suite.addTest(new junit.framework.JUnit4TestAdapter(jmri.util.com.PackageTest.class));
 
         // deliberately at end
         suite.addTest(jmri.util.Log4JErrorIsErrorTest.suite());

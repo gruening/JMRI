@@ -1,5 +1,6 @@
 package jmri.jmrit.beantable;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
@@ -150,11 +151,11 @@ public class ListedTableFrame extends BeanTableFrame {
         cardHolder.setDividerSize(8);
         if (lastdivider != 0) {
             cardHolder.setDividerLocation(lastdivider);
-        } else { //Else if no specific size has been given we set it to the lists preferred width
+        } else { // if no specific size has been given we set it to the lists preferred width
             cardHolder.setDividerLocation(listScroller.getPreferredSize().width);
         }
         cardHolder.addPropertyChangeListener(new PropertyChangeListener() {
-            @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD",
+            @SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD",
                     justification = "We only intend to use/save the last position of the Split frame")
             public void propertyChange(PropertyChangeEvent e) {
                 if (e.getPropertyName().equals("dividerLocation")) {
@@ -280,8 +281,8 @@ public class ListedTableFrame extends BeanTableFrame {
     TabbedTableItem lastSelectedItem = null;
 
     /* This is a bit of a bodge to add the contents to the bottom box and keep
-     * it backwardly compatable with the original views, if the original views
-     * are depreciated then this can be re-written
+     * it backwardly compatible with the original views. When the original views
+     * are deprecated then this can be re-written
      */
     //@TODO Sort out the procedure to add to bottom box
     protected void addToBottomBox(Component comp, String c) {
@@ -301,7 +302,7 @@ public class ListedTableFrame extends BeanTableFrame {
         return choices;
     }
 
-    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD",
+    @SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD",
             justification = "We only intend to use/save the last position of the Split frame")
     public void setDividerLocation(int loc) {
         if (loc == 0) {
@@ -491,7 +492,7 @@ public class ListedTableFrame extends BeanTableFrame {
     /**
      * ActionJList This deals with handling non-default mouse operations on the
      * List panel and allows for right click popups and double click to open new
-     * windows of over the items we are hovering over.
+     * windows of the items we are hovering over.
      */
     class ActionJList extends MouseAdapter {
 
@@ -503,7 +504,7 @@ public class ListedTableFrame extends BeanTableFrame {
         ActionJList(BeanTableFrame f) {
             frame = f;
             popUp = new JPopupMenu();
-            menuItem = new JMenuItem("Open in New Window");
+            menuItem = new JMenuItem("Open in New Window"); // TODO I18N
             popUp.add(menuItem);
             menuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -511,20 +512,12 @@ public class ListedTableFrame extends BeanTableFrame {
                 }
             });
             try {
-                Object p2 = Toolkit.getDefaultToolkit().getDesktopProperty("awt_multiclick_time");
-                if (p2 != null) {
-                    clickDelay = ((Integer) p2).intValue();
-                }
-            } catch (Exception e2) {
-                log.error("Error parsing DesktopProperty awt_multiclick_time to set double click interval ", e2.toString());
-            }
-            try {
                 Object p2 = Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
                 if (p2 != null) {
                     clickDelay = ((Integer) p2).intValue();
                 }
             } catch (Exception e1) {
-                log.error("Error parsing DesktopProperty awt.multiClickInterval to set double click interval ", e1.toString());
+                log.debug("Cannot parse DesktopProperty awt.multiClickInterval to set double click interval ", e1.toString());
             }
             currentItemSelected = 0;
         }
@@ -546,7 +539,7 @@ public class ListedTableFrame extends BeanTableFrame {
 
         javax.swing.Timer clickTimer = null;
 
-        //Records the item index that the mouse is currenlty over
+        //Records the item index that the mouse is currently over
         int mouseItem;
 
         void showPopUp(MouseEvent e) {

@@ -5,32 +5,31 @@ import jmri.util.JUnitUtil;
 import jmri.InstanceManager;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
-import java.awt.GraphicsEnvironment;
 
 /**
  * Test simple functioning of MarklinMonPane
  *
  * @author	Paul Bender Copyright (C) 2016
  */
-public class MarklinMonPaneTest {
+public class MarklinMonPaneTest extends jmri.jmrix.AbstractMonPaneTestBase {
 
 
     @Test
     public void testCtor() {
-        Assume.assumeFalse(GraphicsEnvironment.isHeadless()); 
-        MarklinMonPane action = new MarklinMonPane();
-        Assert.assertNotNull("exists", action);
+        Assert.assertNotNull("exists", pane );
     }
 
+    @Override
     @Before
     public void setUp() {
         Log4JFixture.setUp();
         JUnitUtil.resetInstanceManager();
+        pane = new MarklinMonPane();
     }
 
+    @Override
     @After
     public void tearDown() {
         JUnitUtil.resetInstanceManager();

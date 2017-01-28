@@ -16,9 +16,8 @@
  *  TODO: handle drawn ellipse (see LMRC APB)
  *  TODO: update drawn track on color and width changes (would need to create system objects to reflect these chgs)
  *  TODO: research movement of locoicons ("promote" locoicon to system entity in JMRI?, add panel-level listeners?)
- *  TODO: finish layoutturntable (draw rays) (see Mtn RR and CnyMod27)
+ *  TODO: connect turnouts to layoutturntable rays and make clickable (see WhichWay)
  *  TODO: address color differences between java panel and javascript panel (e.g. lightGray)
- *  TODO: diagnose and correct the small position issues visible with footscray
  *  TODO: deal with mouseleave, mouseout, touchout, etc. Slide off Stop button on rb1 for example.
  *  TODO: make turnout, levelXing occupancy work like LE panels (more than just checking A)
  *  TODO: draw dashed curves
@@ -244,6 +243,23 @@ function processPanelXML($returnedData, $success, $xhr) {
                                 if (typeof $widget["systemName"] == "undefined")
                                     $widget["systemName"] = $widget.name;
                                 jmri.getSensor($widget["systemName"]);
+                                break;
+                            case "LightIcon" :
+                                $widget['name'] = $widget.light; //normalize name
+                                $widget.jsonType = "light"; // JSON object type
+                                $widget['icon' + UNKNOWN] = $(this).find('icons').find('unknown').attr('url');
+                                $widget['icon2'] = $(this).find('icons').find('on').attr('url');
+                                $widget['icon4'] = $(this).find('icons').find('off').attr('url');
+                                $widget['icon8'] = $(this).find('icons').find('inconsistent').attr('url');
+                                $widget['rotation'] = $(this).find('icons').find('unknown').find('rotation').text() * 1;
+                                $widget['degrees'] = ($(this).find('icons').find('unknown').attr('degrees') * 1) - ($widget.rotation * 90);
+                                $widget['scale'] = $(this).find('unknown').attr('scale');
+                                if ($widget.forcecontroloff != "true") {
+                                    $widget.classes += $widget.jsonType + " clickable ";
+                                }
+                                if (typeof $widget["systemName"] == "undefined")
+                                    $widget["systemName"] = $widget.name;
+                                jmri.getLight($widget["systemName"]);
                                 break;
                             case "signalheadicon" :
                                 $widget['name'] = $widget.signalhead; //normalize name
@@ -533,8 +549,24 @@ function processPanelXML($returnedData, $success, $xhr) {
                                     jmri.getSensor($widget["occupancysensor"]); //listen for occupancy changes
                                 break;
                             case "layoutturntable" :
-                                //just draw the circle for now, don't even store it
-                                $drawCircle($widget.xcen, $widget.ycen, $widget.radius);
+                            	//from jmri.jmrit.display.layoutEditor.layoutTurntable
+                                $drawCircle($widget.xcen, $widget.ycen, $widget.radius); //draw the turnout circle
+                                var $raytracks = $(this).find('raytrack');
+                                var $txcen = $widget.xcen*1.0;
+                                var $tycen = $widget.ycen*1.0;
+                                $raytracks.each(function(i, item) {  //loop thru raytracks, calc and store end of ray point for each
+                                	var $t = [];
+                                	$t['ident'] = $widget.ident + ".5" + item.attributes['index'].value * 1; //note: .5 is due to TrackSegment.java TURNTABLE_RAY_OFFSET                               	
+                                	$angle = (item.attributes['angle'].value/180.0)*Math.PI;
+                                	$t['x'] = $txcen + (($widget.radius*1.25)*Math.sin($angle)); //from getRayCoordsIndexed()
+                                	$t['y'] = $tycen - (($widget.radius*1.25)*Math.cos($angle));
+                                	$gPts[$t.ident] = $t; //store the endpoint of this ray
+                                	//draw the line from ray endpoint to turntable edge
+                                	var $t1 = [];
+                                	$t1['x'] = $t.x - (($t.x - $txcen) * 0.2); //from drawTurntables()
+                                	$t1['y'] = $t.y - (($t.y - $tycen) * 0.2); 
+                                	$drawLine($t1.x, $t1.y, $t.x, $t.y, $gPanel.defaulttrackcolor, $gPanel.sidetrackwidth);
+                                });
                                 break;
                             case "backgroundColor" :  //set background color of the panel itself
                                 $("#panel-area").css({"background-color": "rgb(" + $widget.red + "," + $widget.green + "," + $widget.blue + ")"});
@@ -553,6 +585,7 @@ function processPanelXML($returnedData, $success, $xhr) {
                         });
                         break;
                 }
+                //keep track of names for later conversion from username to systemname
                 if ($widget.systemName) {
                     if (!($widget.systemName in systemNames)) {
                         systemNames[$widget.systemName] = new Array();
@@ -1513,6 +1546,7 @@ var $getWidgetFamily = function($widget, $element) {
         case "linkinglabel" :
         case "turnouticon" :
         case "sensoricon" :
+        case "LightIcon" :
         case "multisensoricon" :
         case "signalheadicon" :
         case "signalmasticon" :
@@ -1589,7 +1623,7 @@ var $drawAllIconWidgets = function() {
 function updateWidgets(name, state, data) {
     //if systemName not in systemNames list, replace userName with systemName
 	if (!systemNames[name] && name != data.userName) {
-		jmri.log("replacing userName " + data.userName + " with systemName " + name);    	
+//		jmri.log("replacing userName " + data.userName + " with systemName " + name);    	
 		if (systemNames[data.userName]) {  										  //if found by userName
 			systemNames[name] = systemNames[data.userName];  //copy entry over
 			delete systemNames[data.userName];  							 //delete old one
@@ -1600,12 +1634,23 @@ function updateWidgets(name, state, data) {
         $.each(systemNames[name], function(index, widgetId) {
             $setWidgetState(widgetId, state);
         });
-    } else {
-    	jmri.log("system name " + name + " not found, can't set state to " + state);
+//    } else {
+//    	jmri.log("system name " + name + " not found, can't set state to " + state);
     }
 }
 
-function updateOccupancy(occupancyName, state) {
+function updateOccupancy(occupancyName, state, data) {
+	//handle occupancy sensors by systemname
+	if (occupancyNames[occupancyName]) {
+		updateOccupancySub(occupancyName, state);
+	}
+	//handle occupancy sensors by username
+	if (occupancyNames[data.userName]) {
+		updateOccupancySub(data.userName, state);
+	}
+}
+
+function updateOccupancySub(occupancyName, state) {
 	if (occupancyNames[occupancyName]) {
 		jmri.log("setting occupancies for sensor " + occupancyName + " to " + state);
 		$.each(occupancyNames[occupancyName], function(index, widgetId) {
@@ -1742,7 +1787,7 @@ $(document).ready(function() {
             },
             sensor: function(name, state, data) {
                 updateWidgets(name, state, data);
-                updateOccupancy(name, state);
+                updateOccupancy(name, state, data);
             },
             signalHead: function(name, state, data) {
                 updateWidgets(name, state, data);

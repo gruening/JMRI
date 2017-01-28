@@ -1,5 +1,6 @@
 package jmri.jmrit.operations.trains;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Boudreau Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013,
  *         2014, 2015
  */
-@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE",
+@SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE",
         justification = "CarManager only provides Car Objects")
 public class TrainBuilder extends TrainCommon {
 
@@ -1649,7 +1650,9 @@ public class TrainBuilder extends TrainCommon {
                     car.setWait(car.getWait() - 1); // decrement wait count
                     // a car's load changes when the wait count reaches 0
                     String oldLoad = car.getLoadName();
-                    car.updateLoad(); // has the wait count reached 0?
+                    if (car.getTrack().getTrackType().equals(Track.SPUR)) {
+                        car.updateLoad(); // has the wait count reached 0?
+                    }
                     String newLoad = car.getLoadName();
                     if (!oldLoad.equals(newLoad)) {
                         addLine(_buildReport, SEVEN, MessageFormat.format(Bundle.getMessage("buildCarLoadChangedWait"),
@@ -4931,7 +4934,7 @@ public class TrainBuilder extends TrainCommon {
                         new Object[]{_train.getName(), _train.getDescription()}), JOptionPane.ERROR_MESSAGE);
             } else {
                 // build error, could not find destinations for cars departing staging
-                Object[] options = {Bundle.getMessage("buttonRemoveCars"), "OK"};
+                Object[] options = {Bundle.getMessage("buttonRemoveCars"), Bundle.getMessage("ButtonOK")};
                 int results = JOptionPane.showOptionDialog(null, msg, MessageFormat.format(Bundle
                         .getMessage("buildErrorMsg"), new Object[]{_train.getName(), _train.getDescription()}),
                         JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[1]);

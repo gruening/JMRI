@@ -18,7 +18,9 @@
         <jetty.version>9.2.17.v20160517</jetty.version>
         <powermock.version>1.6.5</powermock.version>
         <slf4j.version>1.7.21</slf4j.version>
+        <ant.version>1.9.7</ant.version>
         <ant.jvm.args></ant.jvm.args>
+        <jmri.log4jconfigfilename>${basedir}/tests.lcf</jmri.log4jconfigfilename>
     </properties>
     <scm>
         <connection>scm:git:https://github.com/JMRI/JMRI.git</connection>
@@ -28,7 +30,10 @@
 
     <profiles>
         <profile>
-            <id>travis</id>
+            <id>travis-headless</id>
+            <properties>
+                <findbugs.skip>true</findbugs.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -53,6 +58,47 @@
                             </execution>
                         </executions>  
                     </plugin>
+                    <!-- use surefire (maven default test harness) only for line endings -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.19.1</version>
+                        <configuration>
+                            <test>jmri.util.FileLineEndingsTest</test>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>travis-coverage</id>
+            <properties>
+                <findbugs.skip>true</findbugs.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <id>test</id>
+                                <phase>test</phase>
+                                <configuration>
+                                    <target>
+                                        <property name="jvm.args">${ant.jvm.args}</property>
+                                        <ant antfile="${basedir}/build.xml">
+                                            <target name="travis-ci-coverage"/>
+                                        </ant>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>  
+                    </plugin>
                     <!-- prevent surefire (maven default test harness) from running tests -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -61,6 +107,47 @@
                         <configuration>
                             <skipTests>true</skipTests>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.eluder.coveralls</groupId>
+                        <artifactId>coveralls-maven-plugin</artifactId>
+                        <version>4.3.0</version>
+                        <configuration>
+                           <sourceDirectories>
+                                  <!-- Additional source directories -->
+                                  <File>java/tmp</File>
+                                  <File>target/generated-sources/javacc</File>
+                                  <File>target/generated-sources/jjtree</File>
+                           </sourceDirectories>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.7.8</version>
+                        <configuration>
+                           <dataFile>jacoco.exec</dataFile>
+                           <excludes>
+                               <File>**/*Test*.class</File>
+                               <!-- Exclude testing infrastructure classes -->
+                               <File>**/*Scaffold.class"</File>
+                               <File>**/*JUnit*.class</File>
+                               <File>**/*Demo.class</File>
+                               <File>**/*Mock*.class</File>
+                               <File>jmri/jmrit/symbolicprog/tabbedframe/CheckProgrammerNames.class</File>
+                               <File>jmri/jmrix/openlcb/SampleFactory.class</File>
+                               <File>jmri/util/swing/SamplePane.class</File>
+                               <File>apps/tests/Log4JFixture.class" </File>
+                           </excludes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -90,6 +177,22 @@
                             </execution>
                         </executions>  
                     </plugin>
+                    <!-- use surefire (maven default test harness) only for line endings -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.19.1</version>
+                        <configuration>
+                            <test>jmri.util.FileLineEndingsTest</test>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>travis-findbugs</id>
+            <build>
+                <plugins>
                     <!-- prevent surefire (maven default test harness) from running tests -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -98,6 +201,28 @@
                         <configuration>
                             <skipTests>true</skipTests>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <version>3.0.4</version>
+                        <!-- configured to fail on High priority bugs during test phase -->
+                        <executions>
+                            <execution>
+                                <id>failing-on-high</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <configuration>
+                                    <excludeFilterFile>.findbugs.xml</excludeFilterFile>
+                                    <effort>Max</effort>
+                                    <threshold>High</threshold>
+                                    <maxHeap>1536</maxHeap>
+                                    <timeout>1200000</timeout><!-- 20 minutes -->
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -171,13 +296,18 @@
                     <dependency>
                         <groupId>org.apache.ant</groupId>
                         <artifactId>ant</artifactId>
-                        <version>1.9.7</version>
+                        <version>${ant.version}</version>
                     </dependency>
                     <!-- junit support is optional in ant maven packaging -->
                     <dependency>
                         <groupId>org.apache.ant</groupId>
+                        <artifactId>ant-junit4</artifactId>
+                        <version>${ant.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.ant</groupId>
                         <artifactId>ant-junit</artifactId>
-                        <version>1.9.7</version>
+                        <version>${ant.version}</version>
                     </dependency>
                 </dependencies>          
             </plugin>
@@ -204,6 +334,19 @@
                         </goals>
                     </execution>
                 </executions>            
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.4</version>
+                <!-- configured to fail on High priority bugs -->
+                <configuration>
+                    <excludeFilterFile>.findbugs.xml</excludeFilterFile>
+                    <effort>Max</effort>
+                    <threshold>High</threshold>
+                    <maxHeap>1536</maxHeap>
+                    <timeout>1200000</timeout><!-- 20 minutes -->
+                </configuration>            
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -387,7 +530,7 @@
         </dependency>
         <dependency>
             <groupId>org.python</groupId>
-            <artifactId>jython</artifactId>
+            <artifactId>jython-standalone</artifactId>
             <version>2.7.0</version>
         </dependency>
         <dependency>
@@ -480,7 +623,7 @@
         <dependency>
             <groupId>org.openlcb</groupId>
             <artifactId>openlcb</artifactId>
-            <version>0.7.8</version>
+            <version>0.7.11</version>
         </dependency>
         <dependency>
             <groupId>ch.ntb</groupId>
@@ -522,6 +665,12 @@
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
             <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans</groupId>
+            <artifactId>jemmy</artifactId>
+            <version>2.2.7.5</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

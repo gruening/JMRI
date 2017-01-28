@@ -96,17 +96,18 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
      * buffer length. This might go false for short intervals, but it might also
      * stick off if something goes wrong.
      */
+    @Override
     public boolean okToSend() {
         if (CheckBuffer) {
             if (log.isDebugEnabled()) {
                 log.debug("Buffer Empty: " + OutputBufferEmpty);
             }
-            return (OutputBufferEmpty);
+            return (OutputBufferEmpty && super.okToSend() );
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("No Flow Control or Buffer Check");
             }
-            return (true);
+            return (super.okToSend());
         }
     }
 
@@ -133,7 +134,9 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
     public DataInputStream getInputStream() {
         if (pin == null) {
             log.error("getInputStream called before load(), stream not available");
-            ConnectionStatus.instance().setConnectionState(this.getCurrentPortName(), ConnectionStatus.CONNECTION_DOWN);
+            ConnectionStatus.instance().setConnectionState(
+                   this.getSystemConnectionMemo().getUserName(),
+                   this.getCurrentPortName(), ConnectionStatus.CONNECTION_DOWN);
         }
         return pin;
     }
@@ -141,21 +144,15 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
     public DataOutputStream getOutputStream() {
         if (pout == null) {
             log.error("getOutputStream called before load(), stream not available");
-            ConnectionStatus.instance().setConnectionState(this.getCurrentPortName(), ConnectionStatus.CONNECTION_DOWN);
+            ConnectionStatus.instance().setConnectionState(
+                   this.getSystemConnectionMemo().getUserName(),
+                   this.getCurrentPortName(), ConnectionStatus.CONNECTION_DOWN);
         }
         return pout;
     }
 
     public boolean status() {
         return (pout != null && pin != null);
-    }
-
-    /**
-     * Get an array of valid baud rates. This is currently just a message saying
-     * its fixed
-     */
-    public String[] validBaudRates() {
-        return null;
     }
 
     @Deprecated
@@ -173,7 +170,9 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
         if (log.isDebugEnabled()) {
             log.debug("Simulator Thread Started");
         }
-        ConnectionStatus.instance().setConnectionState(this.getCurrentPortName(), ConnectionStatus.CONNECTION_UP);
+        ConnectionStatus.instance().setConnectionState(
+                   this.getSystemConnectionMemo().getUserName(),
+                   this.getCurrentPortName(), ConnectionStatus.CONNECTION_UP);
         for (;;) {
             XNetMessage m = readMessage();
             if (log.isDebugEnabled()) {
@@ -195,7 +194,9 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
             msg = loadChars();
         } catch (java.io.IOException e) {
             // should do something meaningful here.
-            ConnectionStatus.instance().setConnectionState(this.getCurrentPortName(), ConnectionStatus.CONNECTION_DOWN);
+            ConnectionStatus.instance().setConnectionState(
+                   this.getSystemConnectionMemo().getUserName(),
+                   this.getCurrentPortName(), ConnectionStatus.CONNECTION_DOWN);
 
         }
         setOutputBufferEmpty(true);
@@ -207,7 +208,7 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
     @SuppressWarnings("fallthrough")
     private XNetReply generateReply(XNetMessage m) {
         XNetReply reply = new XNetReply();
-        switch (m.getElement(0)) {
+        switch (m.getElement(0)&0xff) {
 
             case XNetConstants.CS_REQUEST:
                 switch (m.getElement(1)) {
@@ -310,8 +311,15 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
                         break;
                 }
                 break;
-            case XNetConstants.EMERGENCY_STOP:
+            case XNetConstants.ALL_ESTOP:    // ALL_ESTOP is XNet V4
+                csStatus=csEmergencyStop;
                 reply = emergencyStopReply();
+                break;
+            case XNetConstants.EMERGENCY_STOP:
+                reply = okReply();
+                break;
+            case XNetConstants.EMERGENCY_STOP_XNETV1V2:
+                reply = okReply();
                 break;
             case XNetConstants.ACC_OPER_REQ:
                 reply = okReply();
@@ -432,11 +440,11 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
         return r;
     }
 
-    // Create a broadcast "Emergecy Stop" reply
+    // Create a broadcast "Emergency Stop" reply
     private XNetReply emergencyStopReply() {
         XNetReply r = new XNetReply();
         r.setOpCode(XNetConstants.BC_EMERGENCY_STOP);
-        r.setElement(1, XNetConstants.BC_EVERYTHING_OFF);
+        r.setElement(1, XNetConstants.BC_EVERYTHING_STOP);
         r.setElement(2, 0x00); // set the parity byte to 0
         r.setParity();
         return r;
@@ -472,7 +480,9 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
             try {
                 outpipe.writeByte((byte) r.getElement(i));
             } catch (java.io.IOException ex) {
-                ConnectionStatus.instance().setConnectionState(this.getCurrentPortName(), ConnectionStatus.CONNECTION_DOWN);
+                ConnectionStatus.instance().setConnectionState(
+                   this.getSystemConnectionMemo().getUserName(),
+                   this.getCurrentPortName(), ConnectionStatus.CONNECTION_DOWN);
             }
         }
     }

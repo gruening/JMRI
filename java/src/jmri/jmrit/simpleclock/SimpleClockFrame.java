@@ -364,7 +364,12 @@ public class SimpleClockFrame extends JmriJFrame
     public void setRateButtonActionPerformed() {
         double rate = 1.0;
         try {
-            rate = Double.valueOf(factorField.getText()).doubleValue();
+            String factorFieldText = factorField.getText() ;
+            char decimalSeparator = threeDigits.getDecimalFormatSymbols().getDecimalSeparator() ;
+            if (decimalSeparator != '.') {
+                factorFieldText = factorFieldText.replace(decimalSeparator, '.') ;
+            }
+            rate = Double.valueOf(factorFieldText).doubleValue();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, (Bundle.getMessage("ParseRateError") + "\n" + e),
                     Bundle.getMessage("ErrorTitle"), JOptionPane.ERROR_MESSAGE);
@@ -627,4 +632,4 @@ public class SimpleClockFrame extends JmriJFrame
     private final static Logger log = LoggerFactory.getLogger(SimpleClockFrame.class.getName());
 }
 
-/* @(#)SimpleClockFrame.java */
+

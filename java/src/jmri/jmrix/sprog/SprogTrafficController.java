@@ -294,8 +294,7 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
         // we get here if data has been received
         //fill the current reply with any data received
         int replyCurrentSize = this.reply.getNumDataElements();
-        int i;
-        for (i = replyCurrentSize; i < SprogReply.maxSize - replyCurrentSize; i++) {
+        for (int i = replyCurrentSize; i < SprogReply.maxSize; i++) {
             try {
                 if (istream.available() == 0) {
                     break; //nothing waiting to be read

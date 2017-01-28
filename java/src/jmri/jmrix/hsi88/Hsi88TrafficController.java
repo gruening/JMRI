@@ -3,6 +3,8 @@ package jmri.jmrix.hsi88;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
@@ -301,11 +303,26 @@ public class Hsi88TrafficController implements Hsi88Interface, SerialPortEventLi
 
         while (!this.reply.end()) {
             try {
-                if (istream.available() == 0) {
-                    return; // nothing waiting to be read
+                byte ch;
+                try {
+                    if (istream.available() == 0) {
+                        return; // nothing waiting to be read
+                    }
+                    ch = istream.readByte();
+                } catch (EOFException e) {
+                    log.error("Input streams has reached end: {}" + e);
+                    return;
+                } catch (IOException e) {
+                    log.error("IOException while reading from input stream: {}", e);
+                    return;
                 }
-                byte ch = istream.readByte();
-                this.reply.setElement(i, ch);
+
+                try {
+                    this.reply.setElement(i, ch);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    log.error("Reply longer than space to hold it.");
+                    return;
+                }
             } catch (Exception e) {
                 log.warn("Exception in DATA_AVAILABLE state: " + e);
                 return;

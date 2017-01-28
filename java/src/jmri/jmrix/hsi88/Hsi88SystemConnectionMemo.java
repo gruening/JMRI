@@ -99,7 +99,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
     public void configureManagers() {
 
         // must be initialised before the other manager as they rely on this one.
-        replyManager = new Hsi88ReplyManager(this);
+        replyManager = new Hsi88Manager(this);
 
         powerManager = new jmri.jmrix.hsi88.Hsi88PowerManager(this);
         jmri.InstanceManager.store(powerManager, jmri.PowerManager.class);
@@ -116,7 +116,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
     private Hsi88SensorManager sensorManager;
 
     /** keep reference to Reply Manager */
-    private Hsi88ReplyManager replyManager;
+    private Hsi88Manager replyManager;
 
     /** @return the Power Manager */
     public Hsi88PowerManager getPowerManager() {
@@ -129,7 +129,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
     }
 
     /** @return the Reply Manager */
-    public Hsi88ReplyManager getReplyManager() {
+    public Hsi88Manager getReplyManager() {
         return replyManager;
     }
 

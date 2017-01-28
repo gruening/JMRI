@@ -39,7 +39,7 @@ public class SprogMessage extends jmri.jmrix.AbstractMRMessage {
         _nDataChars = i;
         _dataChars = new int[i];
     }
-
+    
     /**
      * Creates a new SprogMessage containing a byte array to represent a packet
      * to output

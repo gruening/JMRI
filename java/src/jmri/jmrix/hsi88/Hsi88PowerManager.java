@@ -16,7 +16,7 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
     /** holds traffic controller instance */
     private Hsi88TrafficController tc;
     /** holds Hsi88 Manager */
-    private Hsi88ReplyManager rm;
+    private Hsi88Manager rm;
 
     /**
      * create new power manager
@@ -72,7 +72,7 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
     @Override
     public void notifyReply(int reply, int modules) {
 
-        if (reply == Hsi88ReplyManager.ResponseType.SETUP) {
+        if (reply == Hsi88Manager.ResponseType.SETUP) {
 
             if (modules <= 0) {
                 this.power = PowerManager.OFF;

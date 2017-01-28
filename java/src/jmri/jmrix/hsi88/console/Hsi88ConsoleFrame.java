@@ -20,7 +20,7 @@ import jmri.jmrix.hsi88.Hsi88Listener;
 import jmri.jmrix.hsi88.Hsi88Message;
 import jmri.jmrix.hsi88.Hsi88Reply;
 import jmri.jmrix.hsi88.Hsi88ReplyListener;
-import jmri.jmrix.hsi88.Hsi88ReplyManager.ResponseType;
+import jmri.jmrix.hsi88.Hsi88Manager.ResponseType;
 // import jmri.jmrix.hsi88.update.Hsi88Type;
 // import jmri.jmrix.hsi88.update.hsi88Version;
 // import jmri.jmrix.hsi88.update.hsi88VersionListener;
@@ -214,7 +214,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         });
         
         JCheckBox highBox = new JCheckBox("Show high level messages");
-        highBox.setSelected(showLowLevel);
+        highBox.setSelected(showHighLevel);
         highBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -224,6 +224,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         
         
         getContentPane().add(lowBox);
+        getContentPane().add(highBox);
 
         getContentPane().add(createCommandPanel());
         getContentPane().add(createProtocolPanel());

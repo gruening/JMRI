@@ -26,7 +26,7 @@ public class Hsi88PowerManager extends jmri.managers.AbstractPowerManager implem
     public Hsi88PowerManager(Hsi88SystemConnectionMemo memo) {
         super(memo);
         tc = memo.getTrafficController();
-        rm = memo.getReplyManager();
+        rm = memo.getManager();
     }
 
     /** current power state of Hsi88 device. */

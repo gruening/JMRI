@@ -56,7 +56,7 @@ public class Hsi88ReplyTest {
     public final void testMaxSize() {
         Hsi88Reply r = new Hsi88Reply();
         Assert.assertTrue("Maximal Size",
-                r.maxSize() >= "i00".length() + Hsi88Config.MAXMODULES * "112233".length() + "\r".length());
+                r.maxSize() >= "i00".length() + Hsi88Config.MAX_MODULES * "112233".length() + "\r".length());
 
     }
 

@@ -1,54 +1,47 @@
-/**
- * 
- */
 package jmri.jmrix.hsi88;
 
 /**
- * This class encapsulates in one place 1. constants for use with the Hsi88
- * interface 2. the state of the Hsi88 interface.
+ * This class encapsulates in one place constants for use with the Hsi88
+ * interface.
  * 
  * @author Andre Gruening Copyright (C) 2017.
  *
  */
 public class Hsi88Config {
 
-    /** long name of hardware */
-    public final static String LONGNAME = "Hsi88 Interface";
+    // constants for JMRI:
 
     /** short name of hardware */
     public static final String NAME = "Hsi88";
 
+    /** long name of hardware */
+    public final static String LONGNAME = NAME + " Interface";
+
     /** default prefix of the hardware */
     public static final String PREFIX = "H";
 
-    /**
-     * maximum number of S88 modules that can be connected to an HSI88 interface.
-     */
-    public static final int MAXMODULES = 31;
+    // constants from the hardware:
 
-    /**
-     * HSI88 can communicate either via sending ASCII messages or HEX message.
-     **/
+    /** Maximum number of S88 modules that a HSI88 can take. */
+    public static final int MAX_MODULES = 31;
+
+    /** Default length of one S88 chain. */
+    public static final int DEFAULT_MODULES = 2;
+
+    /** HSI88 will send/read either ASCII or HEX messages. */
     public static enum Hsi88Protocol {
         HEX, ASCII, UNKNOWN;
     }
-    
-    /** we do not know which mode HSI88 is in on start up. */
-    private static Hsi88Protocol protocol = Hsi88Protocol.UNKNOWN;
+
+    // variables describing the setup of the Hsi88 
 
     /**
      * number of modules (of 16 sensors each) attached to the left, middle and
      * right chains.
      */
-    private static int left = 2;
-    private static int middle = 2;
-    private static int right = 2;
-
-    /**
-     * number of modules reported in the last s reply (where such number is
-     * different from zero)
-     */
-    private static int reportedModules = 0;
+    private static int left = DEFAULT_MODULES;
+    private static int middle = DEFAULT_MODULES;
+    private static int right = DEFAULT_MODULES;
 
     /** @return the number of setup modules */
     static int getSetupModules() {
@@ -56,21 +49,7 @@ public class Hsi88Config {
     }
 
     /**
-     * @return the protocol
-     */
-    public static Hsi88Protocol getProtocol() {
-        return protocol;
-    }
-
-    /**
-     * @param protocol the protocol to set
-     */
-    public static void setProtocol(Hsi88Protocol protocol) {
-        Hsi88Config.protocol = protocol;
-    }
-
-    /**
-     * @return the left
+     * @return length of left chain (as per setup).
      */
     public static int getLeft() {
         return left;
@@ -109,19 +88,5 @@ public class Hsi88Config {
      */
     public static void setRight(int right) {
         Hsi88Config.right = right;
-    }
-
-    /**
-     * @return the reportedModules
-     */
-    public static int getReportedModules() {
-        return reportedModules;
-    }
-
-    /**
-     * @param reportedModules the reportedModules to set
-     */
-    public static void setReportedModules(int reportedModules) {
-        Hsi88Config.reportedModules = reportedModules;
     }
 }

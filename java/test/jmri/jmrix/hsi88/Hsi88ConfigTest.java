@@ -29,7 +29,7 @@ public class Hsi88ConfigTest {
     }
 
     /**
-     * Test method for {@link jmri.jmrix.hsi88.Hsi88Config#getSetupModules()}.
+     * Test method for {@link jmri.jmrix.hsi88.Hsi88Manager#getReportedModules()}.
      */
     @Test
     public void testGetSetupModules() {
@@ -37,7 +37,7 @@ public class Hsi88ConfigTest {
         Hsi88Config.setRight(6);
         Hsi88Config.setMiddle(7);
 
-        int chainLength = Hsi88Config.getSetupModules();
+        int chainLength = Hsi88Manager.getReportedModules();
         Assert.assertEquals(chainLength, 18);
     }
 

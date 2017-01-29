@@ -17,10 +17,11 @@ import jmri.Sensor;
 import jmri.jmrix.hsi88.Hsi88Config;
 import jmri.jmrix.hsi88.Hsi88Config.Hsi88Protocol;
 import jmri.jmrix.hsi88.Hsi88Listener;
+import jmri.jmrix.hsi88.Hsi88Manager;
+import jmri.jmrix.hsi88.Hsi88Manager.ResponseType;
 import jmri.jmrix.hsi88.Hsi88Message;
 import jmri.jmrix.hsi88.Hsi88Reply;
 import jmri.jmrix.hsi88.Hsi88ReplyListener;
-import jmri.jmrix.hsi88.Hsi88Manager.ResponseType;
 // import jmri.jmrix.hsi88.update.Hsi88Type;
 // import jmri.jmrix.hsi88.update.hsi88Version;
 // import jmri.jmrix.hsi88.update.hsi88VersionListener;
@@ -66,9 +67,12 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
                     break;
                 case ResponseType.TERMINAL:
                     updateProtocolPanel();
+                    break;
             }
         }
     };
+
+    private Hsi88Manager rm;
 
     /**
      * create new Swing Console Frame.
@@ -87,17 +91,20 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
     @Override
     protected void init() {
+
         // connect to TrafficController
         tc = _memo.getTrafficController();
         tc.addHsi88Listener(this);
-        // connect to ReplyControoler
-        _memo.getReplyManager().addSensorListener(consoleListener);
+
+        // connect to Manager
+        rm = _memo.getManager();
+        rm.addSensorListener(consoleListener);
 
     }
 
     @Override
     public void dispose() {
-        _memo.getReplyManager().removeSensorListener(consoleListener);
+        rm.removeSensorListener(consoleListener);
         tc.removeHsi88Listener(this);
         super.dispose();
     }
@@ -155,22 +162,22 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     /**
      * @return
      */
-    private JPanel createProtocolPanel() {
+    private JPanel createStatePanel() {
 
         // set up the panel:
-        JPanel protocolPanel = new JPanel();
-        protocolPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(), "Communicaton Protocol for Hsi88 Inteface"));
+        JPanel statePanel = new JPanel();
+        statePanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), "State of Hsi88 Inteface"));
 
-        // set up elements:
+        // set up elements for protocol:
         JLabel protocolLabel = new JLabel("Communication Protocol: ");
-        protocolField.setText(Hsi88Config.getProtocol().toString());
+        protocolField.setText(rm.getProtocol().toString());
         protocolField.setDisabledTextColor(Color.MAGENTA);
         protocolField.setEnabled(false);
 
-        JButton toggleButton = new JButton("Toggle");
-        toggleButton.setToolTipText("Click to set Hsi88 Communication Protocol");
-        toggleButton.addActionListener(new ActionListener() {
+        JButton protocolButton = new JButton("Toggle");
+        protocolButton.setToolTipText("Click to set Hsi88 Communication Protocol");
+        protocolButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 tc.sendHsi88Message(Hsi88Message.cmdTerminal(), null);
@@ -178,11 +185,13 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         });
 
         // add to Panel:
-        protocolPanel.add(protocolLabel);
-        protocolPanel.add(protocolField);
-        protocolPanel.add(toggleButton);
+        statePanel.add(protocolLabel);
+        statePanel.add(protocolField);
+        statePanel.add(protocolButton);
 
-        return protocolPanel;
+        // setup elements for 
+
+        return statePanel;
 
     }
 
@@ -206,36 +215,48 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
         JCheckBox lowBox = new JCheckBox("Show low level messages");
         lowBox.setSelected(showLowLevel);
+        lowBox.setToolTipText("Log low-level (unparsed) sensor messages.");
         lowBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 showLowLevel = ((JCheckBox) arg0.getSource()).isSelected();
             }
         });
-        
+
         JCheckBox highBox = new JCheckBox("Show high level messages");
         highBox.setSelected(showHighLevel);
+        highBox.setToolTipText("Log high-level (human reable) sensor messages.");
         highBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 showHighLevel = ((JCheckBox) arg0.getSource()).isSelected();
             }
         });
-        
-        
+
+        JButton queryButton = new JButton("Query S88");
+        queryButton.setToolTipText("Query S88 for state of all sensors.");
+        queryButton.addActionListener(
+                (ActionEvent arg0) -> {
+                    tc.sendHsi88Message(Hsi88Message.cmdQuery(), null);
+                });
+
         getContentPane().add(lowBox);
         getContentPane().add(highBox);
+        getContentPane().add(queryButton);
 
+        
         getContentPane().add(createCommandPanel());
-        getContentPane().add(createProtocolPanel());
+        getContentPane().add(createStatePanel());
         getContentPane().add(createChainPanel());
 
         pack();
     }
 
-    private JTextField leftField = new JTextField(4);
-    private JTextField middleField = new JTextField(4);
-    private JTextField rightField = new JTextField(4);
+    // set the size of the text fields right:
+    private JTextField leftField = new JTextField((" " + Hsi88Config.MAX_MODULES).length());
+    private JTextField middleField = new JTextField((" " + Hsi88Config.MAX_MODULES).length());
+    private JTextField rightField = new JTextField((" " + Hsi88Config.MAX_MODULES).length());
+    private JTextField modulesField = new JTextField((" " + Hsi88Config.MAX_MODULES).length());
 
     /**
      * @return
@@ -291,7 +312,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
                 } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(null,
                             "Invalid chain length entered.\nPlease enter an integer value in the range 0 to " +
-                                    Hsi88Config.MAXMODULES +
+                                    Hsi88Config.MAX_MODULES +
                                     ".",
                             Hsi88Config.NAME + " Console", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -313,6 +334,26 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         chainPanel.add(rightField);
         chainPanel.add(chainButton);
 
+        JLabel modulesLabel = new JLabel("Reported Modules: ");
+        modulesField.setText("" + rm.getReportedModules());
+        modulesField.setDisabledTextColor(Color.MAGENTA);
+        modulesField.setEnabled(false);
+
+        stopButton = new JButton("Stop S88");
+        stopButton.setToolTipText("Stop S88 bus operation");
+        stopButton.setEnabled(rm.getReportedModules() != 0);
+        stopButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tc.sendHsi88Message(Hsi88Message.powerOff(), null);
+            }
+        });
+
+        // add to Panel:
+        chainPanel.add(modulesLabel);
+        chainPanel.add(modulesField);
+        chainPanel.add(stopButton);
+        
         return chainPanel;
     }
 
@@ -378,7 +419,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
             @Override
             public void run() {
-                Hsi88ConsoleFrame.this.protocolField.setText(Hsi88Config.getProtocol().toString());
+                Hsi88ConsoleFrame.this.protocolField.setText(rm.getProtocol().toString());
             }
         });
     }
@@ -392,9 +433,11 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
 
             @Override
             public void run() {
-                Hsi88ConsoleFrame.this.leftField.setText("" + Hsi88Config.getLeft());
-                Hsi88ConsoleFrame.this.middleField.setText("" + Hsi88Config.getMiddle());
-                Hsi88ConsoleFrame.this.rightField.setText("" + Hsi88Config.getRight());
+                // leftField.setText("" + Hsi88Config.getLeft());
+                // middleField.setText("" + Hsi88Config.getMiddle());
+                // rightField.setText("" + Hsi88Config.getRight());
+                modulesField.setText("" + rm.getReportedModules());
+                stopButton.setEnabled(rm.getReportedModules() != 0);
             }
         });
 
@@ -414,4 +457,6 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
      */
 
     private final static Logger log = LoggerFactory.getLogger(Hsi88ConsoleFrame.class.getName());
+
+    private JButton stopButton;
 }

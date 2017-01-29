@@ -19,7 +19,7 @@ public class Hsi88Reply extends AbstractMRReply {
      * modules + final cr per module size: 6 for each module reports: 2 digits
      * for module number, 4 for module readings.
      */
-    static public final int MAXSIZE = "i00".length() + Hsi88Config.MAXMODULES * "112233".length() + "\r".length();
+    static public final int MAXSIZE = "i00".length() + Hsi88Config.MAX_MODULES * "112233".length() + "\r".length();
 
     /** create a new empty reply. */
     public Hsi88Reply() {

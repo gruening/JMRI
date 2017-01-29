@@ -1,6 +1,7 @@
 package jmri.jmrix.hsi88;
 
 import jmri.Sensor;
+import jmri.managers.AbstractSensorMgrTestBase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,7 +18,7 @@ import org.junit.Test;
  * 
  * @since 4.6.x
  */
-public class Hsi88SensorManagerTest extends jmri.managers.AbstractSensorMgrTest {
+public class Hsi88SensorManagerTest extends AbstractSensorMgrTestBase {
     private Hsi88SystemConnectionMemo m = null;
 
     @Override
@@ -37,7 +38,7 @@ public class Hsi88SensorManagerTest extends jmri.managers.AbstractSensorMgrTest 
         Sensor s = h.createNewSensor("HS0", null); 
         Assert.assertNotNull("Sensor with lowest address.", s);
 
-        int highestAddr = Hsi88Config.MAXMODULES*16 - 1; // 495
+        int highestAddr = Hsi88Config.MAX_MODULES*16 - 1; // 495
         String systemName = "HS" + highestAddr;
         s = h.createNewSensor(systemName, null);
         Assert.assertNotNull("Sensor with highest address.", s);

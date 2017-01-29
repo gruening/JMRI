@@ -4,19 +4,19 @@ import java.util.Vector;
 import jmri.jmrix.sprog.SprogListener;
 import jmri.jmrix.sprog.SprogMessage;
 import jmri.jmrix.sprog.SprogReply;
-import jmri.jmrix.sprog.SprogTrafficController;
 import jmri.jmrix.sprog.SprogSystemConnectionMemo;
+import jmri.jmrix.sprog.SprogTrafficController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Get the firmware version of the attached SPROG
  *
- * Updated April 2016 by Andrew Crosland look for the correct replies, which may 
+ * Updated April 2016 by Andrew Crosland look for the correct replies, which may
  * not be the very next message after a query is sent, due to slot manager
  * traffic. Add Pi-SPROG version decoding.
  *
- * @author	Andrew Crosland Copyright (C) 2012, 2016
+ * @author Andrew Crosland Copyright (C) 2012, 2016
  */
 public class SprogVersionQuery implements SprogListener {
 
@@ -31,7 +31,8 @@ public class SprogVersionQuery implements SprogListener {
         CRSENT, // awaiting reply to " "
         QUERYSENT, // awaiting reply to "?"
         DONE
-    }       // Version has been found
+    } // Version has been found
+
     QueryState state = QueryState.IDLE;
 
     final protected int LONG_TIMEOUT = 2000;
@@ -76,7 +77,8 @@ public class SprogVersionQuery implements SprogListener {
      *
      * @return The registered SprogVersionQuery instance for general use, if
      *         need be creating one.
-     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI multi-system support structure
+     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI
+     *             multi-system support structure
      */
     @Deprecated
     static public SprogVersionQuery instance() {
@@ -128,7 +130,7 @@ public class SprogVersionQuery implements SprogListener {
      */
     @Override
     public void notifyMessage(SprogMessage m) {
-    }   // Ignore
+    } // Ignore
 
     /**
      * SprogListener notify Reply listens to replies and looks for version reply
@@ -184,7 +186,7 @@ public class SprogVersionQuery implements SprogListener {
                                 }
                                 v = new SprogVersion(new SprogType(SprogType.NOT_RECOGNISED));
                                 break;
-                        }                
+                        }
                     } else if (splits[0].contains("SPROG")) {
                         log.debug("Found a SPROG " + splits[index]);
                         switch (splits[index]) {
@@ -216,7 +218,8 @@ public class SprogVersionQuery implements SprogListener {
                                 } else {
                                     index++;
                                     v = new SprogVersion(new SprogType(SprogType.SPROGII), splits[index]);
-                                }   break;
+                                }
+                                break;
                             case "Ver":
                                 index += 1;
                                 v = new SprogVersion(new SprogType(SprogType.SPROGV4), splits[index]);

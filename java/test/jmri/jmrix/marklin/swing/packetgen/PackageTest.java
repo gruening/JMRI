@@ -1,4 +1,4 @@
-package jmri.jmrix.marklin.swing.paketgen;
+package jmri.jmrix.marklin.swing.packetgen;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

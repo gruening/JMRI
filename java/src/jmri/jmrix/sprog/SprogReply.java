@@ -23,6 +23,12 @@ public class SprogReply extends AbstractMRReply {
     public SprogReply() {
         super();
     }
+    
+    @Override
+    public int maxSize() {
+        return SprogReply.maxSize;
+    }
+    
 
     // no need to do anything
     protected int skipPrefix(int index) {

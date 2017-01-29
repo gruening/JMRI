@@ -41,8 +41,8 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Re
     Hsi88SensorManager(Hsi88SystemConnectionMemo memo) {
 
         this.memo = memo;
-        memo.getReplyManager().addSensorListener(this);
-        log.info("Hsi88 Sensor Manager starts.");
+        memo.getManager().addSensorListener(this);
+        log.debug("Hsi88 Sensor Manager starts.");
     }
 
     @Override
@@ -87,13 +87,10 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Re
         // module number of this s88 sensor address. Module numbers run from 1 and contain 16 sensors each.
         int module = (addr / 16) + 1;
 
-        if (module > Hsi88Config.getSetupModules()) {
-            log.debug("Sensor address {} beyond range of registered S88 modules.", addr);
-            if (module > Hsi88Config.MAXMODULES) {
-                log.warn("Sensor address beyond addressable range of Hsi88 Interface. " +
-                        "If you really want this address change Hsi88Condif.MAXMODULES in the source code");
-                return null;
-            }
+        if (module > Hsi88Config.MAX_MODULES) {
+            log.warn("Sensor address beyond addressable range of Hsi88 Interface. " +
+                    "If you really want this change Hsi88Config.MAX_MODULES in the source code.");
+            return null;
         }
 
         // sensor with same address?
@@ -109,7 +106,7 @@ public class Hsi88SensorManager extends AbstractSensorManager implements Hsi88Re
 
     @Override
     public void dispose() {
-        memo.getReplyManager().removeSensorListener(this);
+        memo.getManager().removeSensorListener(this);
         super.dispose();
     }
 

@@ -63,10 +63,13 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
             }
             switch (reply) {
                 case ResponseType.SETUP:
-                    updateChainPanel();
+                    updateChainPanel(payload);
                     break;
                 case ResponseType.TERMINAL:
-                    updateProtocolPanel();
+                    updateProtocolPanel(payload);
+                    break;
+                case ResponseType.VERSION:
+                    updateVersionPanel();
                     break;
             }
         }
@@ -83,6 +86,8 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         super();
         _memo = memo;
     }
+
+
 
     @Override
     protected String title() {
@@ -162,11 +167,11 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     /**
      * @return
      */
-    private JPanel createStatePanel() {
+    private JPanel createProtocolPanel() {
 
         // set up the panel:
-        JPanel statePanel = new JPanel();
-        statePanel.setBorder(BorderFactory.createTitledBorder(
+        JPanel protocolPanel = new JPanel();
+        protocolPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "State of Hsi88 Inteface"));
 
         // set up elements for protocol:
@@ -185,14 +190,49 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         });
 
         // add to Panel:
-        statePanel.add(protocolLabel);
-        statePanel.add(protocolField);
-        statePanel.add(protocolButton);
+        protocolPanel.add(protocolLabel);
+        protocolPanel.add(protocolField);
+        protocolPanel.add(protocolButton);
 
         // setup elements for 
 
-        return statePanel;
+        return protocolPanel;
 
+    }
+
+    private JTextField versionField = new JTextField("Unknown. Unbekannt. Ignoto.");
+
+    /**
+     * @return
+     */
+    private JPanel createVersionPanel() {
+
+        // set up the panel:
+        JPanel versionPanel = new JPanel();
+        versionPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(), "Hsi88 Version"));
+
+        // set up elements for protocol:
+        JLabel versionLabel = new JLabel("Version: ");
+        versionField.setText(rm.getVersion());
+        protocolField.setDisabledTextColor(Color.MAGENTA);
+        protocolField.setEnabled(false);
+
+        JButton versionButton = new JButton("Get version");
+        versionButton.setToolTipText("Retrieve version information from the Hsi88 hardware");
+        versionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tc.sendHsi88Message(Hsi88Message.cmdVersion(), null);
+            }
+        });
+
+        // add to Panel:
+        versionPanel.add(versionLabel);
+        versionPanel.add(versionField);
+        versionPanel.add(versionButton);
+
+        return versionPanel;
     }
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC")
@@ -244,10 +284,10 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         getContentPane().add(highBox);
         getContentPane().add(queryButton);
 
-        
         getContentPane().add(createCommandPanel());
-        getContentPane().add(createStatePanel());
+        getContentPane().add(createProtocolPanel());
         getContentPane().add(createChainPanel());
+        getContentPane().add(createVersionPanel());
 
         pack();
     }
@@ -353,7 +393,7 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
         chainPanel.add(modulesLabel);
         chainPanel.add(modulesField);
         chainPanel.add(stopButton);
-        
+
         return chainPanel;
     }
 
@@ -410,24 +450,46 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
     }
 
     /**
-     * TODO: how to ensure that the protocol has been updated before it is being
-     * displayed here if we ourselves were the sender?
+     * 
      */
-    private void updateProtocolPanel() {
+    private void updateVersionPanel() {
 
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
             @Override
             public void run() {
-                Hsi88ConsoleFrame.this.protocolField.setText(rm.getProtocol().toString());
+                Hsi88ConsoleFrame.this.versionField.setText(rm.getVersion());
+            }
+        });
+    }
+    
+    
+    /**
+     * TODO: how to ensure that the protocol has been updated before it is being
+     * displayed here if we ourselves were the sender?
+     * 
+     * @param payload
+     */
+    private void updateProtocolPanel(int payload) {
+
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                Hsi88ConsoleFrame.this.protocolField.setText(Hsi88Config.Hsi88Protocol.values()[payload].toString());
             }
         });
     }
 
+    
+    
+
     /**
      * TODO: same potential problem as @see updateProtocolPanel .
+     * 
+     * @param payload
      */
-    private void updateChainPanel() {
+    private void updateChainPanel(int payload) {
 
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
 
@@ -436,8 +498,8 @@ public class Hsi88ConsoleFrame extends jmri.jmrix.AbstractMonFrame implements Hs
                 // leftField.setText("" + Hsi88Config.getLeft());
                 // middleField.setText("" + Hsi88Config.getMiddle());
                 // rightField.setText("" + Hsi88Config.getRight());
-                modulesField.setText("" + rm.getReportedModules());
-                stopButton.setEnabled(rm.getReportedModules() != 0);
+                modulesField.setText("" + payload);
+                stopButton.setEnabled(payload != 0);
             }
         });
 

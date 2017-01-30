@@ -37,7 +37,7 @@ public class Hsi88ConfigTest {
         Hsi88Config.setRight(6);
         Hsi88Config.setMiddle(7);
 
-        int chainLength = Hsi88Manager.getReportedModules();
+        int chainLength = Hsi88Config.getSetupModules();
         Assert.assertEquals(chainLength, 18);
     }
 

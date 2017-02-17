@@ -427,7 +427,8 @@
         
         <li>Steve Gigiel, who fixed the XML definition of the block contents icon,
         and helped fix the Transit implementation of comments.
-        
+
+        <li>Andr&eacute; Gr&uuml;ning, who added Hsi88 support.
 
         <li>Mark Gurries, who provided loaner equipment and great
         ideas. He's currently working on decoder definitions for

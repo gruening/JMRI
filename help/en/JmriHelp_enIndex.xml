@@ -159,6 +159,8 @@
 
   <indexitem text="ECoS " target="html.hardware.ecos.index"/>
 
+  <indexitem text="Hsi88 " target="html.hardware.hsi88.Hsi88"/>
+
   <indexitem text="Lenz XpressNet " target="html.hardware.XPressNet.index"/>
 
   <indexitem text="Lionel TMCC " target="html.hardware.tmcc.index"/>
@@ -427,9 +429,9 @@
  <indexitem text="Speedometer " target="html.tools.speedometer.index"/>
 
  <indexitem text="SPROG " target="html.hardware.sprog.SPROG">
-  <indexitem text="Console " target="package.jmri.jmrix.sprog.console.SprogConsoleFrame"/>
+   <indexitem text="Console " target="package.jmri.jmrix.sprog.console.SprogConsoleFrame"/>
 
-  <indexitem text="Update SPROG II " target="package.jmri.jmrix.sprog.update.SprogIIUpdateFrame"/>
+   <indexitem text="Update SPROG II " target="package.jmri.jmrix.sprog.update.SprogIIUpdateFrame"/>
 
   <indexitem text="Update SPROG V3/V4 " target="package.jmri.jmrix.sprog.update.Sprogv4UpdateFrame"/>
 

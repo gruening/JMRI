@@ -45,6 +45,8 @@
 
   <tocitem text="Grapevine (ProTrak) " target="html.hardware.grapevine.index"/>
 
+  <tocitem text="Hsi88 " target="html.hardware.hsi88.Hsi88"/>
+
   <tocitem text="LocoNet (Digitrax) " target="html.hardware.loconet.Digitrax"/>
 
   <tocitem text="Maple Systems " target="html.hardware.maple.index"/>

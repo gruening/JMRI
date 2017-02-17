@@ -399,6 +399,21 @@
           Configure Nodes</a></li>
         </ul>
 
+
+	<h3><a href="../hardware/hsi88/index.shtml#tools">Hsi88
+        Tools</a></h3>
+
+        <p>When JMRI is connected to a layout with <a href=
+        "../hardware/hsi88/index.shtml">Hsi88</a>, an <b>Hsi88</b>
+        menu is shown:</p>
+
+        <ul>
+          <li><a href=
+          "../../package/jmri/jmrix/hsi88/console/Hsi88ConsoleFrame.shtml">
+          Hsi88 Console</a></li>
+        </ul>
+
+
         <h3><a href=
         "../hardware/loconet/Digitrax.shtml#tools">LocoNet
         (Digitrax) Tools</a></h3>

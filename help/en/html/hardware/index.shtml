@@ -165,6 +165,19 @@
             network</a></p>
           </dd>
 
+
+          <dt class="im"><a href=
+          "https://www.ldt-infocenter.com/dokuwiki/doku.php?id=en:hsi-88-usb"><img src=
+          "https://www.ldt-infocenter.com/dokuwiki/lib/exe/fetch.php?media=de:foto:hsi-88-usb_10_01.jpg" alt=
+          "Hsi88" height="41" width="150"></a></dt>
+
+          <dt><a href="hsi88/Hsi88.shtml">Hsi88</a></dt>
+
+          <dd>
+            <p class="dl">Interface to an s88 bus: <a href=
+            "hsi88/Hsi88.shtml">Hsi88</a> </p>
+          </dd>
+
           <dt class="im"><a href=
           "http://www.digitrax.com/"><img src=
           "images/Digitrax-logo.jpg" width="44" height="34" alt=

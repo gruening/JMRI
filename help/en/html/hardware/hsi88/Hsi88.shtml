@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Mac OS X (vers 31 October 2006 - Apple Inc. build 15.17), see www.w3.org">
+
+  <title>JMRI Hardware Support - Hsi88</title>
+  <meta content="Andre Gruning" name="Author">
+  <meta name="keywords" content=
+  "Hsi88 java model railroad JMRI install windows"><!-- Style -->
+  <meta http-equiv="Content-Type" content=
+  "text/html; charset=us-ascii">
+  <link rel="stylesheet" type="text/css" href="/css/default.css"
+  media="screen">
+  <link rel="stylesheet" type="text/css" href="/css/print.css"
+  media="print">
+  <link rel="icon" href="/images/jmri.ico" type="image/png">
+  <link rel="home" title="Home" href="/"><!-- /Style -->
+</head>
+
+<body>
+  <!--#include virtual="/Header" -->
+
+  <div class="nomenu" id="mBody">
+    <div id="mainContent">
+      <h1>Hardware Support: Hsi88</h1>
+
+      <ul class="snav">
+        <!-- TOC -->
+
+        <li><a href="#hardware">Hardware</a></li>
+
+        <li><a href="#limitations">Limitations</a></li>
+
+        <li><a href="#connecting">Connecting</a></li>
+
+        <li><a href="#tools">Tools</a></li>
+
+        <li><a href="#documentation">Documentation</a></li>
+      </ul><a name="hardware" id="hardware"></a>
+
+      <h2>Supported Hardware</h2>
+
+      <h3>Computer Interfaces</h3>JMRI supports the Hsi88 adapter to
+      read out sensors on an S88 bus. For more
+      information on the Hsi88 interface see the <a href=
+      "http://www.ldt-infocenter.com/dokuwiki/_media/en/anleitungen/hsi88usb_command-codes_en.pdf"
+      Hsi88 command documentation</a> and
+      the <a href="https://www.ldt-infocenter.com/dokuwiki/doku.php?id=en:hsi-88-usb">Hsi88
+      web site</a>. 
+
+      <a name="limitations" id="limitations"></a>
+      <h2>Limitations</h2>
+
+      <p>JMRI currently supports the Hsi88 only when operated in
+      Terminal Mode. The Hex Mode is not implemented as that protocal
+      cannot be parsed withour look-ahead. 
+      </p>
+
+      <a name="connecting" id="connecting"></a>
+
+      <h2>Connecting</h2>
+
+      <h3>Wiring</h3>
+
+      <p>The Hsi88 comes in version for 9-pin serial interface or as a
+	USB serial device.
+      </p>
+
+      <h3>Settings</h3>
+
+      <ol>
+        <li>Make sure you have the latest version of JMRI. Start
+        one of the JMRI applications.</li>
+
+        <li>Go to the Connections tab of the JMRI Preferences
+        panel. This opens automatically the first time a program is
+        run, or you can select it from the "Edit" menu.</li>
+
+        <li>Select "Hsi88" from the list as the System
+          Manufacturer</li>
+
+	<li>Next, select the proper serial port under Settings.
+        Note that the USB Hsi88 drivers will appear as a serial
+        port with OS specific names.</li>
+
+        <li>Hsi88 reads sensors on the s88 bus. The length of the
+        connected s88 sensor chains (in number of modules of 16
+        sensors) can be set for left, middle and right chain.
+	</li>
+
+        <li>Click "Save". You'll be asked if it's OK for the
+        program to quit, click "Yes".</li>
+
+        <li>Restart the program. You should be up and running.</li>
+      </ol>
+
+      <h4>Configuring Hsi88</h4>
+
+      <p>The si88 automatically sets the Hsi88 hardware to Terminal Mode.
+	All operation parameters (length of chains, terminal and hex
+	mode, Hsi88 version) can be read and/or written Hsi88 Console.
+      </p>
+
+      <h2>JMRI Hsi88 Tools</h2>
+
+      <h4><a href=
+      "../../../package/jmri/jmrix/hsi88/console/Hsi88ConsoleFrame.shtml">
+      Hsi88 Console</a></h4>
+
+      <h2>Documentation</h2>
+
+      <h3>Third Party info</h3>
+
+      <p>For more information on the Hsi88, see <a href=
+      "https://www.ldt-infocenter.com/dokuwiki/doku.php?id=en:hsi-88-usb">the Hsi88 web
+      site</a>.<br>
+      </p>
+
+      <!--#include virtual="/Footer" -->
+    </div><!-- closes #mainContent-->
+  </div><!-- closes #mBody-->
+</body>
+</html>

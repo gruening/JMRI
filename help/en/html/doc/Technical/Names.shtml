@@ -167,7 +167,8 @@
         <li>G ProTrak <a href=
         "../../hardware/grapevine/index.shtml">Grapevine</a></li>
 
-        <li>H</li>
+	<li>H <a href=
+        "../../hardware/hsi88/Hsi88.shtml">Hsi88</a></li>
 
         <li>I Internal, e.g. objects with no associated
         hardware</li>

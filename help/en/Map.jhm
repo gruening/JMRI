@@ -160,6 +160,8 @@
 
 <mapID target="html.hardware.sprog.SPROG_hardware" url="html/hardware/sprog/SPROG.shtml#hardware"/>
 
+<mapID target="html.hardware.hsi88.Hsi88_hardware" url="html/hardware/hsi88/Hsi88.shtml#hardware"/>
+
 <mapID target="package.jmri.jmrit.operations.Operations_BuildingTrains" url="package/jmri/jmrit/operations/Operations.shtml#BuildingTrains"/>
 
 <mapID target="html.doc.Technical.CVSFAQ_tags" url="html/doc/Technical/CVSFAQ.shtml#tags"/>
@@ -932,6 +934,8 @@
 
 <mapID target="html.hardware.sprog.SPROG" url="html/hardware/sprog/SPROG.shtml"/>
 
+<mapID target="html.hardware.hsi88.Hsi88" url="html/hardware/hsi88/Hsi88.shtml"/>
+
 <mapID target="manual.JMRI_OPS_UsersGuide.Ops_Cars_Menu_Top" url="manual/JMRI_OPS_UsersGuide/Ops_Cars_Menu.shtml#Top"/>
 
 <mapID target="package.jmri.jmrit.dispatcher.AllocateExtra" url="package/jmri/jmrit/dispatcher/AllocateExtra.shtml"/>
@@ -1674,6 +1678,8 @@
 
 <mapID target="html.hardware.sprog.SPROG_connecting" url="html/hardware/sprog/SPROG.shtml#connecting"/>
 
+<mapID target="html.hardware.hsi88.Hsi88_connecting" url="html/hardware/hsi88/Hsi88.shtml#connecting"/>
+
 <mapID target="html.tools.Sensors_add" url="html/tools/Sensors.shtml#add"/>
 
 <mapID target="html.apps.DecoderPro.FAQ_update" url="html/apps/DecoderPro/FAQ.shtml#update"/>
@@ -1803,6 +1809,8 @@
 <mapID target="package.jmri.jmrit.beantable.TurnoutTable_controls" url="package/jmri/jmrit/beantable/TurnoutTable.shtml#controls"/>
 
 <mapID target="html.hardware.sprog.SPROG_tools" url="html/hardware/sprog/SPROG.shtml#tools"/>
+
+<mapID target="html.hardware.hsi88.Hsi88_tools" url="html/hardware/hsi88/Hsi88.shtml#tools"/>
 
 <mapID target="manual.DecoderPro.Start_Preferences_Display" url="manual/DecoderPro/Start_Preferences.shtml#Display"/>
 
@@ -1969,6 +1977,8 @@
 <mapID target="manual.DecoderPro3.Comp_PrintData_a_Top" url="manual/DecoderPro3/Comp_PrintData_a.shtml#Top"/>
 
 <mapID target="html.hardware.sprog.SPROG_documentation" url="html/hardware/sprog/SPROG.shtml#documentation"/>
+
+<mapID target="html.hardware.hsi88.Hsi88_documentation" url="html/hardware/hsi88/Hsi88.shtml#documentation"/>
 
 <mapID target="html.doc.Technical.FindBugs" url="html/doc/Technical/FindBugs.shtml"/>
 
@@ -2149,6 +2159,8 @@
 <mapID target="html.hardware.roco.z21.index_connecting" url="html/hardware/roco/z21/index.shtml#connecting"/>
 
 <mapID target="package.jmri.jmrix.sprog.console.SprogConsoleFrame" url="package/jmri/jmrix/sprog/console/SprogConsoleFrame.shtml"/>
+
+<mapID target="package.jmri.jmrix.hsi88.console.Hsi88ConsoleFrame" url="package/jmri/jmrix/hsi88/console/Hsi88ConsoleFrame.shtml"/>
 
 <mapID target="html.hardware.marklin.index_limitations" url="html/hardware/marklin/index.shtml#limitations"/>
 
@@ -3347,6 +3359,8 @@
 <mapID target="html.hardware.oaktree.OakTree_hardware" url="html/hardware/oaktree/OakTree.shtml#hardware"/>
 
 <mapID target="html.hardware.sprog.SPROG_limitations" url="html/hardware/sprog/SPROG.shtml#limitations"/>
+
+<mapID target="html.hardware.hsi88.Hsi88_limitations" url="html/hardware/hsi88/Hsi88.shtml#limitations"/>
 
 <mapID target="html.hardware.acela.index_hardware" url="html/hardware/acela/index.shtml#hardware"/>
 

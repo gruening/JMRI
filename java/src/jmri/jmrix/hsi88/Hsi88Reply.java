@@ -54,15 +54,16 @@ public class Hsi88Reply extends AbstractMRReply {
      */
 
     /**
-     * Create a Hsi88Reply from a String.
+     * Create a Hsi88Reply from a String. Currently only needed for ease of
+     * UnitTesting.
      *
      * @param replyString a String containing the contents of the reply.
      * 
      */
-    /*
-     * public Hsi88Reply(String replyString) { super(replyString.substring(0,
-     * Hsi88Reply.MAXSIZE)); }
-     */
+    Hsi88Reply(String replyString) {
+
+        super(replyString.substring(0, Math.min(replyString.length(), Hsi88Reply.MAXSIZE)));
+    }
 
     /**
      * Returns a string representation of this Hsi88Reply. Deletes a final cr.

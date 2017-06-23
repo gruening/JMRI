@@ -40,5 +40,4 @@ import org.junit.runners.Suite;
         // Hsi88PortControllerTest.class, // abstract class.
         Hsi88MenuTest.class,
 })
-public class PackageTest {
-}
+public class PackageTest {}

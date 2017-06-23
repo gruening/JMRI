@@ -15,7 +15,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         ConnectionConfigTest.class,
-        Hsi88SerialDriverAdapter.class,
+        Hsi88SerialDriverAdapterTest.class,
         jmri.jmrix.hsi88.hsi88.configurexml.PackageTest.class
 })
 public class PackageTest {

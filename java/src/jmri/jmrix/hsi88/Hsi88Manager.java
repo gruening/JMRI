@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manages the Hsi88 interfacees. It parses a hardware reply into a better
+ * Manages the Hsi88 interface. It parses a hardware reply into a better
  * processable reply and holds the internal state of an Hsi88 as inferred from
  * received messages.
  * 
@@ -28,7 +28,7 @@ public class Hsi88Manager implements Hsi88Listener {
      * Types of Hsi88 Responses -- their value is the negative value of the
      * corresponding opcode.
      */
-    public class ResponseType {
+    public final static class ResponseType {
         public static final int TERMINAL = -'t';
         public static final int SETUP = -'s';
         public static final int VERSION = -'v';
@@ -39,7 +39,7 @@ public class Hsi88Manager implements Hsi88Listener {
 
     /** list of listeners for parsed updates from the layout */
     private List<Hsi88ReplyListener> listeners = new ArrayList<Hsi88ReplyListener>();
-    /** hold the connection memo */
+    /** holds the connection memo */
     private Hsi88SystemConnectionMemo memo;
 
     /**
@@ -69,7 +69,7 @@ public class Hsi88Manager implements Hsi88Listener {
 
         if (protocol != Hsi88Protocol.ASCII) {
             log.warn(Hsi88Config.LONGNAME +
-                    " running in {} mode. Reply and message parsing" +
+                    " running in {} mode. Reply and message parsing " +
                     "in this mode is not implemented. " +
                     "Expect error messages.", protocol);
         }
@@ -129,8 +129,8 @@ public class Hsi88Manager implements Hsi88Listener {
                 parseSetupReply(r); // 
                 break;
             case 'v': // Version string
-                log.debug("Hsi88 Hardware version: {}", r);
                 this.versionString = r.toString();
+                log.debug("Hsi88 Hardware Version: {}", this.versionString);
                 this.notifyListeners(ResponseType.VERSION, 0);
                 break;
             default:
@@ -228,8 +228,8 @@ public class Hsi88Manager implements Hsi88Listener {
         try {
             int nModules = Integer.parseInt(payload.substring(1, 3), 16);
             if (nModules != 0 && nModules != reportedModules) {
-                log.warn("Modules reported by previous 's' reply  {} " +
-                        "does not agree with 'i' reply: {}.",
+                log.warn("Number of modules reported by previous 's' reply  {} " +
+                         "does not agree with 'i' reply: {}.",
                         reportedModules,
                         nModules);
             }
@@ -348,7 +348,7 @@ public class Hsi88Manager implements Hsi88Listener {
         return protocol;
     }
 
-    private String versionString = "unknown";
+    private String versionString = "Version unknown";
     
     /**
      * @return

@@ -3,8 +3,10 @@ package jmri.jmrix.hsi88;
 import jmri.Sensor;
 import jmri.managers.AbstractSensorMgrTestBase;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -19,7 +21,7 @@ import org.junit.Test;
  * @since 4.6.x
  */
 public class Hsi88SensorManagerTest extends AbstractSensorMgrTestBase {
-    private Hsi88SystemConnectionMemo m = null;
+    static private Hsi88SystemConnectionMemo m = null;
 
     @Override
     public String getSystemName(int i) {
@@ -49,20 +51,28 @@ public class Hsi88SensorManagerTest extends AbstractSensorMgrTestBase {
     }
 
     // The minimal setup for log4J
-    @Override
-    @Before
-    public void setUp() {
+    @BeforeClass
+    public static void setUp3() {
         apps.tests.Log4JFixture.setUp();
         jmri.util.JUnitUtil.resetInstanceManager();
         m = new Hsi88SystemConnectionMemo();
         m.setTrafficController(new Hsi88TrafficController(m));
+        m.configureManagers();
+    }
+    
+    @Before
+    public void setUp() {
         l = new Hsi88SensorManager(m);
     }
-
+    
     @After
-    public void tearDown() {
-        m = null;
+    public void tearDown2() {
         l = null;
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        m = null;
         jmri.util.JUnitUtil.resetInstanceManager();
         apps.tests.Log4JFixture.tearDown();
     }

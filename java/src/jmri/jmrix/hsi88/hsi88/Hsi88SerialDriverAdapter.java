@@ -39,7 +39,6 @@ public class Hsi88SerialDriverAdapter extends jmri.jmrix.hsi88.serialdriver.Seri
                 new Option("Right Chain: # Modules:", lengths, true));
         options.put("MiddleChain",
                 new Option("Middle Chain: # Modules:", lengths, true));
-
         options.put("LeftChain",
                 new Option("Left Chain: # Modules:", lengths, true));
 

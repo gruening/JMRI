@@ -98,7 +98,7 @@ public class Hsi88SystemConnectionMemo extends jmri.jmrix.SystemConnectionMemo {
      */
     public void configureManagers() {
 
-        // must be initialised before the other manager as they rely on this one.
+        // must be initialised before the other managers as they rely on this one.
         hsi88Manager = new Hsi88Manager(this);
 
         powerManager = new jmri.jmrix.hsi88.Hsi88PowerManager(this);

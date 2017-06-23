@@ -20,7 +20,6 @@ public class Hsi88ReplyTest {
     @Before
     public void setUp() throws Exception {
         apps.tests.Log4JFixture.setUp();
-
     }
 
     @After

@@ -27,6 +27,7 @@ public class DefaultSignalGroupManagerXml
      * @param o Object to store, of type TripleTurnoutSignalHead
      * @return Element containing the complete info
      */
+    @Override
     public Element store(Object o) {
         SignalGroupManager m = (SignalGroupManager) o;
 
@@ -38,9 +39,8 @@ public class DefaultSignalGroupManagerXml
         for (int i = 0; i < names.size(); i++) {
             Element e = new Element("signalgroup");
             SignalGroup p = m.getSignalGroup(names.get(i));
-            e.setAttribute("systemName", p.getSystemName()); // deprecated for 2.9.* series
             e.addContent(new Element("systemName").addContent(p.getSystemName()));
-            e.setAttribute("userName", p.getUserName());
+            e.addContent(new Element("userName").addContent(p.getUserName()));
             //storeCommon(p, e); would store comment, now a separate element
             storeComment(p, e);
             element.addContent(e);
@@ -226,6 +226,7 @@ public class DefaultSignalGroupManagerXml
         return true;
     }
 
+    @Override
     public void load(Element element, Object o) {
         log.error("Invalid method called");
     }
@@ -255,6 +256,7 @@ public class DefaultSignalGroupManagerXml
         return SignalHead.DARK;
     }
 
+    @Override
     public int loadOrder() {
         return InstanceManager.getDefault(jmri.SignalGroupManager.class).getXMLOrder();
     }

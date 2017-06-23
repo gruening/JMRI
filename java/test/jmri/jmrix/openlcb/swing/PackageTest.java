@@ -2,8 +2,6 @@ package jmri.jmrix.openlcb.swing;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -14,7 +12,8 @@ import org.slf4j.LoggerFactory;
         jmri.jmrix.openlcb.swing.clockmon.PackageTest.class,
         jmri.jmrix.openlcb.swing.downloader.PackageTest.class,
         jmri.jmrix.openlcb.swing.send.PackageTest.class,
-        BundleTest.class
+        BundleTest.class,
+        OpenLcbComponentFactoryTest.class
 })
 
 /**

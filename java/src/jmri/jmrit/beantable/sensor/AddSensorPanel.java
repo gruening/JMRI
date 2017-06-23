@@ -8,9 +8,10 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import jmri.Manager;
+import jmri.NamedBean;
 import jmri.Sensor;
 import jmri.SensorManager;
 import jmri.jmrit.beantable.AddNewHardwareDevicePanel;
@@ -21,7 +22,7 @@ import org.slf4j.LoggerFactory;
 /**
  * JPanel to create a new Sensor
  *
- * @author	Bob Jacobsen Copyright (C) 2009
+ * @author Bob Jacobsen Copyright (C) 2009
  * @deprecated Replaced by {@link jmri.jmrit.beantable.AddNewHardwareDevicePanel}
  */
 @Deprecated
@@ -31,14 +32,17 @@ public class AddSensorPanel extends jmri.util.swing.JmriPanel {
         p = jmri.InstanceManager.getDefault(jmri.UserPreferencesManager.class);
 
         ActionListener okListener = new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 okPressed(e);
             }
         };
         ActionListener cancelListener = new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) { cancelPressed(e); }
         };
         ActionListener rangeListener = new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 canAddRange(e);
             }
@@ -69,10 +73,8 @@ public class AddSensorPanel extends jmri.util.swing.JmriPanel {
         sysName.setName("sysName");
         userName.setName("userName");
         prefixBox.setName("prefixBox");
-        add(new AddNewHardwareDevicePanel(sysName, userName, prefixBox, numberToAdd, range, Bundle.getMessage("ButtonAddSensor"), okListener, cancelListener, rangeListener));
+        add(new AddNewHardwareDevicePanel(sysName, userName, prefixBox, numberToAdd, range, "ButtonAddSensor", okListener, cancelListener, rangeListener));
         canAddRange(null);
-
-        //super.AddnewHardwareDevicePanel(sysName, userName, prefixBox, , Bundle.getMessage("ButtonAddSensor")
     }
 
     private void canAddRange(ActionEvent e) {
@@ -98,10 +100,10 @@ public class AddSensorPanel extends jmri.util.swing.JmriPanel {
      // to make location for accessibility & testing easier
      sysName.setName("sysName");
      userName.setName("userName");
-            
+
      setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
      JPanel p;
-     p = new JPanel(); 
+     p = new JPanel();
      p.setLayout(new FlowLayout());
      p.setLayout(new java.awt.GridBagLayout());
      java.awt.GridBagConstraints c = new java.awt.GridBagConstraints();
@@ -148,14 +150,9 @@ public class AddSensorPanel extends jmri.util.swing.JmriPanel {
     jmri.UserPreferencesManager p;
 
     void cancelPressed(ActionEvent e) {
-        //p.setVisible(false);
-        //p.dispose();
-        //p = null;
     }
 
     void okPressed(ActionEvent e) {
-        /*String user = userName.getText();
-         if (user.equals("")) user=null;*/
 
         int numberOfSensors = 1;
 
@@ -164,7 +161,7 @@ public class AddSensorPanel extends jmri.util.swing.JmriPanel {
         }
         if (numberOfSensors >= 65) { // limited by JSpinnerModel to 100
             if (JOptionPane.showConfirmDialog(null,
-                    Bundle.getMessage("WarnExcessBeans", numberOfSensors),
+                    Bundle.getMessage("WarnExcessBeans", Bundle.getMessage("Sensors"), numberOfSensors),
                     Bundle.getMessage("WarningTitle"),
                     JOptionPane.YES_NO_OPTION) == 1) {
                 return;
@@ -173,11 +170,11 @@ public class AddSensorPanel extends jmri.util.swing.JmriPanel {
         String sensorPrefix = ConnectionNameFromSystemName.getPrefixFromName((String) prefixBox.getSelectedItem());
 
         String sName = null;
-        String curAddress = sysName.getText();
+        String curAddress = senManager.normalizeSystemName(sysName.getText());
 
         for (int x = 0; x < numberOfSensors; x++) {
             try {
-                curAddress = jmri.InstanceManager.sensorManagerInstance().getNextValidAddress(curAddress, sensorPrefix);
+                curAddress = senManager.getNextValidAddress(curAddress, sensorPrefix);
             } catch (jmri.JmriException ex) {
                 jmri.InstanceManager.getDefault(jmri.UserPreferencesManager.class).
                         showErrorMessage(Bundle.getMessage("ErrorTitle"), Bundle.getMessage("ErrorConvertHW", curAddress), "" + ex, "", true, false);
@@ -188,23 +185,23 @@ public class AddSensorPanel extends jmri.util.swing.JmriPanel {
                 break;
             }
             //We have found another turnout with the same address, therefore we need to go onto the next address.
-            sName = sensorPrefix + jmri.InstanceManager.sensorManagerInstance().typeLetter() + curAddress;
+            sName = sensorPrefix + senManager.typeLetter() + curAddress;
             Sensor s = null;
             try {
-                s = jmri.InstanceManager.sensorManagerInstance().provideSensor(sName);
+                s = senManager.provideSensor(sName);
             } catch (IllegalArgumentException ex) {
                 // user input no good
                 handleCreateException(sName);
-                return; // without creating       
+                return; // without creating
             }
 
-            String user = userName.getText();
+            String user = NamedBean.normalizeUserName(userName.getText());
             if ((x != 0) && user != null && !user.equals("")) {
-                user = userName.getText() + ":" + x;
+                user += ":" + x;
             }
-            if (user != null && !user.equals("") && (jmri.InstanceManager.sensorManagerInstance().getByUserName(user) == null)) {
+            if (user != null && !user.equals("") && (senManager.getByUserName(user) == null)) {
                 s.setUserName(user);
-            } else if (user != null && !user.equals("") && jmri.InstanceManager.sensorManagerInstance().getByUserName(user) != null && !p.getPreferenceState(AddSensorPanel.class.getName(), "duplicateUserName")) {
+            } else if (user != null && !user.equals("") && senManager.getByUserName(user) != null && !p.getPreferenceState(AddSensorPanel.class.getName(), "duplicateUserName")) {
                 jmri.InstanceManager.getDefault(jmri.UserPreferencesManager.class).
                         showErrorMessage(Bundle.getMessage("ErrorTitle"), Bundle.getMessage("ErrorDuplicateUserName", user), AddSensorPanel.class.getName(), "duplicateUserName", false, true);
             }

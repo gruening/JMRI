@@ -29,15 +29,13 @@ import jmri.InstanceManager;
 import jmri.profile.ProfileManager;
 import jmri.swing.PreferencesPanel;
 import jmri.util.swing.SwingSettings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Provide GUI to configure Swing GUI LAF defaults
  * <P>
  * Provides GUI configuration for SWING LAF by displaying radio buttons for each
  * LAF implementation available. This information is then persisted separately
- * (e.g. by {@link apps.configurexml.GuiLafConfigPaneXml})
+ * by {@link apps.configurexml.GuiLafConfigPaneXml}
  * <P>
  * Locale default language and country is also considered a GUI (and perhaps
  * LAF) configuration item.
@@ -70,6 +68,7 @@ public class GuiLafConfigPane extends JPanel implements PreferencesPanel {
     private final ButtonGroup LAFGroup = new ButtonGroup();
     public JCheckBox mouseEvent;
     private JComboBox<Integer> fontSizeComboBox;
+    public JCheckBox graphicStateDisplay;
 
     public GuiLafConfigPane() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -80,7 +79,7 @@ public class GuiLafConfigPane extends JPanel implements PreferencesPanel {
         add(p);
         doClickSelection(p = new JPanel());
         add(p);
-        doVerticalToolBar(p = new JPanel());
+        doGraphicState(p = new JPanel());
         add(p);
         doToolTipDismissDelay(p = new JPanel());
         add(p);
@@ -96,14 +95,14 @@ public class GuiLafConfigPane extends JPanel implements PreferencesPanel {
         panel.add(mouseEvent);
     }
 
-    void doVerticalToolBar(JPanel panel) {
+    void doGraphicState(JPanel panel) {
         panel.setLayout(new FlowLayout());
-        mouseEvent = new JCheckBox(ConfigBundle.getMessage("GUIButtonVerticalToolBar"));
-        mouseEvent.setSelected(InstanceManager.getDefault(GuiLafPreferencesManager.class).isVerticalToolBar());
-        mouseEvent.addItemListener((ItemEvent e) -> {
-            InstanceManager.getDefault(GuiLafPreferencesManager.class).setVerticalToolBar(mouseEvent.isSelected());
+        graphicStateDisplay = new JCheckBox(ConfigBundle.getMessage("GUIGraphicTableState"));
+        graphicStateDisplay.setSelected(InstanceManager.getDefault(GuiLafPreferencesManager.class).isGraphicTableState());
+        graphicStateDisplay.addItemListener((ItemEvent e) -> {
+            InstanceManager.getDefault(GuiLafPreferencesManager.class).setGraphicTableState(graphicStateDisplay.isSelected());
         });
-        panel.add(mouseEvent);
+        panel.add(graphicStateDisplay);
     }
 
     void doLAF(JPanel panel) {
@@ -233,6 +232,7 @@ public class GuiLafConfigPane extends JPanel implements PreferencesPanel {
         return LAFGroup.getSelection().getActionCommand();
 
     }
+
     @Override
     public String getPreferencesItem() {
         return "DISPLAY"; // NOI18N

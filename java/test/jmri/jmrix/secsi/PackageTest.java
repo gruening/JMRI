@@ -46,6 +46,12 @@ public class PackageTest extends TestCase {
         suite.addTest(new junit.framework.JUnit4TestAdapter(jmri.jmrix.secsi.serialmon.PackageTest.class));
         suite.addTest(new junit.framework.JUnit4TestAdapter(SerialPortControllerTest.class));
         suite.addTest(new junit.framework.JUnit4TestAdapter(SecsiSystemConnectionMemoTest.class));
+        suite.addTest(new junit.framework.JUnit4TestAdapter(SecsiMenuTest.class));
+        suite.addTest(new junit.framework.JUnit4TestAdapter(SerialConnectionTypeListTest.class));
+        suite.addTest(new junit.framework.JUnit4TestAdapter(SerialLightManagerTest.class));
+        suite.addTest(new junit.framework.JUnit4TestAdapter(SerialReplyTest.class));
+        suite.addTest(new junit.framework.JUnit4TestAdapter(SerialSensorTest.class));
+        suite.addTest(new junit.framework.JUnit4TestAdapter(SerialLightTest.class));
         return suite;
     }
 

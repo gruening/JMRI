@@ -2,15 +2,15 @@ package jmri.jmrix.mrc.swing;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
    BundleTest.class,
    jmri.jmrix.mrc.swing.packetgen.PackageTest.class,
-   jmri.jmrix.mrc.swing.monitor.PackageTest.class
+   jmri.jmrix.mrc.swing.monitor.PackageTest.class,
+   MrcMenuTest.class,
+   MrcComponentFactoryTest.class
 })
 
 /**

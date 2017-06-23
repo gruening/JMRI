@@ -11,7 +11,9 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     RpsTrackingFrameTest.class,
-    RpsTrackingPanelTest.class
+    RpsTrackingPanelTest.class,
+    RpsTrackingFrameActionTest.class,
+    RpsTrackingControlPaneTest.class
 })
 public class PackageTest {
 }

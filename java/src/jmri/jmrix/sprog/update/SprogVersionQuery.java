@@ -109,6 +109,7 @@ public class SprogVersionQuery implements SprogListener {
 
     /**
      * Notify all registered listeners of the SPROG version
+     * @param v version to send notify too
      *
      */
     protected synchronized void notifyVersion(SprogVersion v) {
@@ -279,6 +280,9 @@ public class SprogVersionQuery implements SprogListener {
             case DONE:
             case IDLE:
                 log.error("Timeout in unexpected state: " + state);
+                break;
+            default:
+                log.warn("Unhandled timeout state code: {}", state);
                 break;
         }
     }

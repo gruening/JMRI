@@ -11,7 +11,10 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     PollTableActionTest.class,
-    BundleTest.class
+    BundleTest.class,
+    PollTableFrameTest.class,
+    PollDataModelTest.class,
+    PollTablePaneTest.class
 })
 public class PackageTest{
 }

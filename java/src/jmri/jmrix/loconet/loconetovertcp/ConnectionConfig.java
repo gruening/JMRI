@@ -26,14 +26,16 @@ public class ConnectionConfig extends jmri.jmrix.AbstractNetworkConnectionConfig
         super();
     }
 
+    @Override
     public String name() {
-        return "LocoNetOverTcp LbServer";
+        return Bundle.getMessage("ConnectionTitle");
     }
 
     public boolean isOptList1Advanced() {
         return false;
     }
 
+    @Override
     protected void setInstance() {
         if (adapter == null) {
             adapter = new LnTcpDriverAdapter();

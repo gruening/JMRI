@@ -2,14 +2,14 @@ package jmri.jmrix.ieee802154.xbee;
 
 import com.digi.xbee.api.connection.IConnectionInterface;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import gnu.io.CommPortIdentifier;
-import gnu.io.PortInUseException;
-import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
 import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import purejavacomm.CommPortIdentifier;
+import purejavacomm.PortInUseException;
+import purejavacomm.SerialPort;
+import purejavacomm.SerialPortEvent;
+import purejavacomm.SerialPortEventListener;
 
 /**
  * Provide access to IEEE802.15.4 devices via a serial comm port.
@@ -37,7 +37,7 @@ public class XBeeAdapter extends jmri.jmrix.ieee802154.serialdriver.SerialDriver
             // try to set it for serial
             try {
                 setSerialPort();
-            } catch (gnu.io.UnsupportedCommOperationException e) {
+            } catch (purejavacomm.UnsupportedCommOperationException e) {
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
@@ -67,7 +67,7 @@ public class XBeeAdapter extends jmri.jmrix.ieee802154.serialdriver.SerialDriver
                         + (activeSerialPort.getFlowControlMode() == SerialPort.FLOWCONTROL_RTSCTS_OUT ? "hardware flow control" : "no flow control"));
             }
             opened = true;
-        } catch (gnu.io.NoSuchPortException p) {
+        } catch (purejavacomm.NoSuchPortException p) {
             return handlePortNotFound(p, portName, log);
         } catch (Exception ex) {
             log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);
@@ -145,7 +145,7 @@ public class XBeeAdapter extends jmri.jmrix.ieee802154.serialdriver.SerialDriver
      * Local method to do specific port configuration
      */
     @Override
-    protected void setSerialPort() throws gnu.io.UnsupportedCommOperationException {
+    protected void setSerialPort() throws purejavacomm.UnsupportedCommOperationException {
         log.debug("setSerialPort() called.");
         // find the baud rate value, configure comm options
         int baud = validSpeedValues[0];  // default, but also defaulted in the initial value of selectedSpeed

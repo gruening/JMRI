@@ -1,10 +1,5 @@
 package jmri.jmrix.loconet.locobuffer;
 
-import gnu.io.CommPortIdentifier;
-import gnu.io.PortInUseException;
-import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -16,6 +11,11 @@ import jmri.jmrix.loconet.LnPortController;
 import jmri.jmrix.loconet.LocoNetSystemConnectionMemo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import purejavacomm.CommPortIdentifier;
+import purejavacomm.PortInUseException;
+import purejavacomm.SerialPort;
+import purejavacomm.SerialPortEvent;
+import purejavacomm.SerialPortEventListener;
 
 /**
  * Provide access to LocoNet via a LocoBuffer attached to a serial comm port.
@@ -73,7 +73,7 @@ public class LocoBufferAdapter extends LnPortController implements jmri.jmrix.Se
             // try to set it for LocoNet via LocoBuffer
             try {
                 setSerialPort(activeSerialPort);
-            } catch (gnu.io.UnsupportedCommOperationException e) {
+            } catch (purejavacomm.UnsupportedCommOperationException e) {
                 log.error("Cannot set serial parameters on port " + portName + ": " + // NOI18N
                         e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + // NOI18N
@@ -183,7 +183,7 @@ public class LocoBufferAdapter extends LnPortController implements jmri.jmrix.Se
 
             opened = true;
 
-        } catch (gnu.io.NoSuchPortException p) {
+        } catch (purejavacomm.NoSuchPortException p) {
             return handlePortNotFound(p, portName, log);
         } catch (Exception ex) {
             log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex); // NOI18N
@@ -257,7 +257,7 @@ public class LocoBufferAdapter extends LnPortController implements jmri.jmrix.Se
     /**
      * Local method to do specific configuration, overridden in class
      */
-    protected void setSerialPort(SerialPort activeSerialPort) throws gnu.io.UnsupportedCommOperationException {
+    protected void setSerialPort(SerialPort activeSerialPort) throws purejavacomm.UnsupportedCommOperationException {
         // find the baud rate value, configure comm options
         int baud = currentBaudNumber(mBaudRate);
         activeSerialPort.setSerialPortParams(baud, SerialPort.DATABITS_8,

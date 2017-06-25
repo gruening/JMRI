@@ -1,7 +1,7 @@
 package jmri.jmrix;
 
 import apps.startup.StartupActionModelUtil;
-import gnu.io.CommPortIdentifier;
+import purejavacomm.CommPortIdentifier;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -324,7 +324,7 @@ abstract public class AbstractSerialConnectionConfig extends AbstractConnectionC
                 }
             }
         } catch (java.lang.UnsatisfiedLinkError e1) {
-            log.error("UnsatisfiedLinkError - the gnu.io library has not been installed properly");
+            log.error("UnsatisfiedLinkError - the purejavacomm library has not been installed properly");
             log.error("java.library.path=" + System.getProperty("java.library.path", "<unknown>"));
             javax.swing.JOptionPane.showMessageDialog(null, "Failed to load comm library.\nYou have to fix that before setting preferences.");
             return;

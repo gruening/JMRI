@@ -1,10 +1,5 @@
 package jmri.jmrix.zimo.mx1;
 
-import gnu.io.CommPortIdentifier;
-import gnu.io.PortInUseException;
-import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -15,6 +10,11 @@ import jmri.jmrix.zimo.Mx1PortController;
 import jmri.jmrix.zimo.Mx1SystemConnectionMemo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import purejavacomm.CommPortIdentifier;
+import purejavacomm.PortInUseException;
+import purejavacomm.SerialPort;
+import purejavacomm.SerialPortEvent;
+import purejavacomm.SerialPortEventListener;
 
 /**
  * Provide access to Zimo's MX-1 on an attached
@@ -49,7 +49,7 @@ public class Mx1Adapter extends Mx1PortController implements jmri.jmrix.SerialPo
             // try to set it for Can Net
             try {
                 setSerialPort();
-            } catch (gnu.io.UnsupportedCommOperationException e) {
+            } catch (purejavacomm.UnsupportedCommOperationException e) {
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
@@ -153,7 +153,7 @@ public class Mx1Adapter extends Mx1PortController implements jmri.jmrix.SerialPo
 
             opened = true;
 
-        } catch (gnu.io.NoSuchPortException p) {
+        } catch (purejavacomm.NoSuchPortException p) {
             return handlePortNotFound(p, portName, log);
         } catch (Exception ex) {
             log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);
@@ -220,7 +220,7 @@ public class Mx1Adapter extends Mx1PortController implements jmri.jmrix.SerialPo
     /**
      * Local method to do specific configuration
      */
-    protected void setSerialPort() throws gnu.io.UnsupportedCommOperationException {
+    protected void setSerialPort() throws purejavacomm.UnsupportedCommOperationException {
         // find the baud rate value, configure comm options
         int baud = validSpeedValues[0];  // default, but also defaulted in the initial value of selectedSpeed
         for (int i = 0; i < validSpeeds.length; i++) {

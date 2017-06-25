@@ -1,8 +1,8 @@
 package jmri.jmrix.sprog;
 
-import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
+import purejavacomm.SerialPort;
+import purejavacomm.SerialPortEvent;
+import purejavacomm.SerialPortEventListener;
 import java.io.DataInputStream;
 import java.io.OutputStream;
 import java.util.Vector;

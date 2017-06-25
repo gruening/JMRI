@@ -1,6 +1,6 @@
 package jmri.jmrit.mailreport;
 
-import gnu.io.CommPortIdentifier;
+import purejavacomm.CommPortIdentifier;
 import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;

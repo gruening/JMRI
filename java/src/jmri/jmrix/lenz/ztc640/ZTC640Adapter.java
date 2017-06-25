@@ -1,10 +1,5 @@
 package jmri.jmrix.lenz.ztc640;
 
-import gnu.io.CommPortIdentifier;
-import gnu.io.PortInUseException;
-import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -17,6 +12,11 @@ import jmri.jmrix.lenz.XNetTrafficController;
 import jmri.util.SerialUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import purejavacomm.CommPortIdentifier;
+import purejavacomm.PortInUseException;
+import purejavacomm.SerialPort;
+import purejavacomm.SerialPortEvent;
+import purejavacomm.SerialPortEventListener;
 
 /**
  * Provide access to XPressNet via a ZTC640 connected via an FTDI virtual comm
@@ -46,7 +46,7 @@ public class ZTC640Adapter extends XNetSerialPortController implements jmri.jmri
             // try to set it for XNet
             try {
                 setSerialPort();
-            } catch (gnu.io.UnsupportedCommOperationException e) {
+            } catch (purejavacomm.UnsupportedCommOperationException e) {
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
@@ -186,7 +186,7 @@ public class ZTC640Adapter extends XNetSerialPortController implements jmri.jmri
 
             opened = true;
 
-        } catch (gnu.io.NoSuchPortException p) {
+        } catch (purejavacomm.NoSuchPortException p) {
             return handlePortNotFound(p, portName, log);
         } catch (IOException ex) {
             log.error("IO exception while opening port " + portName + " trace follows: " + ex);
@@ -196,7 +196,7 @@ public class ZTC640Adapter extends XNetSerialPortController implements jmri.jmri
             log.error("Too Many Listeners exception while opening port " + portName + " trace follows: " + tmlex);
             tmlex.printStackTrace();
             return "Too Many Listeners Exception while opening port " + portName + ": " + tmlex;
-        } catch (gnu.io.UnsupportedCommOperationException ucex) {
+        } catch (purejavacomm.UnsupportedCommOperationException ucex) {
             log.error("unsupported Comm Operation exception while opening port " + portName + " trace follows: " + ucex);
             ucex.printStackTrace();
             return "Unsupported Comm Exception while opening port " + portName + ": " + ucex;
@@ -248,7 +248,7 @@ public class ZTC640Adapter extends XNetSerialPortController implements jmri.jmri
     /**
      * Local method to do specific configuration
      */
-    protected void setSerialPort() throws gnu.io.UnsupportedCommOperationException {
+    protected void setSerialPort() throws purejavacomm.UnsupportedCommOperationException {
         // find the baud rate value, configure comm options
         int baud = validSpeedValues[0];  // default, but also defaulted in the initial value of selectedSpeed
         for (int i = 0; i < validSpeeds.length; i++) {

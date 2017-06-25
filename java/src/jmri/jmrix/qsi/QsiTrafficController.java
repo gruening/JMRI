@@ -1,6 +1,6 @@
 package jmri.jmrix.qsi;
 
-import gnu.io.SerialPort;
+import purejavacomm.SerialPort;
 import java.io.DataInputStream;
 import java.io.OutputStream;
 import java.util.Vector;

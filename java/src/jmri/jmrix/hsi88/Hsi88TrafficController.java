@@ -1,7 +1,5 @@
 package jmri.jmrix.hsi88;
 
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -13,6 +11,8 @@ import jmri.jmrix.SystemConnectionMemo;
 import jmri.util.ThreadingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import purejavacomm.SerialPortEvent;
+import purejavacomm.SerialPortEventListener;
 
 /**
  * Converts Stream-based I/O to/from Hsi88 replies/messages. The

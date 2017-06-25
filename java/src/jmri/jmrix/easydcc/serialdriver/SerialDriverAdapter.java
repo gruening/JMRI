@@ -1,8 +1,5 @@
 package jmri.jmrix.easydcc.serialdriver;
 
-import gnu.io.CommPortIdentifier;
-import gnu.io.PortInUseException;
-import gnu.io.SerialPort;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -11,6 +8,9 @@ import jmri.jmrix.easydcc.EasyDccSystemConnectionMemo;
 import jmri.jmrix.easydcc.EasyDccTrafficController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import purejavacomm.CommPortIdentifier;
+import purejavacomm.PortInUseException;
+import purejavacomm.SerialPort;
 
 /**
  * Implements SerialPortAdapter for the EasyDcc system. This connects an EasyDcc
@@ -45,7 +45,7 @@ public class SerialDriverAdapter extends EasyDccPortController implements jmri.j
             // try to set it for comunication via SerialDriver
             try {
                 activeSerialPort.setSerialPortParams(9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-            } catch (gnu.io.UnsupportedCommOperationException e) {
+            } catch (purejavacomm.UnsupportedCommOperationException e) {
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
@@ -82,7 +82,7 @@ public class SerialDriverAdapter extends EasyDccPortController implements jmri.j
 
             opened = true;
 
-        } catch (gnu.io.NoSuchPortException p) {
+        } catch (purejavacomm.NoSuchPortException p) {
             return handlePortNotFound(p, portName, log);
         } catch (Exception ex) {
             log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);

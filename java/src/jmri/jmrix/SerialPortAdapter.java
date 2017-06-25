@@ -83,7 +83,7 @@ public interface SerialPortAdapter extends PortAdapter {
      *
      * @see jmri.jmrix.AbstractSerialPortController
      */
-    public String handlePortBusy(gnu.io.PortInUseException p, String portName, Logger log);
+    public String handlePortBusy(purejavacomm.PortInUseException p, String portName, Logger log);
 
     /**
      * Return the System Manufacturers Name

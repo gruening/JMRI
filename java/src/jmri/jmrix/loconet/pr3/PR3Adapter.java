@@ -1,6 +1,6 @@
 package jmri.jmrix.loconet.pr3;
 
-import gnu.io.SerialPort;
+import purejavacomm.SerialPort;
 import jmri.jmrix.loconet.LnCommandStationType;
 import jmri.jmrix.loconet.LnPacketizer;
 import jmri.jmrix.loconet.LocoNetMessage;
@@ -26,7 +26,7 @@ public class PR3Adapter extends LocoBufferAdapter {
     /**
      * Always use flow control, not considered a user-settable option
      */
-    protected void setSerialPort(SerialPort activeSerialPort) throws gnu.io.UnsupportedCommOperationException {
+    protected void setSerialPort(SerialPort activeSerialPort) throws purejavacomm.UnsupportedCommOperationException {
         // find the baud rate value, configure comm options
         int baud = 57600;  // default, but also defaulted in the initial value of selectedSpeed
         for (int i = 0; i < validBaudNumber().length; i++) {

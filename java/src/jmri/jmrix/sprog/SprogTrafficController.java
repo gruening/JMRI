@@ -1,8 +1,11 @@
 package jmri.jmrix.sprog;
 
+<<<<<<< HEAD
 import purejavacomm.SerialPort;
 import purejavacomm.SerialPortEvent;
 import purejavacomm.SerialPortEventListener;
+=======
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import java.io.DataInputStream;
 import java.io.OutputStream;
 import java.util.Vector;
@@ -11,6 +14,9 @@ import jmri.jmrix.sprog.SprogConstants.SprogState;
 import jmri.jmrix.sprog.serialdriver.SerialDriverAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import purejavacomm.SerialPort;
+import purejavacomm.SerialPortEvent;
+import purejavacomm.SerialPortEventListener;
 
 /**
  * Converts Stream-based I/O to/from Sprog messages. The "SprogInterface" side
@@ -44,10 +50,12 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
 // The methods to implement the SprogInterface
     protected Vector<SprogListener> cmdListeners = new Vector<SprogListener>();
 
+    @Override
     public boolean status() {
         return (ostream != null && istream != null);
     }
 
+    @Override
     public synchronized void addSprogListener(SprogListener l) {
         // add only if not already registered
         if (l == null) {
@@ -58,6 +66,7 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
         }
     }
 
+    @Override
     public synchronized void removeSprogListener(SprogListener l) {
         if (cmdListeners.contains(l)) {
             cmdListeners.removeElement(l);
@@ -104,7 +113,7 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
 
     }
 
-    protected void notifyMessage(SprogMessage m, SprogListener originator) {
+    protected synchronized void notifyMessage(SprogMessage m, SprogListener originator) {
         for (SprogListener listener : this.getCopyOfListeners()) {
             try {
                 //don't send it back to the originator!
@@ -147,6 +156,30 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
         }
     }
 
+    protected synchronized void notifyReply(SprogReply r, SprogListener lastSender) {
+        log.debug("notifyReply starts last sender: "+lastSender);
+        for (SprogListener listener : this.getCopyOfListeners()) {
+            try {
+                //if is message don't send it back to the originator!
+                // skip forwarding to the last sender for now, we'll get them later
+                if (lastSender != listener) {
+                    log.debug("Notify listener: "+listener+" "+r.toString());
+                    listener.notifyReply(r);
+                }
+
+            } catch (Exception e) {
+                log.warn("notify: During dispatch to " + listener + "\nException " + e);
+            }
+        }
+        // forward to the last listener who sent a message
+        // this is done _second_ so monitoring can have already stored the reply
+        // before a response is sent
+        if (lastSender != null) {
+            log.debug("notify last sender: "+lastSender+r.toString());
+            lastSender.notifyReply(r);
+        }
+    }
+
     /**
      * Forward a preformatted message to the interface
      *
@@ -169,21 +202,29 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
      * Forward a preformatted message to the actual interface (by calling
      * SendSprogMessage(SprogMessage) after notifying any listeners Notifies
      * listeners
+     *
+     * @param m         Message to send
+     * @param replyTo   Who is sending the message
      */
+    @Override
     public synchronized void sendSprogMessage(SprogMessage m, SprogListener replyTo) {
 
         if (waitingForReply) {
             try {
+                log.debug("Waiting for a reply");
                 wait(100);  //Will wait until notify()ed or 100ms timeout
             } catch (InterruptedException e) {
+                log.debug("waitingForReply interrupted");
             }
         }
+        log.debug("Setting waitingForReply");
         waitingForReply = true;
 
         if (log.isDebugEnabled()) {
             log.debug("sendSprogMessage message: [" + m.toString(isSIIBootMode()) + "]");
         }
         // remember who sent this
+//        log.debug("Updating last sender "+replyTo.toString());
         lastSender = replyTo;
         // notify all _other_ listeners
         notifyMessage(m, replyTo);
@@ -196,6 +237,8 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
 
     /**
      * Make connection to existing PortController object.
+     * 
+     * @param p The port controller
      */
     public void connectPort(AbstractPortController p) {
         istream = p.getInputStream();
@@ -209,6 +252,8 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
 
     /**
      * return the port controller, as an SerialDriverAdapter.
+     * 
+     * @return The port controller
      */
     protected SerialDriverAdapter getController(){
        return (SerialDriverAdapter)controller;
@@ -268,6 +313,7 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
      * only dealing with DATA_AVAILABLE but the other events are left here for
      * reference. AJB Jan 2010
      */
+    @Override
     public void serialEvent(SerialPortEvent event) {
         switch (event.getEventType()) {
             case SerialPortEvent.BI:
@@ -283,6 +329,9 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
             case SerialPortEvent.DATA_AVAILABLE:
                 log.debug("Data Available");
                 handleOneIncomingReply();
+                break;
+            default:
+                log.warn("Unhandled serial port event code: {}", event.getEventType());
                 break;
         }
     }
@@ -319,6 +368,7 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
     private void sendreply() {
         //send the reply
         synchronized (this) {
+            log.debug("Clearing waitingForReply");
             waitingForReply = false;
             notify();
         }
@@ -327,6 +377,7 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
         }
         {
             final SprogReply thisReply = this.reply;
+            final SprogListener thisLastSender = this.lastSender;
             if (unsolicited) {
                 log.debug("Unsolicited Reply");
                 thisReply.setUnsolicited();
@@ -335,11 +386,13 @@ public class SprogTrafficController implements SprogInterface, SerialPortEventLi
             // return a notification via the queue to ensure end
             Runnable r = new Runnable() {
                 SprogReply replyForLater = thisReply;
+                SprogListener lastSenderForLater = thisLastSender;
                 SprogTrafficController myTC = thisTC;
 
+                @Override
                 public void run() {
-                    log.debug("Delayed notify starts");
-                    myTC.notifyReply(replyForLater);
+                    log.debug("Delayed notify starts "+replyForLater.toString());
+                    myTC.notifyReply(replyForLater, lastSenderForLater);
                 }
             };
             javax.swing.SwingUtilities.invokeLater(r);

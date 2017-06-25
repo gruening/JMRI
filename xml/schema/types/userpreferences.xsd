@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet href="../schema2xhtml.xsl" type="text/xsl"?>
 
-<!-- $Id: connection.xsd 18038 2011-07-25 13:53:18Z kevin-dickerson $ -->
-
 <!-- This schema is part of JMRI. Copyright 2009.                           -->
 <!--                                                                        -->
 <!-- JMRI is free software; you can redistribute it and/or modify it under  -->
@@ -103,7 +101,7 @@
           <xs:attribute name="class" type="xs:string" use="required" />
         </xs:complexType>
       </xs:element>
-      <xs:element name="tableDetails">
+      <xs:element name="tableDetails" minOccurs="0" maxOccurs="unbounded">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="table" minOccurs="0" maxOccurs="unbounded">

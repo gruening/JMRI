@@ -88,6 +88,7 @@ public class Z21XNetTurnout extends XNetTurnout implements XNetListener {
         internalState = oldState;
     }
 
+    @Override
     synchronized public void message(XNetReply l) {
         if (log.isDebugEnabled()) {
             log.debug("recieved message: " + l);
@@ -95,6 +96,9 @@ public class Z21XNetTurnout extends XNetTurnout implements XNetListener {
         if (l.getElement(0)==Z21Constants.LAN_X_TURNOUT_INFO) {
           // bytes 2 and 3 are the address.
           int address = (l.getElement(1) << 8) + l.getElement(2);
+          // the address sent byte the Z21 is one less than what JMRI's 
+          // XPressNet code (and lenz systems) expect.
+          address = address + 1; 
           if(log.isDebugEnabled()) {
                log.debug("message has address: {}",address);
           }
@@ -130,6 +134,7 @@ public class Z21XNetTurnout extends XNetTurnout implements XNetListener {
         }
     }
 
+    @Override
     protected XNetMessage getOffMessage() {
         return( Z21XNetMessage.getZ21SetTurnoutRequestMessage(mNumber,
                 (getCommandedState() ==  _mThrown),

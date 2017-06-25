@@ -178,13 +178,48 @@ public class Z21XNetThrottle extends jmri.jmrix.lenz.XNetThrottle {
         queueMessage(msg7, THROTTLEFUNCSENT);
     }
 
+    // The Z21 doesn't support setting the momentary/continuous status of
+    // functions, so override the sending of all momentary/continuous 
+    // from the parent class.
+    @Override
+    protected void sendMomentaryFunctionGroup1() {
+    }
+    @Override
+    protected void sendMomentaryFunctionGroup2() {
+    }
+    @Override
+    protected void sendMomentaryFunctionGroup3() {
+    }
+    @Override
+    protected void sendMomentaryFunctionGroup4() {
+    }
+    @Override
+    protected void sendMomentaryFunctionGroup5() {
+    }
+
+    // also prevent requesting the momentary status information
+    @Override
+    synchronized protected void sendFunctionStatusInformationRequest() {
+    }
+    @Override
+    synchronized protected void sendFunctionHighMomentaryStatusRequest() {
+    }
+
+
+    // The Z21 Doesn't support the XPressNet directed emergency stop
+    // instruction, so override sendEmergencyStop in the parent, and
+    // just send speed step 0.
+    @Override
+    protected void sendEmergencyStop(){
+       setSpeedSetting(0);
+    }
 
     // Handle incoming messages for This throttle.
     @Override
     public void message(XNetReply l) {
         if (log.isDebugEnabled()) 
             log.debug("Throttle " + getDccAddress() + " - recieved message " + l.toString());
-        if((l.getElement(0)&0xE0)==0xE0 && (l.getElement(0)&0x0f) >= 7 && (l.getElement(0)&0x0f) <=14 ){
+        if((l.getElement(0)&0xE0)==0xE0 && ((l.getElement(0)&0x0f) >= 7 && (l.getElement(0)&0x0f) <=15 )){
             //This is a Roco specific throttle information message.
             //Data Byte 0 and 1 contain the locomotive address
             int messageaddress=((l.getElement(1)&0x3F) << 8)+l.getElement(2);

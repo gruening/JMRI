@@ -2,18 +2,28 @@ package jmri.jmrix.tmcc.serialdriver;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.TooManyListenersException;
 import jmri.jmrix.tmcc.SerialPortController;
 import jmri.jmrix.tmcc.SerialTrafficController;
 import jmri.jmrix.tmcc.TMCCSystemConnectionMemo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
+<<<<<<< HEAD
+=======
+import purejavacomm.NoSuchPortException;
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
 import purejavacomm.SerialPortEvent;
 import purejavacomm.SerialPortEventListener;
+<<<<<<< HEAD
+=======
+import purejavacomm.UnsupportedCommOperationException;
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Provide access to TMCC via a serial comm port. Normally controlled by the
@@ -30,6 +40,7 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
         this.manufacturerName = jmri.jmrix.tmcc.SerialConnectionTypeList.LIONEL;
     }
 
+    @Override
     public String openPort(String portName, String appName) {
         try {
             // get and open the primary port
@@ -42,7 +53,11 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
             // try to set it for serial
             try {
                 setSerialPort();
+<<<<<<< HEAD
             } catch (purejavacomm.UnsupportedCommOperationException e) {
+=======
+            } catch (UnsupportedCommOperationException e) {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
@@ -53,7 +68,7 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
                 activeSerialPort.enableReceiveTimeout(10);
                 log.debug("Serial timeout was observed as: " + activeSerialPort.getReceiveTimeout()
                         + " " + activeSerialPort.isReceiveTimeoutEnabled());
-            } catch (Exception et) {
+            } catch (UnsupportedCommOperationException et) {
                 log.info("failed to set serial timeout: " + et);
             }
 
@@ -82,47 +97,43 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
             }
             if (log.isDebugEnabled()) {
                 // arrange to notify later
-                activeSerialPort.addEventListener(new SerialPortEventListener() {
-                    public void serialEvent(SerialPortEvent e) {
-                        int type = e.getEventType();
-                        switch (type) {
-                            case SerialPortEvent.DATA_AVAILABLE:
-                                log.info("SerialEvent: DATA_AVAILABLE is " + e.getNewValue());
-                                return;
-                            case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
-                                log.info("SerialEvent: OUTPUT_BUFFER_EMPTY is " + e.getNewValue());
-                                return;
-                            case SerialPortEvent.CTS:
-                                log.info("SerialEvent: CTS is " + e.getNewValue());
-                                return;
-                            case SerialPortEvent.DSR:
-                                log.info("SerialEvent: DSR is " + e.getNewValue());
-                                return;
-                            case SerialPortEvent.RI:
-                                log.info("SerialEvent: RI is " + e.getNewValue());
-                                return;
-                            case SerialPortEvent.CD:
-                                log.info("SerialEvent: CD is " + e.getNewValue());
-                                return;
-                            case SerialPortEvent.OE:
-                                log.info("SerialEvent: OE (overrun error) is " + e.getNewValue());
-                                return;
-                            case SerialPortEvent.PE:
-                                log.info("SerialEvent: PE (parity error) is " + e.getNewValue());
-                                return;
-                            case SerialPortEvent.FE:
-                                log.info("SerialEvent: FE (framing error) is " + e.getNewValue());
-                                return;
-                            case SerialPortEvent.BI:
-                                log.info("SerialEvent: BI (break interrupt) is " + e.getNewValue());
-                                return;
-                            default:
-                                log.info("SerialEvent of unknown type: " + type + " value: " + e.getNewValue());
-                                return;
-                        }
+                activeSerialPort.addEventListener((SerialPortEvent e) -> {
+                    int type = e.getEventType();
+                    switch (type) {
+                        case SerialPortEvent.DATA_AVAILABLE:
+                            log.info("SerialEvent: DATA_AVAILABLE is {}", e.getNewValue());
+                            return;
+                        case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
+                            log.info("SerialEvent: OUTPUT_BUFFER_EMPTY is {}", e.getNewValue());
+                            return;
+                        case SerialPortEvent.CTS:
+                            log.info("SerialEvent: CTS is {}", e.getNewValue());
+                            return;
+                        case SerialPortEvent.DSR:
+                            log.info("SerialEvent: DSR is {}", e.getNewValue());
+                            return;
+                        case SerialPortEvent.RI:
+                            log.info("SerialEvent: RI is {}", e.getNewValue());
+                            return;
+                        case SerialPortEvent.CD:
+                            log.info("SerialEvent: CD is {}", e.getNewValue());
+                            return;
+                        case SerialPortEvent.OE:
+                            log.info("SerialEvent: OE (overrun error) is {}", e.getNewValue());
+                            return;
+                        case SerialPortEvent.PE:
+                            log.info("SerialEvent: PE (parity error) is {}", e.getNewValue());
+                            return;
+                        case SerialPortEvent.FE:
+                            log.info("SerialEvent: FE (framing error) is {}", e.getNewValue());
+                            return;
+                        case SerialPortEvent.BI:
+                            log.info("SerialEvent: BI (break interrupt) is {}", e.getNewValue());
+                            return;
+                        default:
+                            log.info("SerialEvent of unknown type: {} value: {}", type, e.getNewValue());
                     }
-                }
-                );
+                });
                 try {
                     activeSerialPort.notifyOnFramingError(true);
                 } catch (Exception e) {
@@ -151,11 +162,14 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
 
             opened = true;
 
+<<<<<<< HEAD
         } catch (purejavacomm.NoSuchPortException p) {
+=======
+        } catch (NoSuchPortException p) {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             return handlePortNotFound(p, portName, log);
-        } catch (Exception ex) {
-            log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);
-            ex.printStackTrace();
+        } catch (IOException | TooManyListenersException ex) {
+            log.error("Unexpected exception while opening port {} trace follows: ", portName, ex);
             return "Unexpected error while opening port " + portName + ": " + ex;
         }
 
@@ -163,7 +177,9 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
     }
 
     /**
-     * Can the port accept additional characters? Yes, always
+     * Can the port accept additional characters?
+     *
+     * @return true
      */
     public boolean okToSend() {
         return true;
@@ -172,6 +188,7 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
     /**
      * set up all of the other objects to operate connected to this port
      */
+    @Override
     public void configure() {
         // connect to the traffic controller
         SerialTrafficController.instance().connectPort(this);
@@ -182,6 +199,7 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
     }
 
     // base class methods for the SerialPortController interface
+    @Override
     public DataInputStream getInputStream() {
         if (!opened) {
             log.error("getInputStream called before load(), stream not available");
@@ -190,6 +208,7 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
         return new DataInputStream(serialStream);
     }
 
+    @Override
     public DataOutputStream getOutputStream() {
         if (!opened) {
             log.error("getOutputStream called before load(), stream not available");
@@ -202,14 +221,22 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
         return null;
     }
 
+    @Override
     public boolean status() {
         return opened;
     }
 
     /**
-     * Local method to do specific port configuration
+     * Local method to do specific port configuration.
+     *
+     * @throws UnsupportedCommOperationException if unable to configure
+     *                                                  port
      */
+<<<<<<< HEAD
     protected void setSerialPort() throws purejavacomm.UnsupportedCommOperationException {
+=======
+    protected void setSerialPort() throws UnsupportedCommOperationException {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
         // find the baud rate value, configure comm options
         int baud = 9600;  // default, but also defaulted in the initial value of selectedSpeed
         for (int i = 0; i < validSpeeds.length; i++) {
@@ -236,7 +263,10 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
 
     /**
      * Set the baud rate.
+     *
+     * @param rate the baud rate
      */
+    @Override
     public void configureBaudRate(String rate) {
         log.debug("configureBaudRate: " + rate);
         selectedSpeed = rate;
@@ -249,7 +279,9 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
 
     /**
      * Get an array of valid values for "option 2"; used to display valid
-     * options. May not be null, but may have zero entries
+     * options. May not be null, but may have zero entries.
+     *
+     * @return a single element array containing an empty string
      */
     public String[] validOption2() {
         return new String[]{""};
@@ -257,7 +289,9 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
 
     /**
      * Get a String that says what Option 2 represents May be an empty string,
-     * but will not be null
+     * but will not be null.
+     *
+     * @return an empty string
      */
     public String option2Name() {
         return "";
@@ -268,7 +302,9 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
     InputStream serialStream = null;
 
     /**
-     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI multi-system support structure
+     * @return the default adapter
+     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI
+     * multi-system support structure
      */
     @Deprecated
     static public SerialDriverAdapter instance() {
@@ -278,7 +314,8 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
         return mInstance;
     }
     /**
-     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI multi-system support structure
+     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI
+     * multi-system support structure
      */
     @Deprecated
     static SerialDriverAdapter mInstance = null;

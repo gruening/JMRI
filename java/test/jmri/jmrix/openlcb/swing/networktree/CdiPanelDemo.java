@@ -14,7 +14,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import java.awt.GraphicsEnvironment;
 
@@ -44,6 +43,7 @@ public class CdiPanelDemo {
 
         m.initComponents(demoRepFromSample(SampleFactory.getBasicSample()),
                 new CdiPanel.GuiItemFactory() {
+                    @Override
                     public JButton handleReadButton(JButton button) {
                         //System.out.println("process button");
                         button.setBorder(BorderFactory.createLineBorder(java.awt.Color.yellow));
@@ -57,6 +57,7 @@ public class CdiPanelDemo {
         // show
         f.pack();
         f.setVisible(true);
+        f.dispose();
     }
 
     @Test
@@ -65,6 +66,7 @@ public class CdiPanelDemo {
         JFrame f = makeFrameFromFile("java/test/jmri/jmrix/openlcb/sample1.xml");
         f.setTitle("Sample1 XML");
         f.setVisible(true);
+        f.dispose();
     }
 
     @Test
@@ -73,6 +75,7 @@ public class CdiPanelDemo {
         JFrame f = makeFrameFromFile("java/test/jmri/jmrix/openlcb/sample2.xml");
         f.setTitle("Sample 2 XML");
         f.setVisible(true);
+        f.dispose();
     }
 
     @Test
@@ -81,6 +84,7 @@ public class CdiPanelDemo {
         JFrame f = makeFrameFromFile("java/test/jmri/jmrix/openlcb/NMRAnetDatabaseTrainNode.xml");
         f.setTitle("Locomotive CDI Demonstration");
         f.setVisible(true);
+        f.dispose();
     }
 
     Element getRootFromFile(String name) {
@@ -101,6 +105,7 @@ public class CdiPanelDemo {
 
         m.initComponents(demoRepFromFile(new File(fileName)),
                 new CdiPanel.GuiItemFactory() {
+                    @Override
                     public JButton handleReadButton(JButton button) {
                         //System.out.println("process button");
                         button.setBorder(BorderFactory.createLineBorder(java.awt.Color.yellow));

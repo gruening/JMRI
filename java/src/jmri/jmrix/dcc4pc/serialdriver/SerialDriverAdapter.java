@@ -2,6 +2,7 @@ package jmri.jmrix.dcc4pc.serialdriver;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +14,15 @@ import jmri.jmrix.dcc4pc.Dcc4PcTrafficController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
+<<<<<<< HEAD
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
+=======
+import purejavacomm.NoSuchPortException;
+import purejavacomm.PortInUseException;
+import purejavacomm.SerialPort;
+import purejavacomm.UnsupportedCommOperationException;
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Implements SerialPortAdapter for the Dcc4Pc system.
@@ -22,7 +30,7 @@ import purejavacomm.SerialPort;
  * This connects an Dcc4Pc command station via a serial com port.
  * <P>
  *
- * @author	Kevin Dickerson Copyright (C) 2012
+ * @author Kevin Dickerson Copyright (C) 2012
  */
 public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jmrix.SerialPortAdapter {
 
@@ -35,6 +43,7 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
 
     SerialPort activeSerialPort = null;
 
+    @Override
     public String openPort(String portName, String appName) {
 
         try {
@@ -47,7 +56,11 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
             try {
                 activeSerialPort.setSerialPortParams(115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
                 activeSerialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
+<<<<<<< HEAD
             } catch (purejavacomm.UnsupportedCommOperationException e) {
+=======
+            } catch (UnsupportedCommOperationException e) {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
             }
             log.debug("Serial timeout was observed as: " + activeSerialPort.getReceiveTimeout()
@@ -71,9 +84,13 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
 
             opened = true;
 
+<<<<<<< HEAD
         } catch (purejavacomm.NoSuchPortException p) {
+=======
+        } catch (NoSuchPortException p) {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             return handlePortNotFound(p, portName, log);
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);
             ex.printStackTrace();
             return "Unexpected error while opening port " + portName + ": " + ex;
@@ -130,6 +147,7 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
      * Set the second port option. Only to be used after construction, but
      * before the openPort call
      */
+    @Override
     public void configureOption2(String value) {
         super.configureOption2(value);
         log.debug("configureOption2: " + value);
@@ -141,6 +159,7 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
     }
 
     // base class methods for the Dcc4PcPortController interface
+    @Override
     public DataInputStream getInputStream() {
         if (!opened) {
             log.error("getInputStream called before load(), stream not available");
@@ -149,6 +168,7 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
         return new DataInputStream(serialStream);
     }
 
+    @Override
     public DataOutputStream getOutputStream() {
         if (!opened) {
             log.error("getOutputStream called before load(), stream not available");
@@ -164,6 +184,7 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
     /**
      * Get an array of valid baud rates. This is currently only 19,200 bps
      */
+    @Override
     public String[] validBaudRates() {
         return new String[]{"115,200 bps"};
     }
@@ -193,6 +214,7 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
      * set up all of the other objects to operate with an Dcc4Pc command station
      * connected to this port
      */
+    @Override
     public void configure() {
         // connect to the traffic controller
         Dcc4PcTrafficController control = new Dcc4PcTrafficController();

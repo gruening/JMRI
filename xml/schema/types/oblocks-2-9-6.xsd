@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet href="../schema2xhtml.xsl" type="text/xsl"?>
 
-<!-- $Id$ -->
-
 <!-- This schema is part of JMRI. Copyright 2009.                           -->
 <!--                                                                        -->
 <!-- JMRI is free software; you can redistribute it and/or modify it under  -->
@@ -63,7 +61,7 @@
                         <xs:element name="fromBlock" minOccurs="0" maxOccurs="unbounded" >
                             <xs:complexType>
                               <xs:sequence>
-                                <xs:element name="path" type="OBlockPathType" minOccurs="1" maxOccurs="unbounded" />
+                                <xs:element name="path" type="OBlockPathType" minOccurs="0" maxOccurs="unbounded" />
                               </xs:sequence>
                               <xs:attribute name="blockName" type="xs:string" />
                             </xs:complexType>

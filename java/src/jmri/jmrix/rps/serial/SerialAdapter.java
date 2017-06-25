@@ -12,8 +12,15 @@ import jmri.jmrix.rps.RpsSystemConnectionMemo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
+<<<<<<< HEAD
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
+=======
+import purejavacomm.NoSuchPortException;
+import purejavacomm.PortInUseException;
+import purejavacomm.SerialPort;
+import purejavacomm.UnsupportedCommOperationException;
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Implements SerialPortAdapter for the RPS system.
@@ -39,6 +46,7 @@ public class SerialAdapter extends jmri.jmrix.AbstractSerialPortController imple
 
     transient SerialPort activeSerialPort = null;
 
+    @Override
     public synchronized String openPort(String portName, String appName) {
         // open the port, check ability to set moderators
         try {
@@ -60,7 +68,11 @@ public class SerialAdapter extends jmri.jmrix.AbstractSerialPortController imple
                     }
                 }
                 activeSerialPort.setSerialPortParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+<<<<<<< HEAD
             } catch (purejavacomm.UnsupportedCommOperationException e) {
+=======
+            } catch (UnsupportedCommOperationException e) {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
@@ -100,9 +112,13 @@ public class SerialAdapter extends jmri.jmrix.AbstractSerialPortController imple
 
             opened = true;
 
+<<<<<<< HEAD
         } catch (purejavacomm.NoSuchPortException p) {
+=======
+        } catch (NoSuchPortException p) {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             return handlePortNotFound(p, portName, log);
-        } catch (Exception ex) {
+        } catch (UnsupportedCommOperationException | IOException ex) {
             log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);
             ex.printStackTrace();
             return "Unexpected error while opening port " + portName + ": " + ex;
@@ -135,6 +151,7 @@ public class SerialAdapter extends jmri.jmrix.AbstractSerialPortController imple
     /**
      * Set up all of the other objects to operate
      */
+    @Override
     public void configure() {
 
         // Connect the control objects:
@@ -151,6 +168,7 @@ public class SerialAdapter extends jmri.jmrix.AbstractSerialPortController imple
     }
 
     // base class methods for the PortController interface
+    @Override
     public synchronized DataInputStream getInputStream() {
         if (!opened) {
             log.error("getInputStream called before load(), stream not available");
@@ -159,6 +177,7 @@ public class SerialAdapter extends jmri.jmrix.AbstractSerialPortController imple
         return new DataInputStream(serialStream);
     }
 
+    @Override
     public synchronized DataOutputStream getOutputStream() {
         if (!opened) {
             log.error("getOutputStream called before load(), stream not available");
@@ -171,6 +190,7 @@ public class SerialAdapter extends jmri.jmrix.AbstractSerialPortController imple
         return null;
     }
 
+    @Override
     public boolean status() {
         return opened;
     }
@@ -188,6 +208,7 @@ public class SerialAdapter extends jmri.jmrix.AbstractSerialPortController imple
     /**
      * Set the second port option.
      */
+    @Override
     public void configureOption1(String value) {
         setOptionState(option1Name, value);
         if (value.equals(validOptions1[0])) {
@@ -252,6 +273,7 @@ public class SerialAdapter extends jmri.jmrix.AbstractSerialPortController imple
          * PortController via <code>connectPort</code>. Terminates with the
          * input stream breaking out of the try block.
          */
+        @Override
         public void run() {
             // have to limit verbosity!
 
@@ -303,6 +325,7 @@ public class SerialAdapter extends jmri.jmrix.AbstractSerialPortController imple
                 // retain a copy of the message at startup
                 String msgForLater = msgString;
 
+                @Override
                 public void run() {
                     nextLine(msgForLater);
                 }

@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * NOTE: Some material in this file was modified from other portions of the
  * support infrastructure.
  *
- * @author	Paul Bender, Copyright (C) 2009-2010
+ * @author Paul Bender, Copyright (C) 2009-2010
  */
 public class XNetSimulatorAdapter extends XNetSimulatorPortController implements Runnable {
 
@@ -75,6 +75,7 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
         csStatus = csNormalMode;
     }
 
+    @Override
     public String openPort(String portName, String appName) {
         // open the port in XPressNet mode, check ability to set moderators
         setPort(portName);
@@ -86,6 +87,7 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
      * only be set to false by external processes
      *
      */
+    @Override
     synchronized public void setOutputBufferEmpty(boolean s) {
         OutputBufferEmpty = s;
     }
@@ -115,6 +117,7 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
      * set up all of the other objects to operate with a XNetSimulator connected
      * to this port
      */
+    @Override
     public void configure() {
         // connect to a packetizing traffic controller
         XNetTrafficController packets = new XNetPacketizer(new LenzCommandStation());
@@ -131,6 +134,7 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
     }
 
     // base class methods for the XNetSimulatorPortController interface
+    @Override
     public DataInputStream getInputStream() {
         if (pin == null) {
             log.error("getInputStream called before load(), stream not available");
@@ -141,6 +145,7 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
         return pin;
     }
 
+    @Override
     public DataOutputStream getOutputStream() {
         if (pout == null) {
             log.error("getOutputStream called before load(), stream not available");
@@ -151,6 +156,7 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
         return pout;
     }
 
+    @Override
     public boolean status() {
         return (pout != null && pin != null);
     }
@@ -163,6 +169,7 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
         return mInstance;
     }
 
+    @Override
     public void run() { // start a new thread
         // this thread has one task.  It repeatedly reads from the input pipe
         // and writes modified data to the output pipe.  This is the heart
@@ -514,7 +521,11 @@ public class XNetSimulatorAdapter extends XNetSimulatorPortController implements
     /**
      * Read a single byte, protecting against various timeouts, etc.
      * <P>
+<<<<<<< HEAD
      * When a purejavacomm port is set to have a receive timeout (via the
+=======
+     * When a port is set to have a receive timeout (via the
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
      * enableReceiveTimeout() method), some will return zero bytes or an
      * EOFException at the end of the timeout. In that case, the read should be
      * repeated to get the next real character.

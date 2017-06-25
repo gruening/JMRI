@@ -1,6 +1,10 @@
 package jmri.util;
 
 import purejavacomm.SerialPort;
+<<<<<<< HEAD
+=======
+import purejavacomm.UnsupportedCommOperationException;
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Common utility methods for working with Serial Ports.
@@ -16,14 +20,18 @@ import purejavacomm.SerialPort;
 public class SerialUtil {
 
     static public void setSerialPortParams(SerialPort activeSerialPort, int baud, int databits, int stopbits, int parity)
+<<<<<<< HEAD
             throws purejavacomm.UnsupportedCommOperationException {
+=======
+            throws UnsupportedCommOperationException {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
         /* 
          * First try once to work around bug, then do again for real
          * see http://wiki.gb.nrao.edu/bin/view/Pennarray/JavaComm3
          */
         try {
             activeSerialPort.setSerialPortParams(baud, databits, stopbits, parity);
-        } catch (Exception et) {
+        } catch (UnsupportedCommOperationException et) {
             // Work around Sun Comm bug
         }
         activeSerialPort.setSerialPortParams(baud, databits, stopbits, parity);

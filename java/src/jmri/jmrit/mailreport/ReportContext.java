@@ -1,6 +1,9 @@
 package jmri.jmrit.mailreport;
 
+<<<<<<< HEAD
 import purejavacomm.CommPortIdentifier;
+=======
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -26,6 +29,7 @@ import jmri.util.JmriInsets;
 import jmri.util.PortNameMapper;
 import jmri.util.PortNameMapper.SerialPortFriendlyName;
 import jmri.util.zeroconf.ZeroConfService;
+import purejavacomm.CommPortIdentifier;
 
 /**
  * Provide the JMRI context info.
@@ -128,6 +132,10 @@ public class ReportContext {
         addProperty("user.language");
         addProperty("user.timezone");
         addProperty("jmri.log.path");
+        
+        addString("FileSystemView#getDefaultDirectory(): "+javax.swing.filechooser.FileSystemView.getFileSystemView().getDefaultDirectory().getPath() );
+        addString("FileSystemView#getHomeDirectory(): "+javax.swing.filechooser.FileSystemView.getFileSystemView().getHomeDirectory().getPath() );
+        addString("Default JFileChooser(): "+(new javax.swing.JFileChooser()).getCurrentDirectory().getPath() );
 
         addScreenSize();
 
@@ -211,7 +219,7 @@ public class ReportContext {
             Insets jmriInsets = JmriInsets.getInsets();
             addString("JmriInsets t:" + jmriInsets.top + ", b:" + jmriInsets.bottom
                     + "; l:" + jmriInsets.left + ", r:" + jmriInsets.right);
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             addString("Exception getting JmriInsets" + ex.getMessage());
         }
     }
@@ -279,7 +287,7 @@ public class ReportContext {
         @SuppressWarnings("unchecked")
         Enumeration<CommPortIdentifier> portIDs = CommPortIdentifier.getPortIdentifiers();
 
-        ArrayList<CommPortIdentifier> ports = new ArrayList<CommPortIdentifier>();
+        ArrayList<CommPortIdentifier> ports = new ArrayList<>();
 
         // find the names of suitable ports
         while (portIDs.hasMoreElements()) {

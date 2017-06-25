@@ -2,6 +2,7 @@ package jmri.jmrix.acela.serialdriver;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import jmri.jmrix.acela.AcelaPortController;
 import jmri.jmrix.acela.AcelaSystemConnectionMemo;
@@ -9,8 +10,15 @@ import jmri.jmrix.acela.AcelaTrafficController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
+<<<<<<< HEAD
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
+=======
+import purejavacomm.NoSuchPortException;
+import purejavacomm.PortInUseException;
+import purejavacomm.SerialPort;
+import purejavacomm.UnsupportedCommOperationException;
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Implements SerialPortAdapter for the Acela system. This connects an Acela
@@ -20,9 +28,9 @@ import purejavacomm.SerialPort;
  * The current implementation only handles the 9,600 baud rate, and does not use
  * any other options at configuration time.
  *
- * @author	Bob Jacobsen Copyright (C) 2001, 2002
+ * @author Bob Jacobsen Copyright (C) 2001, 2002
  *
- * @author	Bob Coleman, Copyright (C) 2007, 2008 Based on Mrc example, modified
+ * @author Bob Coleman, Copyright (C) 2007, 2008 Based on Mrc example, modified
  * to establish Acela support.
  */
 public class SerialDriverAdapter extends AcelaPortController implements jmri.jmrix.SerialPortAdapter {
@@ -34,6 +42,7 @@ public class SerialDriverAdapter extends AcelaPortController implements jmri.jmr
 
     SerialPort activeSerialPort = null;
 
+    @Override
     public String openPort(String portName, String appName) {
         // open the port, check ability to set moderators
         try {
@@ -48,14 +57,18 @@ public class SerialDriverAdapter extends AcelaPortController implements jmri.jmr
             // try to set it for communication via SerialDriver
             try {
                 activeSerialPort.setSerialPortParams(currentBaudNumber(getCurrentBaudRate()), SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+<<<<<<< HEAD
             } catch (purejavacomm.UnsupportedCommOperationException e) {
+=======
+            } catch (UnsupportedCommOperationException e) {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
 
             // set RTS high, DTR high
-            activeSerialPort.setRTS(true);		// not connected in some serial ports and adapters
-            activeSerialPort.setDTR(true);		// pin 1 in DIN8; on main connector, this is DTR
+            activeSerialPort.setRTS(true);  // not connected in some serial ports and adapters
+            activeSerialPort.setDTR(true);  // pin 1 in DIN8; on main connector, this is DTR
 
             // disable flow control; hardware lines used for signaling, XON/XOFF might appear in data
             activeSerialPort.setFlowControlMode(0);
@@ -85,9 +98,13 @@ public class SerialDriverAdapter extends AcelaPortController implements jmri.jmr
 
             opened = true;
 
+<<<<<<< HEAD
         } catch (purejavacomm.NoSuchPortException p) {
+=======
+        } catch (NoSuchPortException p) {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             return handlePortNotFound(p, portName, log);
-        } catch (Exception ex) {
+        } catch (UnsupportedCommOperationException | IOException ex) {
             log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);
             ex.printStackTrace();
             return "Unexpected error while opening port " + portName + ": " + ex;
@@ -101,6 +118,7 @@ public class SerialDriverAdapter extends AcelaPortController implements jmri.jmr
      * set up all of the other objects to operate with an serial command station
      * connected to this port
      */
+    @Override
     public void configure() {
         // connect to the traffic controller
         AcelaTrafficController control = new AcelaTrafficController();
@@ -115,20 +133,21 @@ public class SerialDriverAdapter extends AcelaPortController implements jmri.jmr
         // do the common manager config
         // configureManagers();
         //now moved to the adapter memo
-   	/*jmri.InstanceManager.setLightManager(new jmri.jmrix.acela.AcelaLightManager());
+    /*jmri.InstanceManager.setLightManager(new jmri.jmrix.acela.AcelaLightManager());
 
          AcelaSensorManager s;
          jmri.InstanceManager.setSensorManager(s = new jmri.jmrix.acela.AcelaSensorManager());
-         this.getSystemConnectionMemo().getTrafficController().setSensorManager(s);	
+         this.getSystemConnectionMemo().getTrafficController().setSensorManager(s); 
 
          AcelaTurnoutManager t;
          jmri.InstanceManager.setTurnoutManager(t = new jmri.jmrix.acela.AcelaTurnoutManager());
-         this.getSystemConnectionMemo().getTrafficController().setTurnoutManager(t);	*/
+         this.getSystemConnectionMemo().getTrafficController().setTurnoutManager(t); */
         // start operation
         // packets.startThreads();
     }
 
     // base class methods for the AcelaPortController interface
+    @Override
     public DataInputStream getInputStream() {
         if (!opened) {
             log.error("getInputStream called before load(), stream not available");
@@ -137,6 +156,7 @@ public class SerialDriverAdapter extends AcelaPortController implements jmri.jmr
         return new DataInputStream(serialStream);
     }
 
+    @Override
     public DataOutputStream getOutputStream() {
         if (!opened) {
             log.error("getOutputStream called before load(), stream not available");
@@ -149,6 +169,7 @@ public class SerialDriverAdapter extends AcelaPortController implements jmri.jmr
         return null;
     }
 
+    @Override
     public boolean status() {
         return opened;
     }
@@ -156,8 +177,9 @@ public class SerialDriverAdapter extends AcelaPortController implements jmri.jmr
     /**
      * Get an array of valid baud rates.
      */
+    @Override
     public String[] validBaudRates() {
-//	Really just want 9600 Baud for Acela
+// Really just want 9600 Baud for Acela
 //      return new String[]{"9,600 bps", "19,200 bps", "38,400 bps", "57,600 bps"};
         return new String[]{"9,600 bps"};
     }
@@ -165,8 +187,9 @@ public class SerialDriverAdapter extends AcelaPortController implements jmri.jmr
     /**
      * Return array of valid baud rates as integers.
      */
+    @Override
     public int[] validBaudNumber() {
-//	Really just want 9600 Baud for Acela
+// Really just want 9600 Baud for Acela
 //      return new int[]{9600, 19200, 38400, 57600};
         return new int[]{9600};
     }

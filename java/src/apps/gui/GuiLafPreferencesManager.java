@@ -33,6 +33,10 @@ public class GuiLafPreferencesManager extends Bean implements PreferencesManager
     public static final String LOCALE = "locale";
     public static final String LOOK_AND_FEEL = "lookAndFeel";
     public static final String NONSTANDARD_MOUSE_EVENT = "nonstandardMouseEvent";
+    /**
+     * Display state in bean tables as icon.
+     */
+    public static final String GRAPHICTABLESTATE = "graphicTableState";
     public static final String VERTICAL_TOOLBAR = "verticalToolBar";
     public final static String SHOW_TOOL_TIP_TIME = "showToolTipDismissDelay";
     /**
@@ -57,6 +61,7 @@ public class GuiLafPreferencesManager extends Bean implements PreferencesManager
     private int fontSize = 0;
     private int defaultFontSize = 0;
     private boolean nonStandardMouseEvent = false;
+    private boolean graphicTableState = false;
     private boolean verticalToolBar = false;
     private String lookAndFeel = UIManager.getLookAndFeel().getClass().getName();
     private int toolTipDismissDelay = ToolTipManager.sharedInstance().getDismissDelay();
@@ -83,9 +88,13 @@ public class GuiLafPreferencesManager extends Bean implements PreferencesManager
                 this.setFontSize(this.getDefaultFontSize());
             }
             this.setNonStandardMouseEvent(preferences.getBoolean(NONSTANDARD_MOUSE_EVENT, this.isNonStandardMouseEvent()));
-            this.setVerticalToolBar(preferences.getBoolean(VERTICAL_TOOLBAR, this.isVerticalToolBar()));
+            this.setGraphicTableState(preferences.getBoolean(GRAPHICTABLESTATE, this.isGraphicTableState()));
             this.setToolTipDismissDelay(preferences.getInt(SHOW_TOOL_TIP_TIME, this.getToolTipDismissDelay()));
+            
             Locale.setDefault(this.getLocale());
+            javax.swing.JComponent.setDefaultLocale(this.getLocale());
+            javax.swing.JOptionPane.setDefaultLocale(this.getLocale());
+           
             this.applyLookAndFeel();
             this.applyFontSize();
             SwingSettings.setNonStandardMouseEvent(this.isNonStandardMouseEvent());
@@ -125,7 +134,7 @@ public class GuiLafPreferencesManager extends Bean implements PreferencesManager
             preferences.putInt(FONT_SIZE, temp);
         }
         preferences.putBoolean(NONSTANDARD_MOUSE_EVENT, this.isNonStandardMouseEvent());
-        preferences.putBoolean(VERTICAL_TOOLBAR, this.isVerticalToolBar());
+        preferences.putBoolean(GRAPHICTABLESTATE, this.isGraphicTableState()); // use graphic icons in bean table state column
         preferences.putInt(SHOW_TOOL_TIP_TIME, this.getToolTipDismissDelay());
         try {
             preferences.sync();
@@ -264,21 +273,21 @@ public class GuiLafPreferencesManager extends Bean implements PreferencesManager
     }
 
     /**
-     * @return the verticalToolBar
+     * @return the graphicTableState
      */
-    public boolean isVerticalToolBar() {
-        return verticalToolBar;
+    public boolean isGraphicTableState() {
+        return graphicTableState;
     }
 
     /**
-     * @param verticalToolBar the verticalToolBar to set
+     * @param graphicTableState the graphicTableState to set
      */
-    public void setVerticalToolBar(boolean verticalToolBar) {
-        boolean oldVerticalToolBar = this.verticalToolBar;
-        this.verticalToolBar = verticalToolBar;
+    public void setGraphicTableState(boolean graphicTableState) {
+        boolean oldGraphicTableState = this.graphicTableState;
+        this.graphicTableState = graphicTableState;
         this.setDirty(true);
         this.setRestartRequired(true);
-        firePropertyChange(VERTICAL_TOOLBAR, oldVerticalToolBar, verticalToolBar);
+        firePropertyChange(GRAPHICTABLESTATE, oldGraphicTableState, graphicTableState);
     }
 
     /**

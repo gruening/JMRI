@@ -1,15 +1,13 @@
 package jmri.jmrit.speedometer;
 
 import apps.tests.Log4JFixture;
-import jmri.InstanceManager;
+import java.awt.GraphicsEnvironment;
 import jmri.util.JUnitUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
-import java.awt.GraphicsEnvironment;
-import javax.swing.JFrame;
 
 /**
  * Test simple functioning of SpeedometerFrame
@@ -23,6 +21,7 @@ public class SpeedometerFrameTest {
         Assume.assumeFalse(GraphicsEnvironment.isHeadless());
         SpeedometerFrame frame = new SpeedometerFrame();
         Assert.assertNotNull("exists", frame);
+        frame.dispose();
     }
 
     @Test
@@ -32,6 +31,7 @@ public class SpeedometerFrameTest {
         Assume.assumeFalse(GraphicsEnvironment.isHeadless());
         SpeedometerFrame frame = new SpeedometerFrame();
         frame.setInputs("IS1","IS2","IS3","5280","5280");
+        frame.dispose();
     }
 
     @Test
@@ -60,6 +60,7 @@ public class SpeedometerFrameTest {
              Throwable cause = ite.getCause();
              Assert.fail("verifyInputsValid execution failed reason: " + cause.getMessage());
         }
+        frame.dispose();
     }
 
     @Test
@@ -88,6 +89,7 @@ public class SpeedometerFrameTest {
              Assert.fail("verifyInputsValid execution failed reason: " + cause.getMessage());
         }
         jmri.util.JUnitAppender.assertErrorMessage("Start sensor invalid:");
+        frame.dispose();
     }
 
     @Test
@@ -104,6 +106,7 @@ public class SpeedometerFrameTest {
         operator.setStopSensor2Value("IS3");
         operator.setDistance2Value("400");
         operator.pushStartButton();
+        frame.dispose();
     }
 
     @Before

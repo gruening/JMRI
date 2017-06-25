@@ -8,6 +8,10 @@ import jmri.jmrix.can.adapters.gridconnect.can2usbino.GridConnectDoubledMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.SerialPort;
+<<<<<<< HEAD
+=======
+import purejavacomm.UnsupportedCommOperationException;
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Implements SerialPortAdapter for GridConnect adapters.
@@ -16,8 +20,8 @@ import purejavacomm.SerialPort;
  * controlled by the SerialDriverFrame class.
  * <P>
  *
- * @author	Andrew Crosland Copyright (C) 2008
- * @author	Bob Jacobsen Copyright (C) 2009, 2012
+ * @author Andrew Crosland Copyright (C) 2008
+ * @author Bob Jacobsen Copyright (C) 2009, 2012
  * 
  */
 public class SerialDriverAdapter extends GcSerialDriverAdapter implements jmri.jmrix.SerialPortAdapter {
@@ -30,6 +34,7 @@ public class SerialDriverAdapter extends GcSerialDriverAdapter implements jmri.j
     /**
      * Get an array of valid baud rates.
      */
+    @Override
     public String[] validBaudRates() {
         return new String[]{"57,600", "115,200", "230,400", "250,000", "288,000", "333,333", "460,800"};
     }
@@ -37,10 +42,12 @@ public class SerialDriverAdapter extends GcSerialDriverAdapter implements jmri.j
     /**
      * And the corresponding values.
      */
+    @Override
     public int[] validBaudValues() {
         return new int[]{57600, 115200, 230400, 250000, 288000, 333333, 460800};
     }
 
+    @Override
     public String openPort(String portName, String appName) {
         try {
             String retval = super.openPort(portName, appName);
@@ -48,14 +55,20 @@ public class SerialDriverAdapter extends GcSerialDriverAdapter implements jmri.j
             activeSerialPort.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_OUT);
             activeSerialPort.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_IN);
             return retval;
+<<<<<<< HEAD
         } catch (purejavacomm.UnsupportedCommOperationException e) {
+=======
+        } catch (UnsupportedCommOperationException e) {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             log.error("error configuring port", e);
             return null;
         }
     }
 
+    @Override
     protected GcTrafficController makeGcTrafficController() {
         return new GcTrafficController() {
+            @Override
             public AbstractMRMessage encodeForHardware(CanMessage m) {
                 //log.debug("Encoding for hardware");
                 return new GridConnectDoubledMessage(m);

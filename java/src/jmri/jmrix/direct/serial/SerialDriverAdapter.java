@@ -1,23 +1,33 @@
 package jmri.jmrix.direct.serial;
 
+<<<<<<< HEAD
 import Serialio.SerInputStream;
 import Serialio.SerOutputStream;
 import Serialio.SerialConfig;
 import Serialio.SerialPortLocal;
+=======
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Vector;
 import jmri.jmrix.direct.PortController;
 import jmri.jmrix.direct.TrafficController;
-import jmri.util.SystemType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
+<<<<<<< HEAD
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
+=======
+import purejavacomm.NoSuchPortException;
+import purejavacomm.PortInUseException;
+import purejavacomm.SerialPort;
+import purejavacomm.UnsupportedCommOperationException;
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Implements SerialPortAdapter for direct serial drive
@@ -28,14 +38,16 @@ import purejavacomm.SerialPort;
  * use any other options at configuration time.
  *
  *
- * @author	Bob Jacobsen Copyright (C) 2001, 2002, 2004
+ * @author Bob Jacobsen Copyright (C) 2001, 2002, 2004
  */
 public class SerialDriverAdapter extends PortController implements jmri.jmrix.SerialPortAdapter {
 
     Vector<String> portNameVector = null;
     SerialPort activeSerialPort = null;
 
+    @Override
     public Vector<String> getPortNames() {
+<<<<<<< HEAD
         portNameVector = null;
         try {
             // this has to work through one of two sets of class. If
@@ -57,15 +69,24 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
                 log.debug("openPort using purejavacomm");
                 InnerJavaComm inner = new InnerJavaComm();
                 inner.getPortNames();
+=======
+        // first, check that the comm package can be opened and ports seen
+        portNameVector = new Vector<>();
+        Enumeration<CommPortIdentifier> portIDs = CommPortIdentifier.getPortIdentifiers();
+        // find the names of suitable ports
+        while (portIDs.hasMoreElements()) {
+            CommPortIdentifier id = portIDs.nextElement();
+            // filter out line printers 
+            if (id.getPortType() != CommPortIdentifier.PORT_PARALLEL) // accumulate the names in a vector
+            {
+                portNameVector.addElement(id.getName());
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             }
-        } catch (Exception ex) {
-            log.error("error listing port names");
-            ex.printStackTrace();
         }
-
         return portNameVector;
     }
 
+<<<<<<< HEAD
     class InnerSerial {
 
         public Vector<String> getPortNames() {
@@ -136,6 +157,13 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
             // get and open the primary port
             CommPortIdentifier portID = CommPortIdentifier.getPortIdentifier(portName);
             purejavacomm.SerialPort activeSerialPort = null;
+=======
+    @Override
+    public String openPort(String portName, String appName) {
+        try {
+            // get and open the primary port
+            CommPortIdentifier portID = CommPortIdentifier.getPortIdentifier(portName);
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             try {
                 activeSerialPort = (SerialPort) portID.open(appName, 2000);  // name of program, msec to wait
             } catch (PortInUseException p) {
@@ -145,12 +173,20 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
             // try to set it for 17240, then 16457 baud, then 19200 if needed
             try {
                 activeSerialPort.setSerialPortParams(17240, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+<<<<<<< HEAD
             } catch (purejavacomm.UnsupportedCommOperationException e) {
+=======
+            } catch (UnsupportedCommOperationException e) {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                 // assume that's a baudrate problem, fall back.
                 log.warn("attempting to fall back to 16457 baud after 17240 failed");
                 try {
                     activeSerialPort.setSerialPortParams(16457, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+<<<<<<< HEAD
                 } catch (purejavacomm.UnsupportedCommOperationException e2) {
+=======
+                } catch (UnsupportedCommOperationException e2) {
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                     log.warn("trouble setting 16457 baud");
                     activeSerialPort.setSerialPortParams(19200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
                     javax.swing.JOptionPane.showMessageDialog(null,
@@ -176,6 +212,15 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
             serialInStream = activeSerialPort.getInputStream();
             serialOutStream = activeSerialPort.getOutputStream();
 
+            // port is open, start work on the stream
+            // purge contents, if any
+            int count = serialInStream.available();
+            log.debug("input stream shows " + count + " bytes available");
+            while (count > 0) {
+                serialInStream.skip(count);
+                count = serialInStream.available();
+            }
+
             // report status?
             if (log.isInfoEnabled()) {
                 log.info(portName + " port opened at "
@@ -187,6 +232,7 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
                         + "  CD: " + activeSerialPort.isCD()
                 );
             }
+<<<<<<< HEAD
             return null;
         }
     }
@@ -226,9 +272,15 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
             purgeStream(serialInStream);
 
             opened = true;
+=======
+>>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
-        } catch (Exception ex) {
+        } catch (NoSuchPortException p) {
+            return handlePortNotFound(p, portName, log);
+        } catch (UnsupportedCommOperationException | IOException ex) {
+            log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);
             ex.printStackTrace();
+            return "Unexpected error while opening port " + portName + ": " + ex;
         }
 
         return null; // normal termination
@@ -237,6 +289,7 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
     /**
      * set up all of the other objects to operate with direct drive on this port
      */
+    @Override
     public void configure() {
         // connect to the traffic controller
         TrafficController.instance().connectPort(this);
@@ -250,6 +303,7 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
     }
 
     // base class methods for the PortController interface
+    @Override
     public DataInputStream getInputStream() {
         if (!opened) {
             log.error("getInputStream called before load(), stream not available");
@@ -258,6 +312,7 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
         return new DataInputStream(serialInStream);
     }
 
+    @Override
     public DataOutputStream getOutputStream() {
         if (!opened) {
             log.error("getOutputStream called before load(), stream not available");
@@ -265,6 +320,7 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
         return new DataOutputStream(serialOutStream);
     }
 
+    @Override
     public boolean status() {
         return opened;
     }
@@ -272,6 +328,7 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
     /**
      * Get an array of valid baud rates. This is currently only 19,200 bps
      */
+    @Override
     public String[] validBaudRates() {
         return new String[]{"19,200 bps"};
     }
@@ -282,7 +339,8 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
     OutputStream serialOutStream = null;
 
     /**
-     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI multi-system support structure
+     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI
+     * multi-system support structure
      */
     @Deprecated
     static public SerialDriverAdapter instance() {
@@ -292,7 +350,8 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
         return mInstance;
     }
     /**
-     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI multi-system support structure
+     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI
+     * multi-system support structure
      */
     @Deprecated
     static SerialDriverAdapter mInstance = null;

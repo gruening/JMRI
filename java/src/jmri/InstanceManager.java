@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  * <P>
- * @author	Bob Jacobsen Copyright (C) 2001, 2008, 2013, 2016
+ * @author Bob Jacobsen Copyright (C) 2001, 2008, 2013, 2016
  * @author Matthew Harris copyright (c) 2009
  */
 public class InstanceManager {
@@ -369,7 +369,7 @@ public class InstanceManager {
      *                   Primary Accessors - Left (for now)
      *
      *          These are so extensively used that we're leaving for later
-     *                      Please don't create any more of these 
+     *                      Please don't create any more of these
      * ****************************************************************************/
     /**
      * Will eventually be deprecated, use @{link #getDefault} directly.
@@ -419,7 +419,7 @@ public class InstanceManager {
     /* ****************************************************************************
      *                   Primary Accessors - Deprecated for removal
      *
-     *                      Please don't create any more of these 
+     *                      Please don't create any more of these
      * ****************************************************************************/
     // Simplification order - for each type, starting with those not in the jmri package:
     //   1) Remove it from jmri.managers.DefaultInstanceInitializer, get tests to build & run
@@ -750,7 +750,7 @@ public class InstanceManager {
 
     //
     // This updates the consist manager, which must be
-    // either built into instances of calling code or a 
+    // either built into instances of calling code or a
     // new service, before this can be deprecated.
     //
     static public void setCommandStation(CommandStation p) {
@@ -778,8 +778,8 @@ public class InstanceManager {
     }
 
     //
-    // This provides notification services, which 
-    // must be migrated before this method can be 
+    // This provides notification services, which
+    // must be migrated before this method can be
     // deprecated.
     //
     static public void setConsistManager(ConsistManager p) {
@@ -800,12 +800,12 @@ public class InstanceManager {
     //
     // Note: Also provides consist manager services on store operation.
     // Do we need a new mechanism for this? Or just move this code to
-    // the 30+ classes that reference it? Or maybe have a default of the 
+    // the 30+ classes that reference it? Or maybe have a default of the
     // DccConsistManager that's smarter?
     //
     //
-    // This provides notification services, which 
-    // must be migrated before this method can be 
+    // This provides notification services, which
+    // must be migrated before this method can be
     // deprecated.
     //
     static public void setProgrammerManager(ProgrammerManager p) {
@@ -847,7 +847,7 @@ public class InstanceManager {
     }
 
     /* ****************************************************************************
-     *                   Old Style Setters - Deprecated and migrated, 
+     *                   Old Style Setters - Deprecated and migrated,
      *                                       just here for other users
      *
      *                     Check Jython scripts before removing

@@ -1,9 +1,5 @@
 package jmri.jmrix.dccpp;
 
-<<<<<<< HEAD
-=======
-import purejavacomm.SerialPort;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import org.slf4j.Logger;

@@ -8,10 +8,7 @@ import jmri.jmrix.can.adapters.gridconnect.can2usbino.GridConnectDoubledMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.SerialPort;
-<<<<<<< HEAD
-=======
 import purejavacomm.UnsupportedCommOperationException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Implements SerialPortAdapter for GridConnect adapters.
@@ -55,11 +52,7 @@ public class SerialDriverAdapter extends GcSerialDriverAdapter implements jmri.j
             activeSerialPort.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_OUT);
             activeSerialPort.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_IN);
             return retval;
-<<<<<<< HEAD
-        } catch (purejavacomm.UnsupportedCommOperationException e) {
-=======
         } catch (UnsupportedCommOperationException e) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             log.error("error configuring port", e);
             return null;
         }

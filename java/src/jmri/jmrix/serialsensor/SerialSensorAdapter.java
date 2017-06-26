@@ -14,18 +14,12 @@ import jmri.jmrix.SystemConnectionMemo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
-<<<<<<< HEAD
-=======
 import purejavacomm.NoSuchPortException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
 import purejavacomm.SerialPortEvent;
 import purejavacomm.SerialPortEventListener;
-<<<<<<< HEAD
-=======
 import purejavacomm.UnsupportedCommOperationException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Implements SerialPortAdapter for connecting to two sensors via the serial
@@ -68,11 +62,7 @@ public class SerialSensorAdapter extends AbstractSerialPortController
             // try to set it for comunication via SerialDriver
             try {
                 activeSerialPort.setSerialPortParams(9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-<<<<<<< HEAD
-            } catch (purejavacomm.UnsupportedCommOperationException e) {
-=======
             } catch (UnsupportedCommOperationException e) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
@@ -146,18 +136,10 @@ public class SerialSensorAdapter extends AbstractSerialPortController
             }
 
             opened = true;
-
-<<<<<<< HEAD
-        } catch (purejavacomm.NoSuchPortException ex1) {
-            log.error("No such port " + portName, ex1);
-            return "No such port " + portName + ": " + ex1;
-        } catch (purejavacomm.UnsupportedCommOperationException ex2) {
-=======
         } catch (NoSuchPortException ex1) {
             log.error("No such port " + portName, ex1);
             return "No such port " + portName + ": " + ex1;
         } catch (UnsupportedCommOperationException ex2) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             log.error("Exception to operation on port " + portName, ex2);
             return "Exception to operation on port " + portName + ": " + ex2;
         } catch (TooManyListenersException ex3) {

@@ -4,8 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.TooManyListenersException;
 import java.util.Arrays;
+import java.util.TooManyListenersException;
 import jmri.jmrix.lenz.LenzCommandStation;
 import jmri.jmrix.lenz.XNetSerialPortController;
 import jmri.jmrix.lenz.XNetTrafficController;
@@ -13,18 +13,12 @@ import jmri.util.SerialUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
-<<<<<<< HEAD
-=======
 import purejavacomm.NoSuchPortException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
 import purejavacomm.SerialPortEvent;
 import purejavacomm.SerialPortEventListener;
-<<<<<<< HEAD
-=======
 import purejavacomm.UnsupportedCommOperationException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Provide access to XPressNet via a LI100 on an attached serial comm port.
@@ -49,18 +43,14 @@ public class LI100Adapter extends XNetSerialPortController implements jmri.jmrix
             // get and open the primary port
             CommPortIdentifier portID = CommPortIdentifier.getPortIdentifier(portName);
             try {
-                activeSerialPort = (SerialPort) portID.open(appName, 2000);  // name of program, msec to wait
+                activeSerialPort = (SerialPort) portID.open(appName, 2000); // name of program, msec to wait
             } catch (PortInUseException p) {
                 return handlePortBusy(p, portName, log);
             }
             // try to set it for XNet
             try {
                 setSerialPort();
-<<<<<<< HEAD
-            } catch (purejavacomm.UnsupportedCommOperationException e) {
-=======
             } catch (UnsupportedCommOperationException e) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
@@ -68,8 +58,10 @@ public class LI100Adapter extends XNetSerialPortController implements jmri.jmrix
             // set timeout
             try {
                 activeSerialPort.enableReceiveTimeout(10);
-                log.debug("Serial timeout was observed as: " + activeSerialPort.getReceiveTimeout()
-                        + " " + activeSerialPort.isReceiveTimeoutEnabled());
+                log.debug("Serial timeout was observed as: " +
+                        activeSerialPort.getReceiveTimeout() +
+                        " " +
+                        activeSerialPort.isReceiveTimeoutEnabled());
             } catch (Exception et) {
                 log.info("failed to set serial timeout: " + et);
             }
@@ -83,19 +75,26 @@ public class LI100Adapter extends XNetSerialPortController implements jmri.jmrix
             // report status?
             if (log.isInfoEnabled()) {
                 // report now
-                log.info(portName + " port opened at "
-                        + activeSerialPort.getBaudRate() + " baud with"
-                        + " DTR: " + activeSerialPort.isDTR()
-                        + " RTS: " + activeSerialPort.isRTS()
-                        + " DSR: " + activeSerialPort.isDSR()
-                        + " CTS: " + activeSerialPort.isCTS()
-                        + "  CD: " + activeSerialPort.isCD()
-                );
+                log.info(portName +
+                        " port opened at " +
+                        activeSerialPort.getBaudRate() +
+                        " baud with" +
+                        " DTR: " +
+                        activeSerialPort.isDTR() +
+                        " RTS: " +
+                        activeSerialPort.isRTS() +
+                        " DSR: " +
+                        activeSerialPort.isDSR() +
+                        " CTS: " +
+                        activeSerialPort.isCTS() +
+                        "  CD: " +
+                        activeSerialPort.isCD());
             }
             if (log.isDebugEnabled()) {
                 // report additional status
-                log.debug(" port flow control shows "
-                        + (activeSerialPort.getFlowControlMode() == SerialPort.FLOWCONTROL_RTSCTS_OUT ? "hardware flow control" : "no flow control"));
+                log.debug(" port flow control shows " +
+                        (activeSerialPort.getFlowControlMode() == SerialPort.FLOWCONTROL_RTSCTS_OUT
+                                ? "hardware flow control" : "no flow control"));
             }
             // arrange to notify later
             activeSerialPort.addEventListener(new SerialPortEventListener() {
@@ -161,8 +160,7 @@ public class LI100Adapter extends XNetSerialPortController implements jmri.jmrix
                             return;
                     }
                 }
-            }
-            );
+            });
             try {
                 activeSerialPort.notifyOnFramingError(true);
             } catch (Exception e) {
@@ -204,14 +202,10 @@ public class LI100Adapter extends XNetSerialPortController implements jmri.jmrix
             }
 
             opened = true;
-
-<<<<<<< HEAD
-        } catch (purejavacomm.NoSuchPortException p) {
-=======
         } catch (NoSuchPortException p) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             return handlePortNotFound(p, portName, log);
-        } catch (IOException | TooManyListenersException ex) {
+        } catch (
+                IOException | TooManyListenersException ex) {
             log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);
             ex.printStackTrace();
             return "Unexpected error while opening port " + portName + ": " + ex;
@@ -268,11 +262,7 @@ public class LI100Adapter extends XNetSerialPortController implements jmri.jmrix
     /**
      * Local method to do specific configuration
      */
-<<<<<<< HEAD
-    protected void setSerialPort() throws purejavacomm.UnsupportedCommOperationException {
-=======
-    protected void setSerialPort() throws UnsupportedCommOperationException {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
+  protected void setSerialPort() throws UnsupportedCommOperationException {
         // find the baud rate value, configure comm options
         int baud = validSpeedValues[0];  // default, but also defaulted in the initial value of selectedSpeed
         for (int i = 0; i < validSpeeds.length; i++) {
@@ -320,6 +310,7 @@ public class LI100Adapter extends XNetSerialPortController implements jmri.jmrix
         }
         return mInstance;
     }
+
     static volatile LI100Adapter mInstance = null;
 
     private final static Logger log = LoggerFactory.getLogger(LI100Adapter.class.getName());

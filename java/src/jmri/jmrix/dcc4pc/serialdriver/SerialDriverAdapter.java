@@ -14,15 +14,10 @@ import jmri.jmrix.dcc4pc.Dcc4PcTrafficController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
-<<<<<<< HEAD
-import purejavacomm.PortInUseException;
-import purejavacomm.SerialPort;
-=======
 import purejavacomm.NoSuchPortException;
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
 import purejavacomm.UnsupportedCommOperationException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Implements SerialPortAdapter for the Dcc4Pc system.
@@ -54,17 +49,16 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
                 return handlePortBusy(p, portName, log);
             }
             try {
-                activeSerialPort.setSerialPortParams(115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+                activeSerialPort.setSerialPortParams(115200, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
+                        SerialPort.PARITY_NONE);
                 activeSerialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-<<<<<<< HEAD
-            } catch (purejavacomm.UnsupportedCommOperationException e) {
-=======
             } catch (UnsupportedCommOperationException e) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
             }
-            log.debug("Serial timeout was observed as: " + activeSerialPort.getReceiveTimeout()
-                    + " " + activeSerialPort.isReceiveTimeoutEnabled());
+            log.debug("Serial timeout was observed as: " +
+                    activeSerialPort.getReceiveTimeout() +
+                    " " +
+                    activeSerialPort.isReceiveTimeoutEnabled());
 
             serialStream = activeSerialPort.getInputStream();
             // purge contents, if any
@@ -72,23 +66,24 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
 
             // report status?
             if (log.isInfoEnabled()) {
-                log.info(portName + " port opened at "
-                        + activeSerialPort.getBaudRate() + " baud, sees "
-                        + " DTR: " + activeSerialPort.isDTR()
-                        + " RTS: " + activeSerialPort.isRTS()
-                        + " DSR: " + activeSerialPort.isDSR()
-                        + " CTS: " + activeSerialPort.isCTS()
-                        + "  CD: " + activeSerialPort.isCD()
-                );
+                log.info(portName +
+                        " port opened at " +
+                        activeSerialPort.getBaudRate() +
+                        " baud, sees " +
+                        " DTR: " +
+                        activeSerialPort.isDTR() +
+                        " RTS: " +
+                        activeSerialPort.isRTS() +
+                        " DSR: " +
+                        activeSerialPort.isDSR() +
+                        " CTS: " +
+                        activeSerialPort.isCTS() +
+                        "  CD: " +
+                        activeSerialPort.isCD());
             }
 
             opened = true;
-
-<<<<<<< HEAD
-        } catch (purejavacomm.NoSuchPortException p) {
-=======
         } catch (NoSuchPortException p) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             return handlePortNotFound(p, portName, log);
         } catch (IOException ex) {
             log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);
@@ -152,10 +147,11 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
         super.configureOption2(value);
         log.debug("configureOption2: " + value);
         //Not yet implemented
-        /*boolean enable = true;
-         if(value.equals("No"))
-         enable = false;
-         adaptermemo.getRailCommManager().setRosterEntryDiscoveryAllowed(enable);*/
+        /*
+         * boolean enable = true; if(value.equals("No")) enable = false;
+         * adaptermemo.getRailCommManager().setRosterEntryDiscoveryAllowed(
+         * enable);
+         */
     }
 
     // base class methods for the Dcc4PcPortController interface
@@ -192,7 +188,8 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
     InputStream serialStream = null;
 
     /**
-     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI multi-system support structure
+     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI
+     *             multi-system support structure
      */
     @Deprecated
     static public SerialDriverAdapter instance() {
@@ -205,7 +202,8 @@ public class SerialDriverAdapter extends Dcc4PcPortController implements jmri.jm
     }
 
     /**
-     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI multi-system support structure
+     * @deprecated JMRI Since 4.4 instance() shouldn't be used, convert to JMRI
+     *             multi-system support structure
      */
     @Deprecated
     static volatile SerialDriverAdapter mInstance = null;

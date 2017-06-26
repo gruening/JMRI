@@ -12,11 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.SerialPort;
 
-<<<<<<< HEAD
 /*import purejavacomm.SerialPortEvent;
  import purejavacomm.SerialPortEventListener;*/
-=======
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 /**
  * Converts Stream-based I/O to/from DCC4PC messages. The "Dcc4PcInterface" side
  * sends/receives message objects.

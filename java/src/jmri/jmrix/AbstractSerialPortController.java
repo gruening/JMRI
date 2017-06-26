@@ -5,11 +5,8 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
-<<<<<<< HEAD
-=======
 import purejavacomm.NoSuchPortException;
 import purejavacomm.PortInUseException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Provide an abstract base for *PortController classes.
@@ -36,12 +33,9 @@ abstract public class AbstractSerialPortController extends AbstractPortControlle
      * @param log where to log a status message
      * @return Localized message, in case separate presentation to user is desired
      */
-<<<<<<< HEAD
-    public String handlePortBusy(purejavacomm.PortInUseException p, String portName, Logger log) {
-=======
+
     @Override
     public String handlePortBusy(PortInUseException p, String portName, Logger log) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
         log.error(portName + " port is in use: " + p.getMessage());
         /*JOptionPane.showMessageDialog(null, "Port is in use",
          "Error", JOptionPane.ERROR_MESSAGE);*/
@@ -52,11 +46,7 @@ abstract public class AbstractSerialPortController extends AbstractPortControlle
     /**
      * Standard error handling for port-not-found case
      */
-<<<<<<< HEAD
-    public String handlePortNotFound(purejavacomm.NoSuchPortException p, String portName, Logger log) {
-=======
     public String handlePortNotFound(NoSuchPortException p, String portName, Logger log) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
         log.error("Serial port " + portName + " not found");
         /*JOptionPane.showMessageDialog(null, "Serial port "+portName+" not found",
          "Error", JOptionPane.ERROR_MESSAGE);*/

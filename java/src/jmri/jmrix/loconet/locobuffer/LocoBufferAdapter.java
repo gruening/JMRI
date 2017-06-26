@@ -15,18 +15,12 @@ import jmri.jmrix.loconet.LocoNetSystemConnectionMemo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
-<<<<<<< HEAD
-=======
 import purejavacomm.NoSuchPortException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
 import purejavacomm.SerialPortEvent;
 import purejavacomm.SerialPortEventListener;
-<<<<<<< HEAD
-=======
 import purejavacomm.UnsupportedCommOperationException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Provide access to LocoNet via a LocoBuffer attached to a serial comm port.
@@ -48,27 +42,29 @@ public class LocoBufferAdapter extends LnPortController implements jmri.jmrix.Se
         option3Name = "TurnoutHandle"; // NOI18N
         options.put(option1Name, new Option("Connection uses:", validOption1));
         options.put(option2Name, new Option("Command station type:", getCommandStationListWithStandaloneLN(), false));
-        options.put(option3Name, new Option("Turnout command handling:", new String[]{"Normal", "Spread", "One Only", "Both"}));
+        options.put(option3Name,
+                new Option("Turnout command handling:", new String[]{"Normal", "Spread", "One Only", "Both"}));
     }
-    
+
     /**
-     * Create a list of possible command stations and append "Standalone LocoNet"
+     * Create a list of possible command stations and append "Standalone
+     * LocoNet"
      * 
-     * Note: This is not suitable for use by any class which extends this class if
-     * the hardware interface is part of a command station.
+     * Note: This is not suitable for use by any class which extends this class
+     * if the hardware interface is part of a command station.
      * 
-     * @return String[] containing the array of command stations, plus "Standalone 
-     *          LocoNet"
+     * @return String[] containing the array of command stations, plus
+     *         "Standalone LocoNet"
      */
     public String[] getCommandStationListWithStandaloneLN() {
         String[] result = new String[commandStationNames.length + 1];
-        for (int i = 0 ; i < result.length-1; ++i) {
+        for (int i = 0; i < result.length - 1; ++i) {
             result[i] = commandStationNames[i];
         }
         result[commandStationNames.length] = LnCommandStationType.COMMAND_STATION_STANDALONE.getName();
         return result;
     }
-    
+
     Vector<String> portNameVector = null;
     SerialPort activeSerialPort = null;
 
@@ -97,24 +93,16 @@ public class LocoBufferAdapter extends LnPortController implements jmri.jmrix.Se
             // get and open the primary port
             CommPortIdentifier portID = CommPortIdentifier.getPortIdentifier(portName);
             try {
-                activeSerialPort = (SerialPort) portID.open(appName, 2000);  // name of program, msec to wait
+                activeSerialPort = (SerialPort) portID.open(appName, 2000); // name of program, msec to wait
             } catch (PortInUseException p) {
                 return handlePortBusy(p, portName, log);
             }
             // try to set it for LocoNet via LocoBuffer
             try {
                 setSerialPort(activeSerialPort);
-<<<<<<< HEAD
-            } catch (purejavacomm.UnsupportedCommOperationException e) {
-                log.error("Cannot set serial parameters on port " + portName + ": " + // NOI18N
-                        e.getMessage());
-                return "Cannot set serial parameters on port " + portName + ": " + // NOI18N
-                        e.getMessage();
-=======
             } catch (UnsupportedCommOperationException e) {
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage(); // NOI18N
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             }
 
             // set timeout
@@ -147,7 +135,9 @@ public class LocoBufferAdapter extends LnPortController implements jmri.jmrix.Se
             if (log.isDebugEnabled()) {
                 // report additional status
                 log.debug(" port flow control shows " // NOI18N
-                        + (activeSerialPort.getFlowControlMode() == SerialPort.FLOWCONTROL_RTSCTS_OUT ? "hardware flow control" : "no flow control")); // NOI18N
+                        +
+                        (activeSerialPort.getFlowControlMode() == SerialPort.FLOWCONTROL_RTSCTS_OUT
+                                ? "hardware flow control" : "no flow control")); // NOI18N
             }
             if (log.isDebugEnabled()) {
                 // arrange to notify later
@@ -191,8 +181,7 @@ public class LocoBufferAdapter extends LnPortController implements jmri.jmrix.Se
                                 return;
                         }
                     }
-                }
-                );
+                });
                 try {
                     activeSerialPort.notifyOnFramingError(true);
                 } catch (Exception e) {
@@ -221,13 +210,10 @@ public class LocoBufferAdapter extends LnPortController implements jmri.jmrix.Se
 
             opened = true;
 
-<<<<<<< HEAD
-        } catch (purejavacomm.NoSuchPortException p) {
-=======
         } catch (NoSuchPortException p) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             return handlePortNotFound(p, portName, log);
-        } catch (IOException | TooManyListenersException ex) {
+        } catch (
+                IOException | TooManyListenersException ex) {
             log.error("Unexpected exception while opening port {} trace follows:", portName, ex); // NOI18N
             return "Unexpected error while opening port " + portName + ": " + ex;
         }
@@ -241,7 +227,8 @@ public class LocoBufferAdapter extends LnPortController implements jmri.jmrix.Se
      * buffer length. This might go false for short intervals, but it might also
      * stick off if something goes wrong.
      * 
-     * @return an indication of whether the interface is accepting transmit messages.
+     * @return an indication of whether the interface is accepting transmit
+     *         messages.
      */
     @Override
     public boolean okToSend() {
@@ -291,7 +278,7 @@ public class LocoBufferAdapter extends LnPortController implements jmri.jmrix.Se
         try {
             return new DataOutputStream(activeSerialPort.getOutputStream());
         } catch (java.io.IOException e) {
-            log.error("getOutputStream exception: " +  // NOI18N
+            log.error("getOutputStream exception: " + // NOI18N
                     e.getMessage());
         }
         return null;
@@ -304,22 +291,20 @@ public class LocoBufferAdapter extends LnPortController implements jmri.jmrix.Se
 
     /**
      * Local method to do specific configuration, overridden in class
+     * 
      * @param activeSerialPort is the serial port to be configured
-     * @throws UnsupportedCommOperationException Usually if the hardware isn't present or capable
+     * @throws UnsupportedCommOperationException Usually if the hardware isn't
+     *             present or capable
      */
-<<<<<<< HEAD
-    protected void setSerialPort(SerialPort activeSerialPort) throws purejavacomm.UnsupportedCommOperationException {
-=======
     protected void setSerialPort(SerialPort activeSerialPort) throws UnsupportedCommOperationException {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
         // find the baud rate value, configure comm options
         int baud = currentBaudNumber(mBaudRate);
         activeSerialPort.setSerialPortParams(baud, SerialPort.DATABITS_8,
                 SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
         // set RTS high, DTR high - done early, so flow control can be configured after
-        activeSerialPort.setRTS(true);  // not connected in some serial ports and adapters
-        activeSerialPort.setDTR(true);  // pin 1 in Mac DIN8; on main connector, this is DTR
+        activeSerialPort.setRTS(true); // not connected in some serial ports and adapters
+        activeSerialPort.setDTR(true); // pin 1 in Mac DIN8; on main connector, this is DTR
 
         // find and configure flow control
         int flow = SerialPort.FLOWCONTROL_RTSCTS_OUT; // default, but also defaults in selectedOption1

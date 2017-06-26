@@ -13,18 +13,12 @@ import jmri.jmrix.maple.SerialTrafficController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
-<<<<<<< HEAD
-=======
 import purejavacomm.NoSuchPortException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
 import purejavacomm.SerialPortEvent;
 import purejavacomm.SerialPortEventListener;
-<<<<<<< HEAD
-=======
 import purejavacomm.UnsupportedCommOperationException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Provide access to C/MRI via a serial comm port. Normally controlled by the
@@ -47,18 +41,14 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
             // get and open the primary port
             CommPortIdentifier portID = CommPortIdentifier.getPortIdentifier(portName);
             try {
-                activeSerialPort = (SerialPort) portID.open(appName, 2000);  // name of program, msec to wait
+                activeSerialPort = (SerialPort) portID.open(appName, 2000); // name of program, msec to wait
             } catch (PortInUseException p) {
                 return handlePortBusy(p, portName, log);
             }
             // try to set it for Maple serial
             try {
                 setSerialPort();
-<<<<<<< HEAD
-            } catch (purejavacomm.UnsupportedCommOperationException e) {
-=======
             } catch (UnsupportedCommOperationException e) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
@@ -66,8 +56,10 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
             // set framing (end) character
             try {
                 activeSerialPort.enableReceiveFraming(0x03);
-                log.debug("Serial framing was observed as: " + activeSerialPort.isReceiveFramingEnabled()
-                        + " " + activeSerialPort.getReceiveFramingByte());
+                log.debug("Serial framing was observed as: " +
+                        activeSerialPort.isReceiveFramingEnabled() +
+                        " " +
+                        activeSerialPort.getReceiveFramingByte());
             } catch (Exception ef) {
                 log.debug("failed to set serial framing: " + ef);
             }
@@ -75,8 +67,10 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
             // set timeout; framing should work before this anyway
             try {
                 activeSerialPort.enableReceiveTimeout(10);
-                log.debug("Serial timeout was observed as: " + activeSerialPort.getReceiveTimeout()
-                        + " " + activeSerialPort.isReceiveTimeoutEnabled());
+                log.debug("Serial timeout was observed as: " +
+                        activeSerialPort.getReceiveTimeout() +
+                        " " +
+                        activeSerialPort.isReceiveTimeoutEnabled());
             } catch (Exception et) {
                 log.info("failed to set serial timeout: " + et);
             }
@@ -90,19 +84,26 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
             // report status?
             if (log.isInfoEnabled()) {
                 // report now
-                log.info(portName + " port opened at "
-                        + activeSerialPort.getBaudRate() + " baud with"
-                        + " DTR: " + activeSerialPort.isDTR()
-                        + " RTS: " + activeSerialPort.isRTS()
-                        + " DSR: " + activeSerialPort.isDSR()
-                        + " CTS: " + activeSerialPort.isCTS()
-                        + "  CD: " + activeSerialPort.isCD()
-                );
+                log.info(portName +
+                        " port opened at " +
+                        activeSerialPort.getBaudRate() +
+                        " baud with" +
+                        " DTR: " +
+                        activeSerialPort.isDTR() +
+                        " RTS: " +
+                        activeSerialPort.isRTS() +
+                        " DSR: " +
+                        activeSerialPort.isDSR() +
+                        " CTS: " +
+                        activeSerialPort.isCTS() +
+                        "  CD: " +
+                        activeSerialPort.isCD());
             }
             if (log.isDebugEnabled()) {
                 // report additional status
-                log.debug(" port flow control shows "
-                        + (activeSerialPort.getFlowControlMode() == SerialPort.FLOWCONTROL_RTSCTS_OUT ? "hardware flow control" : "no flow control"));
+                log.debug(" port flow control shows " +
+                        (activeSerialPort.getFlowControlMode() == SerialPort.FLOWCONTROL_RTSCTS_OUT
+                                ? "hardware flow control" : "no flow control"));
             }
             if (log.isDebugEnabled()) {
                 // arrange to notify later
@@ -146,8 +147,7 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
                                 return;
                         }
                     }
-                }
-                );
+                });
                 try {
                     activeSerialPort.notifyOnFramingError(true);
                 } catch (Exception e) {
@@ -175,14 +175,10 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
             }
 
             opened = true;
-
-<<<<<<< HEAD
-        } catch (purejavacomm.NoSuchPortException p) {
-=======
         } catch (NoSuchPortException p) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             return handlePortNotFound(p, portName, log);
-        } catch (IOException | TooManyListenersException ex) {
+        } catch (
+                IOException | TooManyListenersException ex) {
             log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);
             ex.printStackTrace();
             return "Unexpected error while opening port " + portName + ": " + ex;
@@ -246,13 +242,9 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
     /**
      * Local method to do specific port configuration
      */
-<<<<<<< HEAD
-    protected void setSerialPort() throws purejavacomm.UnsupportedCommOperationException {
-=======
     protected void setSerialPort() throws UnsupportedCommOperationException {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
         // find the baud rate value, configure comm options
-        int baud = 19200;  // default, but also defaulted in the initial value of selectedSpeed
+        int baud = 19200; // default, but also defaulted in the initial value of selectedSpeed
         for (int i = 0; i < validSpeeds.length; i++) {
             if (validSpeeds[i].equals(selectedSpeed)) {
                 baud = validSpeedValues[i];
@@ -262,8 +254,8 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
                 SerialPort.STOPBITS_2, SerialPort.PARITY_NONE);
 
         // set RTS high, DTR high - done early, so flow control can be configured after
-        activeSerialPort.setRTS(true);  // not connected in some serial ports and adapters
-        activeSerialPort.setDTR(true);  // pin 1 in DIN8; on main connector, this is DTR
+        activeSerialPort.setRTS(true); // not connected in some serial ports and adapters
+        activeSerialPort.setDTR(true); // pin 1 in DIN8; on main connector, this is DTR
 
         // find and configure flow control
         int flow = SerialPort.FLOWCONTROL_NONE; // default
@@ -299,6 +291,7 @@ public class SerialDriverAdapter extends SerialPortController implements jmri.jm
         }
         return mInstance;
     }
+
     static SerialDriverAdapter mInstance = null;
 
     private final static Logger log = LoggerFactory.getLogger(SerialDriverAdapter.class.getName());

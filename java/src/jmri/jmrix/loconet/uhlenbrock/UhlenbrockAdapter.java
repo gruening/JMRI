@@ -1,9 +1,5 @@
 package jmri.jmrix.loconet.uhlenbrock;
 
-<<<<<<< HEAD
-import purejavacomm.SerialPort;
-=======
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import java.util.Arrays;
 import jmri.jmrix.loconet.LnCommandStationType;
 import jmri.jmrix.loconet.locobuffer.LocoBufferAdapter;
@@ -70,6 +66,7 @@ public class UhlenbrockAdapter extends LocoBufferAdapter {
 
     /**
      * Get an array of valid baud rates as integers.
+     * 
      * @return list of value baud rates
      */
     @Override
@@ -85,21 +82,20 @@ public class UhlenbrockAdapter extends LocoBufferAdapter {
     /**
      * Local method to do specific configuration, overridden in class
      */
-<<<<<<< HEAD
-    protected void setSerialPort(SerialPort activeSerialPort) throws purejavacomm.UnsupportedCommOperationException {
-=======
     @Override
     protected void setSerialPort(SerialPort activeSerialPort) throws UnsupportedCommOperationException {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
         // find the baud rate value, configure comm options
         int baud = currentBaudNumber(mBaudRate);
         activeSerialPort.setSerialPortParams(baud, SerialPort.DATABITS_8,
                 SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
         activeSerialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-        log.info("Found flow control " + activeSerialPort.getFlowControlMode()
-                + " RTSCTS_OUT=" + SerialPort.FLOWCONTROL_RTSCTS_OUT
-                + " RTSCTS_IN= " + SerialPort.FLOWCONTROL_RTSCTS_IN);
+        log.info("Found flow control " +
+                activeSerialPort.getFlowControlMode() +
+                " RTSCTS_OUT=" +
+                SerialPort.FLOWCONTROL_RTSCTS_OUT +
+                " RTSCTS_IN= " +
+                SerialPort.FLOWCONTROL_RTSCTS_IN);
     }
 
     /**
@@ -107,7 +103,7 @@ public class UhlenbrockAdapter extends LocoBufferAdapter {
      */
     public String[] commandStationOptions() {
         String[] retval = {
-            LnCommandStationType.COMMAND_STATION_IBX_TYPE_2.getName()
+                LnCommandStationType.COMMAND_STATION_IBX_TYPE_2.getName()
         };
         return retval;
     }

@@ -11,15 +11,10 @@ import jmri.jmrix.nce.NceTrafficController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
-<<<<<<< HEAD
-import purejavacomm.PortInUseException;
-import purejavacomm.SerialPort;
-=======
 import purejavacomm.NoSuchPortException;
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
 import purejavacomm.UnsupportedCommOperationException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Implements SerialPortAdapter for the NCE system.
@@ -51,7 +46,7 @@ public class SerialDriverAdapter extends NcePortController implements jmri.jmrix
             // get and open the primary port
             CommPortIdentifier portID = CommPortIdentifier.getPortIdentifier(portName);
             try {
-                activeSerialPort = (SerialPort) portID.open(appName, 2000);  // name of program, msec to wait
+                activeSerialPort = (SerialPort) portID.open(appName, 2000); // name of program, msec to wait
             } catch (PortInUseException p) {
                 return handlePortBusy(p, portName, log);
             }
@@ -59,34 +54,34 @@ public class SerialDriverAdapter extends NcePortController implements jmri.jmrix
             // try to set it for communication via SerialDriver
             try {
                 // find the baud rate value, configure comm options
-                int baud = validSpeedValues[0];  // default, but also defaulted in the initial value of selectedSpeed
+                int baud = validSpeedValues[0]; // default, but also defaulted in the initial value of selectedSpeed
                 for (int i = 0; i < validSpeeds.length; i++) {
                     if (validSpeeds[i].equals(mBaudRate)) {
                         baud = validSpeedValues[i];
                     }
                 }
-                activeSerialPort.setSerialPortParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-<<<<<<< HEAD
-            } catch (purejavacomm.UnsupportedCommOperationException e) {
-=======
+                activeSerialPort.setSerialPortParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
+                        SerialPort.PARITY_NONE);
+
             } catch (UnsupportedCommOperationException e) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
 
             // set RTS high, DTR high
-            activeSerialPort.setRTS(true);  // not connected in some serial ports and adapters
-            activeSerialPort.setDTR(true);  // pin 1 in DIN8; on main connector, this is DTR
+            activeSerialPort.setRTS(true); // not connected in some serial ports and adapters
+            activeSerialPort.setDTR(true); // pin 1 in DIN8; on main connector, this is DTR
 
             // disable flow control; hardware lines used for signaling, XON/XOFF might appear in data
             activeSerialPort.setFlowControlMode(0);
-            activeSerialPort.enableReceiveTimeout(50);  // 50 mSec timeout before sending chars
+            activeSerialPort.enableReceiveTimeout(50); // 50 mSec timeout before sending chars
 
             // set timeout
             // activeSerialPort.enableReceiveTimeout(1000);
-            log.debug("Serial timeout was observed as: " + activeSerialPort.getReceiveTimeout()
-                    + " " + activeSerialPort.isReceiveTimeoutEnabled());
+            log.debug("Serial timeout was observed as: " +
+                    activeSerialPort.getReceiveTimeout() +
+                    " " +
+                    activeSerialPort.isReceiveTimeoutEnabled());
 
             // get and save stream
             serialStream = activeSerialPort.getInputStream();
@@ -96,18 +91,14 @@ public class SerialDriverAdapter extends NcePortController implements jmri.jmrix
 
             // report status
             if (log.isInfoEnabled()) {
-                log.info("NCE " + portName + " port opened at "
-                        + activeSerialPort.getBaudRate() + " baud");
+                log.info("NCE " + portName + " port opened at " + activeSerialPort.getBaudRate() + " baud");
             }
             opened = true;
 
-<<<<<<< HEAD
-        } catch (purejavacomm.NoSuchPortException p) {
-=======
         } catch (NoSuchPortException p) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             return handlePortNotFound(p, portName, log);
-        } catch (UnsupportedCommOperationException | IOException ex) {
+        } catch (
+                UnsupportedCommOperationException | IOException ex) {
             log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);
             ex.printStackTrace();
             return "Unexpected error while opening port " + portName + ": " + ex;

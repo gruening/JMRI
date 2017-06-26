@@ -9,15 +9,10 @@ import jmri.jmrix.can.TrafficController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
-<<<<<<< HEAD
-import purejavacomm.PortInUseException;
-import purejavacomm.SerialPort;
-=======
 import purejavacomm.NoSuchPortException;
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
 import purejavacomm.UnsupportedCommOperationException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Implements SerialPortAdapter for the LAWICELL protocol.
@@ -33,7 +28,8 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
     public SerialDriverAdapter() {
         super(new jmri.jmrix.can.CanSystemConnectionMemo());
         option1Name = "Protocol";
-        options.put(option1Name, new Option("Connection Protocol", jmri.jmrix.can.ConfigurationManager.getSystemOptions()));
+        options.put(option1Name,
+                new Option("Connection Protocol", jmri.jmrix.can.ConfigurationManager.getSystemOptions()));
     }
 
     @Override
@@ -45,7 +41,7 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
             // get and open the primary port
             CommPortIdentifier portID = CommPortIdentifier.getPortIdentifier(portName);
             try {
-                activeSerialPort = (SerialPort) portID.open(appName, 2000);  // name of program, msec to wait
+                activeSerialPort = (SerialPort) portID.open(appName, 2000); // name of program, msec to wait
             } catch (PortInUseException p) {
                 return handlePortBusy(p, portName, log);
             }
@@ -53,34 +49,33 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
             // try to set it for comunication via SerialDriver
             try {
                 // find the baud rate value, configure comm options
-                int baud = baudValues[0];  // default, but also defaulted in the initial value of selectedSpeed
+                int baud = baudValues[0]; // default, but also defaulted in the initial value of selectedSpeed
                 for (int i = 0; i < baudRates.length; i++) {
                     if (baudRates[i].equals(mBaudRate)) {
                         baud = baudValues[i];
                     }
                 }
-                activeSerialPort.setSerialPortParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-<<<<<<< HEAD
-            } catch (purejavacomm.UnsupportedCommOperationException e) {
-=======
+                activeSerialPort.setSerialPortParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
+                        SerialPort.PARITY_NONE);
             } catch (UnsupportedCommOperationException e) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
 
             // set RTS high, DTR high
-            activeSerialPort.setRTS(true);  // not connected in some serial ports and adapters
-            activeSerialPort.setDTR(true);  // pin 1 in DIN8; on main connector, this is DTR
+            activeSerialPort.setRTS(true); // not connected in some serial ports and adapters
+            activeSerialPort.setDTR(true); // pin 1 in DIN8; on main connector, this is DTR
 
             // disable flow control; hardware lines used for signaling, XON/XOFF might appear in data
             activeSerialPort.setFlowControlMode(0);
-            activeSerialPort.enableReceiveTimeout(50);  // 50 mSec timeout before sending chars
+            activeSerialPort.enableReceiveTimeout(50); // 50 mSec timeout before sending chars
 
             // set timeout
             // activeSerialPort.enableReceiveTimeout(1000);
-            log.debug("Serial timeout was observed as: " + activeSerialPort.getReceiveTimeout()
-                    + " " + activeSerialPort.isReceiveTimeoutEnabled());
+            log.debug("Serial timeout was observed as: " +
+                    activeSerialPort.getReceiveTimeout() +
+                    " " +
+                    activeSerialPort.isReceiveTimeoutEnabled());
 
             // get and save stream
             serialStream = activeSerialPort.getInputStream();
@@ -90,25 +85,26 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
 
             // report status?
             if (log.isInfoEnabled()) {
-                log.info(portName + " port opened at "
-                        + activeSerialPort.getBaudRate() + " baud, sees "
-                        + " DTR: " + activeSerialPort.isDTR()
-                        + " RTS: " + activeSerialPort.isRTS()
-                        + " DSR: " + activeSerialPort.isDSR()
-                        + " CTS: " + activeSerialPort.isCTS()
-                        + "  CD: " + activeSerialPort.isCD()
-                );
+                log.info(portName +
+                        " port opened at " +
+                        activeSerialPort.getBaudRate() +
+                        " baud, sees " +
+                        " DTR: " +
+                        activeSerialPort.isDTR() +
+                        " RTS: " +
+                        activeSerialPort.isRTS() +
+                        " DSR: " +
+                        activeSerialPort.isDSR() +
+                        " CTS: " +
+                        activeSerialPort.isCTS() +
+                        "  CD: " +
+                        activeSerialPort.isCD());
             }
-
             opened = true;
-
-<<<<<<< HEAD
-        } catch (purejavacomm.NoSuchPortException p) {
-=======
         } catch (NoSuchPortException p) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             return handlePortNotFound(p, portName, log);
-        } catch (UnsupportedCommOperationException | IOException ex) {
+        } catch (
+                UnsupportedCommOperationException | IOException ex) {
             log.error("Unexpected exception while opening port " + portName + " trace follows: " + ex);
             ex.printStackTrace();
             return "Unexpected error while opening port " + portName + ": " + ex;
@@ -135,8 +131,8 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
 
         // send a request for version information, set 125kbps, open channel
         log.debug("send version request");
-        jmri.jmrix.can.CanMessage m
-                = new jmri.jmrix.can.CanMessage(new int[]{'V', 13, 'S', '4', 13, 'O', 13}, tc.getCanid());
+        jmri.jmrix.can.CanMessage m =
+                new jmri.jmrix.can.CanMessage(new int[]{'V', 13, 'S', '4', 13, 'O', 13}, tc.getCanid());
         m.setTranslated(true);
         tc.sendCanMessage(m, null);
 
@@ -183,7 +179,8 @@ public class SerialDriverAdapter extends PortController implements jmri.jmrix.Se
         return Arrays.copyOf(validSpeedValues, validSpeedValues.length);
     }
 
-    protected String[] validSpeeds = new String[]{"57,600", "115,200", "230,400", "250,000", "333,333", "460,800", "500,000"};
+    protected String[] validSpeeds =
+            new String[]{"57,600", "115,200", "230,400", "250,000", "333,333", "460,800", "500,000"};
     protected int[] validSpeedValues = new int[]{57600, 115200, 230400, 250000, 333333, 460800, 500000};
 
     // private control members

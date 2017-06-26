@@ -13,18 +13,11 @@ import jmri.jmrix.zimo.Mx1SystemConnectionMemo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import purejavacomm.CommPortIdentifier;
-<<<<<<< HEAD
-import purejavacomm.PortInUseException;
-import purejavacomm.SerialPort;
-import purejavacomm.SerialPortEvent;
-import purejavacomm.SerialPortEventListener;
-=======
 import purejavacomm.NoSuchPortException;
 import purejavacomm.PortInUseException;
 import purejavacomm.SerialPort;
 import purejavacomm.SerialPortEvent;
 import purejavacomm.UnsupportedCommOperationException;
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 
 /**
  * Provide access to Zimo's MX-1 on an attached serial comm port. Adapted for
@@ -57,11 +50,7 @@ public class Mx1Adapter extends Mx1PortController implements jmri.jmrix.SerialPo
             // try to set it for Can Net
             try {
                 setSerialPort();
-<<<<<<< HEAD
-            } catch (purejavacomm.UnsupportedCommOperationException e) {
-=======
             } catch (UnsupportedCommOperationException e) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
                 log.error("Cannot set serial parameters on port " + portName + ": " + e.getMessage());
                 return "Cannot set serial parameters on port " + portName + ": " + e.getMessage();
             }
@@ -160,12 +149,7 @@ public class Mx1Adapter extends Mx1PortController implements jmri.jmrix.SerialPo
             }
 
             opened = true;
-
-<<<<<<< HEAD
-        } catch (purejavacomm.NoSuchPortException p) {
-=======
         } catch (NoSuchPortException p) {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
             return handlePortNotFound(p, portName, log);
         } catch (IOException | TooManyListenersException ex) {
             log.error("Unexpected exception while opening port {} trace follows: ", portName, ex);
@@ -242,11 +226,7 @@ public class Mx1Adapter extends Mx1PortController implements jmri.jmrix.SerialPo
      *                                                        configure the
      *                                                        serial port
      */
-<<<<<<< HEAD
-    protected void setSerialPort() throws purejavacomm.UnsupportedCommOperationException {
-=======
     protected void setSerialPort() throws UnsupportedCommOperationException {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
         // find the baud rate value, configure comm options
         int baud = validSpeedValues[0];  // default, but also defaulted in the initial value of selectedSpeed
         for (int i = 0; i < validSpeeds.length; i++) {

@@ -1,11 +1,5 @@
 package jmri.jmrix.sprog;
 
-<<<<<<< HEAD
-import purejavacomm.SerialPort;
-import purejavacomm.SerialPortEvent;
-import purejavacomm.SerialPortEventListener;
-=======
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import java.io.DataInputStream;
 import java.io.OutputStream;
 import java.util.Vector;

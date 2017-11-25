@@ -1,9 +1,5 @@
 package jmri.jmrit.mailreport;
 
-<<<<<<< HEAD
-import purejavacomm.CommPortIdentifier;
-=======
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;

@@ -1,9 +1,5 @@
 package jmri.jmrix.loconet.pr2;
 
-<<<<<<< HEAD
-import purejavacomm.SerialPort;
-=======
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
 import jmri.jmrix.loconet.locobuffer.LocoBufferAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +24,8 @@ public class PR2Adapter extends LocoBufferAdapter {
     /**
      * Always use flow control, not considered a user-setable option
      */
-<<<<<<< HEAD
-    protected void setSerialPort(SerialPort activeSerialPort) throws purejavacomm.UnsupportedCommOperationException {
-=======
     @Override
     protected void setSerialPort(SerialPort activeSerialPort) throws UnsupportedCommOperationException {
->>>>>>> 8e442d04c6962591aa0e688708a64c1cc489b465
         // find the baud rate value, configure comm options
         int baud = 57600;  // default, but also defaulted in the initial value of selectedSpeed
         for (int i = 0; i < validBaudNumber().length; i++) {
